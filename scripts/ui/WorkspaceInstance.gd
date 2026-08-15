@@ -6,5 +6,5 @@ var document: DocumentData
 func _ready() -> void:
 	pass # Replace with function body.
 
-func setup(data: DocumentData):
+func setup(data: DocumentData) -> void:
 	document = data

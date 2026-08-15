@@ -2,6 +2,7 @@ class_name DocumentData
 extends Resource
 
 var paper_size_mm: Vector2 = Vector2(210,297)
+var dpi: int = 300
 var is_landscape: bool = false
 var margins_mm: float = 5.0
 var spacing_mm: float = 5.0

@@ -3,6 +3,7 @@
 [ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_elqb8"]
 [ext_resource type="Script" uid="uid://dgkdfoixnoogu" path="res://scripts/ui/WorkspaceTabContainer.gd" id="2_0bbpv"]
 [ext_resource type="Script" uid="uid://lexvh7h7ivq3" path="res://scripts/ui/DocumentPanel.gd" id="2_rarhs"]
+[ext_resource type="PackedScene" uid="uid://bdtx4oepgf23f" path="res://scenes/components/WorkspaceInstance.tscn" id="2_rvslj"]
 [ext_resource type="PackedScene" uid="uid://ck4qdc8tbgvyf" path="res://scenes/HomePanel.tscn" id="4_vcsgt"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4lqhh"]
@@ -112,6 +113,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mhgcu")
 script = ExtResource("2_rarhs")
+workspace_instance = ExtResource("2_rvslj")
 
 [node name="TabContainer" type="TabContainer" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1375407615]
 visible = false

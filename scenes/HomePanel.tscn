@@ -1,13 +1,17 @@
 [gd_scene format=3 uid="uid://ck4qdc8tbgvyf"]
 
 [ext_resource type="Texture2D" uid="uid://lsa0mwvc7oav" path="res://assets/logo_shadow.png" id="1_2k3ry"]
+[ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_75ha7"]
 [ext_resource type="PackedScene" uid="uid://ewicow2ui0ag" path="res://scenes/modules/PanelHeader.tscn" id="2_75ha7"]
+[ext_resource type="Script" uid="uid://bhogd2wkkypqi" path="res://scripts/ui/HomePanel.gd" id="2_g6ena"]
 [ext_resource type="StyleBox" uid="uid://c6sjn5n1vtofw" path="res://assets/style/panel_inverted.tres" id="3_g6ena"]
 
 [node name="HomePanel" type="Panel" unique_id=1743728114]
-custom_minimum_size = Vector2(260, 180)
+custom_minimum_size = Vector2(280, 180)
 size_flags_horizontal = 4
 size_flags_vertical = 4
+theme = ExtResource("1_75ha7")
+script = ExtResource("2_g6ena")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=541799253]
 layout_mode = 1
@@ -44,20 +48,21 @@ size_flags_vertical = 8
 offset_transform_enabled = true
 offset_transform_position = Vector2(0, -3)
 theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
-text = "0.1"
+text = "v0.0.1"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1521162612]
 layout_mode = 2
 
-[node name="NewButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=473685540]
+[node name="NewDocumentButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=473685540]
+unique_name_in_owner = true
 layout_mode = 2
 text = "New document"
 
-[node name="OpenButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=1476857819]
+[node name="OpenDocumentButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=1476857819]
 layout_mode = 2
 text = "Open document"
 
-[node name="OpenButton2" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=869591943]
+[node name="ImportAssetsButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=869591943]
 layout_mode = 2
 text = "Import Assets"
 
