@@ -1,0 +1,123 @@
+[gd_scene format=3 uid="uid://segepotf8qr3"]
+
+[ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_elqb8"]
+[ext_resource type="Script" uid="uid://dgkdfoixnoogu" path="res://scripts/ui/WorkspaceTabContainer.gd" id="2_0bbpv"]
+[ext_resource type="Script" uid="uid://lexvh7h7ivq3" path="res://scripts/ui/DocumentPanel.gd" id="2_rarhs"]
+[ext_resource type="PackedScene" uid="uid://ck4qdc8tbgvyf" path="res://scenes/HomePanel.tscn" id="4_vcsgt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4lqhh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhgcu"]
+
+[node name="Main" type="Control" unique_id=1898904062]
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_elqb8")
+
+[node name="Scaler" type="Control" parent="." unique_id=1840812905]
+layout_mode = 1
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="PanelContainer" type="PanelContainer" parent="Scaler" unique_id=1726305593]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_4lqhh")
+
+[node name="MarginContainer" type="MarginContainer" parent="Scaler/PanelContainer" unique_id=38083367]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Scaler/PanelContainer/MarginContainer" unique_id=600488250]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer" unique_id=1942669705]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="FileMenu" type="MenuButton" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=5440308]
+layout_mode = 2
+text = "File"
+flat = false
+item_count = 8
+popup/item_0/text = "New Collage"
+popup/item_0/id = 0
+popup/item_1/text = "Open..."
+popup/item_1/id = 1
+popup/item_2/text = "Open Recent"
+popup/item_2/id = 2
+popup/item_3/id = 3
+popup/item_3/separator = true
+popup/item_4/text = "Import Assets"
+popup/item_4/id = 4
+popup/item_5/id = 6
+popup/item_5/separator = true
+popup/item_6/text = "Export to PDF..."
+popup/item_6/id = 7
+popup/item_7/text = "Export to Image(s)..."
+popup/item_7/id = 7
+
+[node name="EditMenu" type="MenuButton" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=968440852]
+layout_mode = 2
+text = "Edit"
+flat = false
+item_count = 2
+popup/item_0/text = "Undo"
+popup/item_0/id = 0
+popup/item_1/text = "Redo"
+popup/item_1/id = 1
+
+[node name="ViewMenu" type="MenuButton" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=320246399]
+layout_mode = 2
+text = "View"
+flat = false
+item_count = 3
+popup/item_0/text = "Zoom In"
+popup/item_0/id = 7
+popup/item_1/text = "Zoom Out"
+popup/item_1/id = 1
+popup/item_2/text = "Fit to Window"
+popup/item_2/id = 2
+
+[node name="HelpMenu" type="MenuButton" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1187781383]
+layout_mode = 2
+text = "Help"
+flat = false
+item_count = 3
+popup/item_0/text = "Keyboard Shortcuts"
+popup/item_0/id = 0
+popup/item_1/id = 1
+popup/item_1/separator = true
+popup/item_2/text = "About"
+popup/item_2/id = 2
+
+[node name="DocumentPanel" type="PanelContainer" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer" unique_id=2019930383]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mhgcu")
+script = ExtResource("2_rarhs")
+
+[node name="TabContainer" type="TabContainer" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1375407615]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_0bbpv")
+
+[node name="HomePanel" parent="Scaler/PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1743728114 instance=ExtResource("4_vcsgt")]
+layout_mode = 2

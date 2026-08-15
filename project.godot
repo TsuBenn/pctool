@@ -1,0 +1,42 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="PCTool"
+config/version="0.0.1"
+run/main_scene="uid://segepotf8qr3"
+config/features=PackedStringArray("4.7")
+run/low_processor_mode=true
+boot_splash/stretch_mode=0
+boot_splash/use_filter=false
+boot_splash/image="uid://6jibnpjrwdjq"
+config/icon="uid://tw4e3ylqee76"
+boot_splash/minimum_display_time=1000
+
+[display]
+
+window/size/viewport_width=1400
+window/size/viewport_height=700
+window/stretch/aspect="expand"
+window/stretch/scale_mode="integer"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+rendering_device/driver.windows="d3d12"
+textures/lossless_compression/force_png=true
+textures/default_filters/use_nearest_mipmap_filter=true
+textures/decals/filter=0
+textures/light_projectors/filter=0

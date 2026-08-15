@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://doot08emp6rvu"]
+
+[ext_resource type="Script" uid="uid://moh3aogcueik" path="res://scripts/ui/LabeledSpinBox.gd" id="1_1t8ie"]
+
+[node name="LabeledSpinBox" type="HBoxContainer" unique_id=1930336959]
+script = ExtResource("1_1t8ie")
+
+[node name="Label" type="Label" parent="." unique_id=1227593897]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Label:"
+
+[node name="SpinBox" type="SpinBox" parent="." unique_id=399211834]
+layout_mode = 2
+size_flags_horizontal = 8

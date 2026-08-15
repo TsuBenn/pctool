@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://ewicow2ui0ag"]
+
+[ext_resource type="StyleBox" uid="uid://c6sjn5n1vtofw" path="res://assets/style/panel_inverted.tres" id="1_xhcuy"]
+[ext_resource type="Script" uid="uid://cf65y3xm78e33" path="res://scripts/ui/PanelHeader.gd" id="2_3roac"]
+
+[node name="Header" type="PanelContainer" unique_id=266167749]
+theme_override_styles/panel = ExtResource("1_xhcuy")
+script = ExtResource("2_3roac")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1244329626]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 1
+
+[node name="Label" type="Label" parent="MarginContainer" unique_id=836411372]
+layout_mode = 2
+text = "Assets"
+horizontal_alignment = 1

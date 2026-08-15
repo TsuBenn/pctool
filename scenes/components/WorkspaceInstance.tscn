@@ -1,0 +1,412 @@
+[gd_scene format=3 uid="uid://bdtx4oepgf23f"]
+
+[ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_gdvak"]
+[ext_resource type="PackedScene" uid="uid://b48x8pokkdf1m" path="res://scenes/modules/LabeledOptionButton.tscn" id="1_n10jr"]
+[ext_resource type="PackedScene" uid="uid://doot08emp6rvu" path="res://scenes/modules/LabeledSpinBox.tscn" id="2_gdvak"]
+[ext_resource type="StyleBox" uid="uid://brnr25rdjjtcr" path="res://assets/style/panel_flat.tres" id="2_jlrve"]
+[ext_resource type="PackedScene" uid="uid://ewicow2ui0ag" path="res://scenes/modules/PanelHeader.tscn" id="3_jlrve"]
+[ext_resource type="Script" uid="uid://crn7756aj8kgi" path="res://scripts/ui/WorkspaceInstance.gd" id="3_omfjr"]
+[ext_resource type="StyleBox" uid="uid://c6sjn5n1vtofw" path="res://assets/style/panel_inverted.tres" id="4_omfjr"]
+[ext_resource type="Texture2D" uid="uid://d32ndbskt14xh" path="res://assets/texture/icons_sheet.png" id="5_bges8"]
+[ext_resource type="Texture2D" uid="uid://dkyh35pnc2346" path="res://assets/texture/icons/unlink.tres" id="6_7wne4"]
+[ext_resource type="PackedScene" uid="uid://dyupygdppxbhi" path="res://scenes/modules/LabeledToggle.tscn" id="7_uxgfi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jlsqs"]
+atlas = ExtResource("5_bges8")
+region = Rect2(112, 1, 7, 7)
+
+[node name="Workspace" type="PanelContainer" unique_id=1288978819]
+custom_minimum_size = Vector2(500, 300)
+offset_right = 540.0
+offset_bottom = 300.0
+theme = ExtResource("1_gdvak")
+theme_override_styles/panel = ExtResource("2_jlrve")
+script = ExtResource("3_omfjr")
+metadata/_tab_index = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=51464201]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=2143761923]
+layout_mode = 2
+
+[node name="Toolbar" type="MarginContainer" parent="MarginContainer/VBoxContainer" unique_id=1737151888]
+layout_mode = 2
+
+[node name="HFlowContainer" type="HFlowContainer" parent="MarginContainer/VBoxContainer/Toolbar" unique_id=1429197469]
+layout_mode = 2
+
+[node name="PaperOptionButton" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=1222683963 instance=ExtResource("1_n10jr")]
+layout_mode = 2
+label = "Paper size:"
+items = Array[String](["A4", "A3", "A5", "-", "Custom"])
+
+[node name="WidthSpinBox" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=1930336959 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+label = "Width:"
+suffix = "mm"
+
+[node name="HeightSpinBox" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=757102979 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+label = "Height:"
+suffix = "mm"
+
+[node name="OrientationOptionButton" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=1698995972 instance=ExtResource("1_n10jr")]
+layout_mode = 2
+label = "Orientation:"
+items = Array[String](["Portrait", "Landscape"])
+
+[node name="PaperMarginsSpinBox" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=815027825 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+label = "Margins"
+suffix = "mm"
+
+[node name="SlotMarginsSpinBox" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=1421016720 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+label = "Spacing:"
+suffix = "mm"
+
+[node name="Workspace" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1048381307]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AssetsPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=680579051]
+custom_minimum_size = Vector2(175.845, 0)
+layout_mode = 2
+
+[node name="PanelHeader" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=266167749 instance=ExtResource("3_jlrve")]
+layout_mode = 2
+title = "Assets"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=45762311]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer" unique_id=16416595]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search"
+
+[node name="ImportButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer" unique_id=617027285]
+layout_mode = 2
+text = "Import"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1822563488]
+layout_mode = 2
+
+[node name="SortOptionButton" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer2" unique_id=677697434 instance=ExtResource("1_n10jr")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Sort:"
+expand_on = "OptionButton"
+items = Array[String](["Name", "Date", "Type", "Size"])
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer2" unique_id=2079781023]
+layout_mode = 2
+
+[node name="ViewOptionButton" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer2" unique_id=318374303 instance=ExtResource("1_n10jr")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "View:"
+expand_on = "OptionButton"
+items = Array[String](["Grid", "List", "Details"])
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1685095050]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("4_omfjr")
+
+[node name="EmptyStateLabel" type="Label" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer" unique_id=202164301]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+offset_transform_enabled = true
+offset_transform_position_ratio = Vector2(0, -0.3)
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+text = "No imported assets
+Drag and drop
+or select 'Import'
+to import your assets"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer" unique_id=369997224]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer/ScrollContainer" unique_id=1692369346]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=2083103899]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("4_omfjr")
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer2" unique_id=358756738]
+layout_mode = 2
+
+[node name="CanvasPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=378825488]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=1814297535]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("4_omfjr")
+
+[node name="PropertyPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=562294387]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="PanelHeader" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel" unique_id=209442588 instance=ExtResource("3_jlrve")]
+layout_mode = 2
+title = "Property"
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel" unique_id=2122437675]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("4_omfjr")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer" unique_id=1346897411]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer" unique_id=2114645948]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer" unique_id=1273650802]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DimensionsFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1988185659]
+layout_mode = 2
+title = "Dimensions"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable" unique_id=2021446473]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer" unique_id=1748411376]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer" unique_id=1791101100]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="WidthSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1767939154 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Width"
+suffix = "mm"
+spinbox_width = 50
+
+[node name="CheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2068999316]
+layout_mode = 2
+theme_override_colors/checkbox_checked_color = Color(1, 1, 1, 1)
+theme_override_colors/checkbox_unchecked_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_icons/checked = SubResource("AtlasTexture_jlsqs")
+theme_override_icons/unchecked = ExtResource("6_7wne4")
+button_pressed = true
+action_mode = 0
+
+[node name="HeightSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=737214299 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Height"
+suffix = "mm"
+spinbox_width = 50
+
+[node name="PresetsOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer" unique_id=204518745 instance=ExtResource("1_n10jr")]
+layout_mode = 2
+label = "Presets:"
+items = Array[String](["3x4", "6x4", "ID", "-", "Custom"])
+
+[node name="Orientation" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer" unique_id=287126757]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/Orientation" unique_id=1951267318]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Orientation:"
+
+[node name="Rotate90Button" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/Orientation" unique_id=1639080322]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "Rotate 90"
+
+[node name="Orientation2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer" unique_id=985779562]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/Orientation2" unique_id=2088261208]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Flip:"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/Orientation2" unique_id=1661479620]
+layout_mode = 2
+
+[node name="Rotate90Button" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/Orientation2/HBoxContainer" unique_id=88876132]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "Horizontal"
+
+[node name="Rotate180Button" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/Orientation2/HBoxContainer" unique_id=1798642195]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "Vertical"
+
+[node name="ImageFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1329118997]
+layout_mode = 2
+title = "Image(s)"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable" unique_id=309291767]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer" unique_id=453362763]
+layout_mode = 2
+
+[node name="QuantitySpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1491021295 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+label = "Quantity"
+min_value = 1.0
+
+[node name="FittingModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1350035097 instance=ExtResource("1_n10jr")]
+layout_mode = 2
+label = "Fitting Mode:"
+items = Array[String](["Crop to Fill", "Fit Inside", "Stretch", "Distortion"])
+
+[node name="LabeledSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1650426856 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+label = "Zoom"
+suffix = "x"
+value = 1.0
+min_value = 0.1
+step = 0.1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1369028736]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="WidthSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=651863088 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Offset X:"
+suffix = "mm"
+spinbox_width = 50
+
+[node name="HeightSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=635748503 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Offset Y:"
+suffix = "mm"
+spinbox_width = 50
+
+[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=188502424]
+layout_mode = 2
+text = "Configure perspective..."
+
+[node name="EffectsFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=434400617]
+layout_mode = 2
+title = "Effects/Adjustments"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable" unique_id=1272831742]
+layout_mode = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer" unique_id=1951975398]
+layout_mode = 2
+
+[node name="BorderFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer" unique_id=1899240552]
+layout_mode = 2
+folded = true
+title = "Border"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BorderFoldable" unique_id=1614824723]
+visible = false
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BorderFoldable/MarginContainer" unique_id=616592443]
+layout_mode = 2
+
+[node name="LabeledToggle" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BorderFoldable/MarginContainer/VBoxContainer" unique_id=608189380 instance=ExtResource("7_uxgfi")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Enabled:"
+
+[node name="ThicknessSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BorderFoldable/MarginContainer/VBoxContainer" unique_id=920158256 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Thickness:"
+suffix = "px"
+
+[node name="BrightnessFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer" unique_id=1302916979]
+layout_mode = 2
+folded = true
+title = "Brightness/Contrast"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable" unique_id=368377854]
+visible = false
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer" unique_id=968892267]
+layout_mode = 2
+
+[node name="LabeledToggle" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer" unique_id=1199711033 instance=ExtResource("7_uxgfi")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Enabled:"
+
+[node name="BrightnessLabel" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer" unique_id=295524018]
+layout_mode = 2
+text = "Brightness:"
+
+[node name="BrightnessSlider" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer" unique_id=850091279]
+layout_mode = 2
+
+[node name="BrightnessSlider" type="HSlider" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer/BrightnessSlider" unique_id=322876776]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BrightnessSpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer/BrightnessSlider" unique_id=6314786]
+layout_mode = 2
+
+[node name="ContrastLabel" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer" unique_id=1336731359]
+layout_mode = 2
+text = "Contrast:"
+
+[node name="ConstrastSlider" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer" unique_id=1672358074]
+layout_mode = 2
+
+[node name="ContrastSlider" type="HSlider" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer/ConstrastSlider" unique_id=1622457908]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ContrastSpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer/BrightnessFoldable/MarginContainer/VBoxContainer/ConstrastSlider" unique_id=1184074978]
+layout_mode = 2
+
+[node name="ActionFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1241720303]
+layout_mode = 2
+title = "Actions"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ActionFoldable" unique_id=1131815433]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ActionFoldable/MarginContainer" unique_id=606776576]
+layout_mode = 2
+
+[node name="RemoveButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ActionFoldable/MarginContainer/HBoxContainer" unique_id=239659773]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Remove"
+
+[node name="RemoveButton2" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ActionFoldable/MarginContainer/HBoxContainer" unique_id=1239481606]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Duplicate"

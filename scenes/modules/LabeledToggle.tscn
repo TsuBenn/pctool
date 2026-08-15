@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dyupygdppxbhi"]
+
+[ext_resource type="Script" uid="uid://c2q8po0k1nalu" path="res://scripts/ui/LabeledToggle.gd" id="1_klo2q"]
+
+[node name="HBoxContainer" type="HBoxContainer" unique_id=608189380]
+script = ExtResource("1_klo2q")
+
+[node name="Label" type="Label" parent="." unique_id=773598281]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Label:"
+
+[node name="CheckButton" type="CheckButton" parent="." unique_id=545590713]
+layout_mode = 2
+action_mode = 0
