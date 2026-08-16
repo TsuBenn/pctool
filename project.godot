@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="PCTool"
-config/version="0.1"
+config/version="0.0.1"
 run/main_scene="uid://segepotf8qr3"
 config/features=PackedStringArray("4.7")
 run/low_processor_mode=true
@@ -23,10 +23,17 @@ boot_splash/minimum_display_time=1000
 
 [display]
 
-window/size/viewport_width=1400
-window/size/viewport_height=700
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/energy_saving/keep_screen_on=false
 window/stretch/aspect="expand"
+window/stretch/scale=2.0
 window/stretch/scale_mode="integer"
+mouse_cursor/custom_image="uid://d2grnyydq1awh"
+
+[gui]
+
+theme/custom="uid://x5wixduenntj"
 
 [physics]
 

@@ -1,0 +1,125 @@
+[gd_scene format=3 uid="uid://bstr2iions23q"]
+
+[ext_resource type="Texture2D" uid="uid://d2oicq24kp41h" path="res://assets/texture/32_icons_sheets.png" id="2_0lv2k"]
+[ext_resource type="Script" uid="uid://ckshrbf7di8y1" path="res://scripts/ui/AssetCard.gd" id="2_k4rpm"]
+[ext_resource type="Texture2D" uid="uid://d32ndbskt14xh" path="res://assets/texture/icons_sheet.png" id="3_k4rpm"]
+[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="3_xtx1l"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dw7qm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0lv2k"]
+atlas = ExtResource("3_k4rpm")
+region = Rect2(267, 3, 5, 7)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_evmly"]
+content_margin_left = 1.0
+content_margin_top = 1.0
+content_margin_right = 1.0
+content_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1bb1y"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dorjy"]
+bg_color = Color(0, 0, 0, 0.11764706)
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w2844"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sv0m1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hpsqv"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xtx1l"]
+texture = ExtResource("3_xtx1l")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+region_rect = Rect2(66, 0, 11, 12)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
+atlas = ExtResource("2_0lv2k")
+region = Rect2(39, 4, 18, 24)
+
+[node name="AssetCard" type="PanelContainer" unique_id=1057240620]
+offset_right = 46.0
+offset_bottom = 54.0
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dw7qm")
+script = ExtResource("2_k4rpm")
+file_icon = SubResource("AtlasTexture_0lv2k")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=460855514]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_evmly")
+
+[node name="Button" type="Button" parent="PanelContainer" unique_id=1732025413]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/normal = SubResource("StyleBoxFlat_1bb1y")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_dorjy")
+theme_override_styles/hover = SubResource("StyleBoxFlat_dorjy")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_w2844")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_sv0m1")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_hpsqv")
+
+[node name="SelectedHighlight" type="Panel" parent="PanelContainer" unique_id=1449470522]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxTexture_xtx1l")
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=519561460]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 3
+
+[node name="BoxContainer" type="BoxContainer" parent="PanelContainer/MarginContainer" unique_id=1981153738]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+vertical = true
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/BoxContainer" unique_id=877244563]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+custom_maximum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = SubResource("AtlasTexture_mhgcu")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/BoxContainer" unique_id=1716666752]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -1)
+text = "4.png"
+horizontal_alignment = 1
+autowrap_mode = 3
+ellipsis_char = "-"

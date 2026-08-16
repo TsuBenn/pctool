@@ -1,0 +1,19 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://bxtvyojsq14yh"]
+
+[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="1_kronq"]
+
+[resource]
+content_margin_left = 3.0
+content_margin_top = 2.0
+content_margin_right = 3.0
+content_margin_bottom = 2.0
+texture = ExtResource("1_kronq")
+texture_margin_left = 3.0
+texture_margin_top = 3.0
+texture_margin_right = 3.0
+texture_margin_bottom = 3.0
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+region_rect = Rect2(1122, 0, 11, 12)

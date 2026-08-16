@@ -37,7 +37,7 @@ layout_mode = 2
 theme_override_constants/separation = 0
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=1383450040]
-custom_minimum_size = Vector2(120, 32)
+custom_minimum_size = Vector2(118, 32)
 layout_mode = 2
 texture = ExtResource("1_2k3ry")
 stretch_mode = 4

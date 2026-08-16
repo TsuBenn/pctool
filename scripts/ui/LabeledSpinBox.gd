@@ -10,6 +10,12 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$Label.text = new_text
 
+@export var editable: bool = true:
+	set(new_val):
+		editable = new_val
+		if is_node_ready():
+			$SpinBox.editable = new_val
+
 @export var prefix: String = "":
 	set(new_prefix):
 		prefix = new_prefix
@@ -55,6 +61,7 @@ signal value_changed(new_value: float)
 func _ready() -> void:
 	# Push initial values to child nodes once they are loaded
 	$Label.text = label
+	$SpinBox.editable = editable
 	$SpinBox.prefix = prefix
 	$SpinBox.suffix = suffix
 	$SpinBox.custom_minimum_size = Vector2(spinbox_width, 0)

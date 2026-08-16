@@ -11,6 +11,12 @@ signal item_selected(index: int)
 		if is_node_ready():
 			$Label.text = label
 
+@export var disabled: bool = false:
+	set(new_val):
+		disabled = new_val
+		if is_node_ready():
+			$OptionButton.disabled = new_val
+
 @export_enum("Label", "OptionButton") var expand_on: String = "Label":
 	set(new_value):
 		expand_on = new_value
@@ -39,6 +45,7 @@ signal item_selected(index: int)
 
 func _ready() -> void:
 	$Label.text = label
+	$OptionButton.disabled = disabled
 	match expand_on:
 		"Label":
 			$Label.size_flags_horizontal = SizeFlags.SIZE_EXPAND_FILL

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://31aadlpm5smb"]
+
+[ext_resource type="Script" uid="uid://civswponxktdn" path="res://scripts/ui/LabeledSlider.gd" id="1_fv7sw"]
+
+[node name="GridScaleSlider" type="HBoxContainer" unique_id=1949435021]
+offset_right = 30.0
+offset_bottom = 10.0
+script = ExtResource("1_fv7sw")
+
+[node name="Label" type="Label" parent="." unique_id=1625109470]
+layout_mode = 2
+text = "Label:"
+
+[node name="HSlider" type="HSlider" parent="." unique_id=967082289]
+layout_mode = 2
+size_flags_horizontal = 3

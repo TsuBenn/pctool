@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://bdtx4oepgf23f"]
 
-[ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_gdvak"]
 [ext_resource type="PackedScene" uid="uid://b48x8pokkdf1m" path="res://scenes/modules/LabeledOptionButton.tscn" id="1_n10jr"]
 [ext_resource type="PackedScene" uid="uid://doot08emp6rvu" path="res://scenes/modules/LabeledSpinBox.tscn" id="2_gdvak"]
 [ext_resource type="StyleBox" uid="uid://brnr25rdjjtcr" path="res://assets/style/panel_flat.tres" id="2_jlrve"]
@@ -8,18 +7,68 @@
 [ext_resource type="Script" uid="uid://crn7756aj8kgi" path="res://scripts/ui/WorkspaceInstance.gd" id="3_omfjr"]
 [ext_resource type="StyleBox" uid="uid://c6sjn5n1vtofw" path="res://assets/style/panel_inverted.tres" id="4_omfjr"]
 [ext_resource type="Texture2D" uid="uid://d32ndbskt14xh" path="res://assets/texture/icons_sheet.png" id="5_bges8"]
+[ext_resource type="Script" uid="uid://coko7mp2773mb" path="res://scripts/ui/AssetsPanel.gd" id="5_uxgfi"]
 [ext_resource type="Texture2D" uid="uid://dkyh35pnc2346" path="res://assets/texture/icons/unlink.tres" id="6_7wne4"]
 [ext_resource type="PackedScene" uid="uid://dyupygdppxbhi" path="res://scenes/modules/LabeledToggle.tscn" id="7_uxgfi"]
+[ext_resource type="PackedScene" uid="uid://bstr2iions23q" path="res://scenes/components/AssetCard.tscn" id="8_okkpv"]
+[ext_resource type="PackedScene" uid="uid://31aadlpm5smb" path="res://scenes/modules/LabeledSlider.tscn" id="9_8vahb"]
+[ext_resource type="PackedScene" uid="uid://dhsqjt8f0e6dj" path="res://scenes/modules/LabeledCheckButton.tscn" id="10_r6nxy"]
+[ext_resource type="Script" uid="uid://1y4tgs2087c2" path="res://scripts/ui/FileDialog.gd" id="11_okkpv"]
+[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="12_uxgfi"]
+[ext_resource type="FontVariation" uid="uid://c0wf104f15yes" path="res://assets/fonts/pixel-it-lower.tres" id="15_8vahb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jlsqs"]
 atlas = ExtResource("5_bges8")
 region = Rect2(112, 1, 7, 7)
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_okkpv"]
+content_margin_left = 3.0
+content_margin_right = 3.0
+texture = ExtResource("12_uxgfi")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
+region_rect = Rect2(55, 0, 11, 12)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8vahb"]
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+texture = ExtResource("12_uxgfi")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+region_rect = Rect2(770, 0, 11, 12)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_r6nxy"]
+content_margin_left = 3.0
+content_margin_right = 3.0
+texture = ExtResource("12_uxgfi")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
+region_rect = Rect2(66, 0, 11, 12)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ckklh"]
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+texture = ExtResource("12_uxgfi")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+region_rect = Rect2(781, 0, 11, 12)
+
 [node name="Workspace" type="PanelContainer" unique_id=1288978819]
-custom_minimum_size = Vector2(500, 300)
-offset_right = 540.0
+texture_filter = 1
+offset_right = 532.0
 offset_bottom = 300.0
-theme = ExtResource("1_gdvak")
 theme_override_styles/panel = ExtResource("2_jlrve")
 script = ExtResource("3_omfjr")
 metadata/_tab_index = 0
@@ -45,11 +94,13 @@ items = Array[String](["A4", "A3", "A5", "-", "Custom"])
 layout_mode = 2
 label = "Width:"
 suffix = "mm"
+spinbox_width = 50
 
 [node name="HeightSpinBox" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=757102979 instance=ExtResource("2_gdvak")]
 layout_mode = 2
 label = "Height:"
 suffix = "mm"
+spinbox_width = 50
 
 [node name="OrientationOptionButton" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=1698995972 instance=ExtResource("1_n10jr")]
 layout_mode = 2
@@ -60,19 +111,26 @@ items = Array[String](["Portrait", "Landscape"])
 layout_mode = 2
 label = "Margins"
 suffix = "mm"
+spinbox_width = 50
 
 [node name="SlotMarginsSpinBox" parent="MarginContainer/VBoxContainer/Toolbar/HFlowContainer" unique_id=1421016720 instance=ExtResource("2_gdvak")]
 layout_mode = 2
 label = "Spacing:"
 suffix = "mm"
+spinbox_width = 50
 
-[node name="Workspace" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1048381307]
+[node name="Workspace" type="HSplitContainer" parent="MarginContainer/VBoxContainer" unique_id=390090371]
 layout_mode = 2
 size_flags_vertical = 3
+split_offsets = PackedInt32Array(88, 376)
+split_offset = 88
 
 [node name="AssetsPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=680579051]
-custom_minimum_size = Vector2(175.845, 0)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 0)
 layout_mode = 2
+script = ExtResource("5_uxgfi")
+asset_card_instance = ExtResource("8_okkpv")
 
 [node name="PanelHeader" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=266167749 instance=ExtResource("3_jlrve")]
 layout_mode = 2
@@ -87,11 +145,13 @@ size_flags_horizontal = 3
 placeholder_text = "Search"
 
 [node name="ImportButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer" unique_id=617027285]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Import"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1822563488]
+[node name="HBoxContainer2" type="HFlowContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1288238623]
 layout_mode = 2
+theme_override_constants/v_separation = 2
 
 [node name="SortOptionButton" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer2" unique_id=677697434 instance=ExtResource("1_n10jr")]
 layout_mode = 2
@@ -100,22 +160,21 @@ label = "Sort:"
 expand_on = "OptionButton"
 items = Array[String](["Name", "Date", "Type", "Size"])
 
-[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer2" unique_id=2079781023]
-layout_mode = 2
-
 [node name="ViewOptionButton" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/HBoxContainer2" unique_id=318374303 instance=ExtResource("1_n10jr")]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 label = "View:"
 expand_on = "OptionButton"
-items = Array[String](["Grid", "List", "Details"])
+items = Array[String](["Grid", "List"])
 
-[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1685095050]
+[node name="AssetsContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1685095050]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = ExtResource("4_omfjr")
 
-[node name="EmptyStateLabel" type="Label" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer" unique_id=202164301]
+[node name="AssetsEmptyStateLabel" type="Label" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/AssetsContainer" unique_id=202164301]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -125,27 +184,98 @@ theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 text = "No imported assets
 Drag and drop
 or select 'Import'
-to import your assets"
+to import assets"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer" unique_id=369997224]
+[node name="AssetsScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/AssetsContainer" unique_id=369997224]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer/ScrollContainer" unique_id=1692369346]
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/AssetsContainer/AssetsScrollContainer" unique_id=1082133859]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 2
 
-[node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=2083103899]
+[node name="GridAssetsContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/AssetsContainer/AssetsScrollContainer/MarginContainer" unique_id=66362976]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/panel = ExtResource("4_omfjr")
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+columns = 3
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/PanelContainer2" unique_id=358756738]
+[node name="ListAssetsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel/AssetsContainer/AssetsScrollContainer/MarginContainer" unique_id=615934524]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="GridScaleSlider" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1949435021 instance=ExtResource("9_8vahb")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Scale:"
+expand_mode = "Label"
+slider_width = 60
+tick_count = 5.0
+ticks_on_borders = true
+value = 1.0
+min_value = 1.0
+max_value = 5.0
+
+[node name="ShowFileNamesCheckButton" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1508100861 instance=ExtResource("10_r6nxy")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Show file names:"
+button_pressed = true
+
+[node name="AssetsStatusFooter" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1111947540 instance=ExtResource("3_jlrve")]
+unique_name_in_owner = true
+layout_mode = 2
+title = "0 Assets"
+title_alignment = "Left"
+
+[node name="AssetCardContextMenu" type="PopupMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=1127747373]
+unique_name_in_owner = true
+oversampling_override = 1.0
+item_count = 6
+item_0/text = "Add to sheet"
+item_0/id = 0
+item_1/text = "Group selected"
+item_1/id = 1
+item_2/text = "Duplicate"
+item_2/id = 2
+item_3/text = "Rename"
+item_3/id = 3
+item_4/id = 4
+item_4/separator = true
+item_5/text = "Delete"
+item_5/id = 5
+
+[node name="AssetsContainerContextMenu" type="PopupMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanel" unique_id=81825222]
+unique_name_in_owner = true
+oversampling_override = 1.0
+size = Vector2i(149, 147)
+item_count = 5
+item_0/text = "Import Assets..."
+item_0/id = 0
+item_1/text = "Select All"
+item_1/id = 1
+item_2/text = "Deselect All"
+item_2/id = 2
+item_3/id = 3
+item_3/separator = true
+item_4/text = "View as List"
+item_4/id = 4
 
 [node name="CanvasPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=378825488]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -155,7 +285,7 @@ size_flags_vertical = 3
 theme_override_styles/panel = ExtResource("4_omfjr")
 
 [node name="PropertyPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=562294387]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 
 [node name="PanelHeader" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel" unique_id=209442588 instance=ExtResource("3_jlrve")]
@@ -169,12 +299,11 @@ theme_override_styles/panel = ExtResource("4_omfjr")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer" unique_id=1346897411]
 layout_mode = 2
-size_flags_vertical = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer" unique_id=2114645948]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
+size_flags_vertical = 0
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_bottom = 2
 
@@ -197,28 +326,33 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="WidthSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1767939154 instance=ExtResource("2_gdvak")]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=20285690]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WidthSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1767939154 instance=ExtResource("2_gdvak")]
 layout_mode = 2
 size_flags_horizontal = 3
 label = "Width"
 suffix = "mm"
 spinbox_width = 50
 
+[node name="HeightSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=737214299 instance=ExtResource("2_gdvak")]
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Height"
+suffix = "mm"
+spinbox_width = 50
+
 [node name="CheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2068999316]
 layout_mode = 2
+size_flags_vertical = 4
 theme_override_colors/checkbox_checked_color = Color(1, 1, 1, 1)
 theme_override_colors/checkbox_unchecked_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_icons/checked = SubResource("AtlasTexture_jlsqs")
 theme_override_icons/unchecked = ExtResource("6_7wne4")
 button_pressed = true
 action_mode = 0
-
-[node name="HeightSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=737214299 instance=ExtResource("2_gdvak")]
-layout_mode = 2
-size_flags_horizontal = 3
-label = "Height"
-suffix = "mm"
-spinbox_width = 50
 
 [node name="PresetsOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer" unique_id=204518745 instance=ExtResource("1_n10jr")]
 layout_mode = 2
@@ -287,9 +421,8 @@ value = 1.0
 min_value = 0.1
 step = 0.1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1369028736]
+[node name="HBoxContainer" type="HFlowContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1900369478]
 layout_mode = 2
-theme_override_constants/separation = 5
 
 [node name="WidthSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertyPanel/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=651863088 instance=ExtResource("2_gdvak")]
 layout_mode = 2
@@ -410,3 +543,26 @@ text = "Remove"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Duplicate"
+
+[node name="ImageImportDialog" type="FileDialog" parent="." unique_id=379793740]
+unique_name_in_owner = true
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+title = "Open File(s)"
+initial_position = 2
+size = Vector2i(300, 200)
+file_mode = 1
+access = 2
+filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
+favorites_enabled = false
+recent_list_enabled = false
+script = ExtResource("11_okkpv")
+normal_style = SubResource("StyleBoxTexture_okkpv")
+hover_style = SubResource("StyleBoxTexture_8vahb")
+pressed_style = SubResource("StyleBoxTexture_r6nxy")
+hover_pressed_style = SubResource("StyleBoxTexture_ckklh")
+font_color = Color(0, 0, 0, 1)
+font_hover_color = Color(0, 0, 0, 1)
+font_pressed_color = Color(0, 0, 0, 1)
+font_hover_pressed_color = Color(0, 0, 0, 1)
+custom_font = ExtResource("15_8vahb")

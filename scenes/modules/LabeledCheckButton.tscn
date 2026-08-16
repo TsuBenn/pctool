@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dhsqjt8f0e6dj"]
+
+[ext_resource type="Script" uid="uid://de4reih0vgxeq" path="res://scenes/modules/LabeledCheckButton.gd" id="1_gg8m4"]
+
+[node name="LabeledCheckButton" type="HBoxContainer" unique_id=1508100861]
+script = ExtResource("1_gg8m4")
+
+[node name="Label" type="Label" parent="." unique_id=1737528902]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Label:"
+
+[node name="CheckButton" type="CheckButton" parent="." unique_id=908469961]
+layout_mode = 2
+action_mode = 0
