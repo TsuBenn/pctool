@@ -182,6 +182,13 @@ func _sync_ui():
 	if photo_item:
 		properties_scroll_container.visible = true
 		properties_empty_state_label.visible = false
+		match photo_item.size_mm:
+			Vector2(30.0,40.0):
+				properties_presets_option_button.selected = PRESET_3_BY_4
+			Vector2(40.0,60.0):
+				properties_presets_option_button.selected = PRESET_4_BY_6
+			_:
+				properties_presets_option_button.selected = PRESET_CUSTOM
 		properties_width_spin_box.set_value_no_signal(photo_item.size_mm.x)
 		properties_height_spin_box.set_value_no_signal(photo_item.size_mm.y)
 		quantity_spin_box.set_value_no_signal(photo_item.quantity)

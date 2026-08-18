@@ -55,6 +55,9 @@ static func render_page_to_image(document_data: DocumentData, layout: PrintLayou
 
 		var photo_img: Image = raw_source.duplicate()
 
+		if photo_img.get_format() != Image.FORMAT_RGBA8:
+			photo_img.convert(Image.FORMAT_RGBA8)
+
 		var frame_pos_px: Vector2i = Vector2i(tile.rect_mm.position * px_per_mm)
 		var frame_size_px: Vector2i = Vector2i(tile.rect_mm.size * px_per_mm)
 
@@ -102,7 +105,7 @@ static func _blend_photo_img(
 	var src_h: int = min(photo_img.get_height() - src_y, frame_size.y)
 
 	var dst_x: int = frame_pos.x + max(crop_offset_px.x, 0)
-	var dst_y: int = frame_pos.y + max(crop_offset_px.x, 0)
+	var dst_y: int = frame_pos.y + max(crop_offset_px.y, 0)
 
 	master_img.blend_rect(photo_img, Rect2i(src_x,src_y,src_w,src_h), Vector2i(dst_x,dst_y))
 
