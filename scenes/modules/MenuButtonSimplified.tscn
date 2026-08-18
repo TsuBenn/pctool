@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://ccf66dlsufh2i"]
+
+[ext_resource type="Script" uid="uid://bqncehnkrebsp" path="res://scripts/ui/MenuButtonSimplified.gd" id="1_2ec51"]
+
+[node name="FileMenu" type="MenuButton" unique_id=1966029366]
+text = "File"
+flat = false
+item_count = 8
+popup/item_0/text = "New Document"
+popup/item_0/id = 0
+popup/item_1/text = "Open..."
+popup/item_1/id = 1
+popup/item_2/text = "Open Recent"
+popup/item_2/id = 2
+popup/item_3/id = 0
+popup/item_3/separator = true
+popup/item_4/text = "Import Assets"
+popup/item_4/id = 3
+popup/item_5/id = 0
+popup/item_5/separator = true
+popup/item_6/text = "Export to PDF..."
+popup/item_6/id = 4
+popup/item_7/text = "Export to Image(s)..."
+popup/item_7/id = 5
+script = ExtResource("1_2ec51")

@@ -5,11 +5,120 @@
 [ext_resource type="Script" uid="uid://bicy0fur7vwvd" path="res://scripts/Main.gd" id="2_c01mt"]
 [ext_resource type="Script" uid="uid://lexvh7h7ivq3" path="res://scripts/ui/DocumentPanel.gd" id="2_rarhs"]
 [ext_resource type="PackedScene" uid="uid://bdtx4oepgf23f" path="res://scenes/components/WorkspaceInstance.tscn" id="2_rvslj"]
+[ext_resource type="Texture2D" uid="uid://bhkngrtlqx4yl" path="res://assets/cursor/cursor_sheet.png" id="3_nxtc6"]
+[ext_resource type="PackedScene" uid="uid://ccf66dlsufh2i" path="res://scenes/modules/MenuButtonSimplified.tscn" id="4_jlsqs"]
 [ext_resource type="PackedScene" uid="uid://ck4qdc8tbgvyf" path="res://scenes/HomePanel.tscn" id="4_vcsgt"]
+[ext_resource type="Script" uid="uid://1y4tgs2087c2" path="res://scripts/ui/FileDialog.gd" id="9_wp0k4"]
+[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="10_bjd11"]
+[ext_resource type="FontVariation" uid="uid://c0wf104f15yes" path="res://assets/fonts/pixel-it-lower.tres" id="11_qmy6f"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k4rpm"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(1, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jlsqs"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q8u5g"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lhr70"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wp0k4"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bjd11"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(640, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qmy6f"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(576, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mwfav"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(512, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3p2gp"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cvmbd"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ft6cd"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(704, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bb450"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nxtc6"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(768, -1, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nfivy"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(832, -1, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1nqs0"]
+atlas = ExtResource("3_nxtc6")
+region = Rect2(896, -1, 64, 64)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4lqhh"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhgcu"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mwfav"]
+content_margin_left = 3.0
+content_margin_right = 3.0
+texture = ExtResource("10_bjd11")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
+region_rect = Rect2(55, 0, 11, 12)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3p2gp"]
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+texture = ExtResource("10_bjd11")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+region_rect = Rect2(770, 0, 11, 12)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cvmbd"]
+content_margin_left = 3.0
+content_margin_right = 3.0
+texture = ExtResource("10_bjd11")
+texture_margin_left = 1.0
+texture_margin_top = 1.0
+texture_margin_right = 1.0
+texture_margin_bottom = 1.0
+region_rect = Rect2(66, 0, 11, 12)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ft6cd"]
+content_margin_left = 3.0
+content_margin_top = 1.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+texture = ExtResource("10_bjd11")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+region_rect = Rect2(781, 0, 11, 12)
 
 [node name="Main" type="Control" unique_id=1898904062]
 texture_filter = 1
@@ -23,6 +132,21 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("1_elqb8")
 script = ExtResource("2_c01mt")
+pointer = SubResource("AtlasTexture_k4rpm")
+hand_point = SubResource("AtlasTexture_jlsqs")
+hand_grab = SubResource("AtlasTexture_q8u5g")
+hand = SubResource("AtlasTexture_lhr70")
+text = SubResource("AtlasTexture_wp0k4")
+omni_dir = SubResource("AtlasTexture_bjd11")
+diag_bottom_top_dir = SubResource("AtlasTexture_qmy6f")
+diag_top_bottom_dir = SubResource("AtlasTexture_mwfav")
+hori_dir = SubResource("AtlasTexture_3p2gp")
+verti_dir = SubResource("AtlasTexture_cvmbd")
+hour_glass = SubResource("AtlasTexture_ft6cd")
+forbidden = SubResource("AtlasTexture_bb450")
+crosshair = SubResource("AtlasTexture_nxtc6")
+can_drop = SubResource("AtlasTexture_nfivy")
+help = SubResource("AtlasTexture_1nqs0")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=1726305593]
 layout_mode = 1
@@ -48,29 +172,28 @@ theme_override_constants/separation = 0
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="FileMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=5440308]
+[node name="FileMenu" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1966029366 instance=ExtResource("4_jlsqs")]
+unique_name_in_owner = true
 layout_mode = 2
-text = "File"
-flat = false
-item_count = 8
-popup/item_0/text = "New Collage"
-popup/item_0/id = 0
-popup/item_1/text = "Open..."
-popup/item_1/id = 1
-popup/item_2/text = "Open Recent"
-popup/item_2/id = 2
-popup/item_3/id = 3
-popup/item_3/separator = true
-popup/item_4/text = "Import Assets"
-popup/item_4/id = 4
-popup/item_5/id = 6
-popup/item_5/separator = true
-popup/item_6/text = "Export to PDF..."
-popup/item_6/id = 7
-popup/item_7/text = "Export to Image(s)..."
-popup/item_7/id = 7
+item_count = 10
+popup/item_1/text = "Open Document"
+popup/item_3/id = -1
+popup/item_4/text = "Save"
+popup/item_5/text = "Save as"
+popup/item_5/id = 4
+popup/item_6/text = "Import Assets"
+popup/item_6/id = 5
+popup/item_7/id = -1
+popup/item_7/separator = true
+popup/item_8/text = "Export as PDFs"
+popup/item_8/id = 6
+popup/item_9/text = "Export as Image(s)"
+popup/item_9/id = 7
+label = "File"
+items = Array[String](["New Document", "Open Document", "Open Recent", "-", "Save", "Save as", "Import Assets", "-", "Export as PDFs", "Export as Image(s)"])
 
 [node name="EditMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=968440852]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Edit"
 flat = false
@@ -81,6 +204,7 @@ popup/item_1/text = "Redo"
 popup/item_1/id = 1
 
 [node name="ViewMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=320246399]
+unique_name_in_owner = true
 layout_mode = 2
 text = "View"
 flat = false
@@ -93,6 +217,7 @@ popup/item_2/text = "Fit to Window"
 popup/item_2/id = 2
 
 [node name="HelpMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1187781383]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Help"
 flat = false
@@ -105,16 +230,73 @@ popup/item_2/text = "About"
 popup/item_2/id = 2
 
 [node name="DocumentPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=2019930383]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_mhgcu")
 script = ExtResource("2_rarhs")
 workspace_instance = ExtResource("2_rvslj")
 
-[node name="TabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1375407615]
+[node name="WorkspaceTabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1375407615]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("2_0bbpv")
 
 [node name="HomePanel" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1743728114 instance=ExtResource("4_vcsgt")]
 layout_mode = 2
+
+[node name="ImageImportDialog" type="FileDialog" parent="." unique_id=865625906]
+unique_name_in_owner = true
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+title = "Open File(s)"
+initial_position = 2
+size = Vector2i(300, 200)
+file_mode = 1
+access = 2
+filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
+favorites_enabled = false
+recent_list_enabled = false
+script = ExtResource("9_wp0k4")
+normal_style = SubResource("StyleBoxTexture_mwfav")
+hover_style = SubResource("StyleBoxTexture_3p2gp")
+pressed_style = SubResource("StyleBoxTexture_cvmbd")
+hover_pressed_style = SubResource("StyleBoxTexture_ft6cd")
+font_color = Color(0, 0, 0, 1)
+font_hover_color = Color(0, 0, 0, 1)
+font_pressed_color = Color(0, 0, 0, 1)
+font_hover_pressed_color = Color(0, 0, 0, 1)
+custom_font = ExtResource("11_qmy6f")
+
+[node name="NoticeDialog" type="AcceptDialog" parent="." unique_id=1152503669]
+unique_name_in_owner = true
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+position = Vector2i(0, 12)
+size = Vector2i(120, 80)
+dialog_autowrap = true
+
+[node name="ExportDialog" type="FileDialog" parent="." unique_id=1980741276]
+unique_name_in_owner = true
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+title = "Export to Image"
+position = Vector2i(0, 11)
+size = Vector2i(320, 200)
+access = 2
+favorites_enabled = false
+recent_list_enabled = false
+
+[node name="OpenDocumentDialog" type="FileDialog" parent="." unique_id=686707132]
+unique_name_in_owner = true
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+title = "Open File(s)"
+position = Vector2i(0, 11)
+size = Vector2i(300, 200)
+file_mode = 1
+access = 2
+filters = PackedStringArray("*.pctl; PCtool Files")
+favorites_enabled = false
+recent_list_enabled = false

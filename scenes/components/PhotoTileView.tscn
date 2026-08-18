@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://chrdu5m11thxk"]
+
+[ext_resource type="Script" uid="uid://bjx7dff1qytir" path="res://scripts/ui/PhotoTileView.gd" id="1_cdpo6"]
+[ext_resource type="Texture2D" uid="uid://tw4e3ylqee76" path="res://assets/icon_128.png" id="1_w5csh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cx2ea"]
+bg_color = Color(0.6722776, 0.71764904, 1.3528494, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjspk"]
+bg_color = Color(1.353, 1.353, 1.353, 1)
+
+[node name="PhotoTileView" type="Control" unique_id=572035731]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+script = ExtResource("1_cdpo6")
+
+[node name="SelectionOutline" type="Panel" parent="." unique_id=1303601137]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cx2ea")
+
+[node name="BaseSelection" type="Panel" parent="SelectionOutline" unique_id=755906351]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hjspk")
+
+[node name="ImageContainer" type="Control" parent="." unique_id=469960606]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ImageTexture" type="TextureRect" parent="ImageContainer" unique_id=397472010]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 64.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture = ExtResource("1_w5csh")
+expand_mode = 1
+
+[node name="Border" type="ReferenceRect" parent="." unique_id=636467996]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+border_color = Color(0, 0, 0, 1)
+border_width = 0.5
+editor_only = false

@@ -21,6 +21,10 @@ boot_splash/image="uid://6jibnpjrwdjq"
 config/icon="uid://tw4e3ylqee76"
 boot_splash/minimum_display_time=1000
 
+[autoload]
+
+Global="*uid://dvsq2i70xgdn7"
+
 [display]
 
 window/size/viewport_width=1280
@@ -29,10 +33,10 @@ window/energy_saving/keep_screen_on=false
 window/stretch/aspect="expand"
 window/stretch/scale=2.0
 window/stretch/scale_mode="integer"
-mouse_cursor/custom_image="uid://d2grnyydq1awh"
 
 [gui]
 
+common/snap_controls_to_pixels=false
 theme/custom="uid://x5wixduenntj"
 
 [physics]

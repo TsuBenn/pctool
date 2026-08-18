@@ -28,11 +28,24 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$SpinBox.suffix = new_suffix
 
+@export var reset_button: bool = false:
+	set(new_val):
+		reset_button = new_val
+		$Button.visible = new_val
+
+@export var default_value: float = 0.0:
+	set(new_val):
+		default_value = new_val
+
 @export var value: float = 0.0:
 	set(new_val):
 		value = new_val
 		if is_node_ready():
-			$SpinBox.value = value
+			if new_val == default_value:
+				$Button.disabled = true
+			else:
+				$Button.disabled = false
+			$SpinBox.value = new_val
 
 @export var min_value: float = 0.0:
 	set(new_min):
@@ -58,6 +71,7 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$SpinBox.custom_minimum_size = Vector2(new_width, 0)
 
+
 func _ready() -> void:
 	# Push initial values to child nodes once they are loaded
 	$Label.text = label
@@ -69,10 +83,28 @@ func _ready() -> void:
 	$SpinBox.min_value = min_value
 	$SpinBox.max_value = max_value
 	$SpinBox.step = step
+	$Button.visible = reset_button
+
+	if $SpinBox.value == default_value:
+		$Button.disabled = true
+	else:
+		$Button.disabled = false
+	$Button.pressed.connect(
+		func():
+			value = default_value
+	)
 
 	# Forward the inner SpinBox signal to our custom outer signal
 	if not Engine.is_editor_hint():
 		$SpinBox.value_changed.connect(_on_spin_box_value_changed)
+
+
+func set_value_no_signal(new_value: float):
+	if new_value == default_value:
+		$Button.disabled = true
+	else:
+		$Button.disabled = false
+	$SpinBox.set_value_no_signal(new_value)
 
 
 func _on_spin_box_value_changed(new_value: float) -> void:

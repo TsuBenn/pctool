@@ -2,8 +2,8 @@
 extends HBoxContainer
 class_name LabeledOptionButton
 
-# Custom signal so parent menus know when an option was chosen
-signal item_selected(index: int)
+# Emits the logical ID of the selected option (skipping separators)
+signal item_selected(id: int)
 
 @export var label: String = "Option:":
 	set(new_text):
@@ -35,12 +35,11 @@ signal item_selected(index: int)
 		if is_node_ready():
 			_update_items()
 
-@export var selected_index: int = 0:
-	set(new_index):
-		selected_index = new_index
+@export var selected: int = 0:
+	set(new_id):
+		selected = new_id
 		if is_node_ready():
-			if $OptionButton.get_item_count() > selected_index and selected_index >= 0:
-				$OptionButton.selected = selected_index
+			_select_by_id(selected)
 
 
 func _ready() -> void:
@@ -61,22 +60,29 @@ func _ready() -> void:
 
 func _update_items() -> void:
 	$OptionButton.clear()
+	var next_id: int = 0
+
 	for item in items:
 		if item == "-" or item == "---":
-			# Add a simple horizontal divider line
 			$OptionButton.add_separator()
 		elif item.begins_with("-") and item.ends_with("-"):
-			# Add a section header (e.g. "- Selection Tools -" becomes "Selection Tools")
 			var header_text: String = item.trim_prefix("-").trim_suffix("-").strip_edges()
 			$OptionButton.add_separator(header_text)
 		else:
-			# Regular selectable option
-			$OptionButton.add_item(item)
+			# Assigns sequential IDs strictly to selectable items
+			$OptionButton.add_item(item, next_id)
+			next_id += 1
 
-	if items.size() > 0 and selected_index < $OptionButton.get_item_count() and selected_index >= 0:
-		$OptionButton.selected = selected_index
+	_select_by_id(selected)
+
+
+func _select_by_id(id: int) -> void:
+	var item_index: int = $OptionButton.get_item_index(id)
+	if item_index != -1:
+		$OptionButton.selected = item_index
 
 
 func _on_option_button_item_selected(index: int) -> void:
-	selected_index = index
-	item_selected.emit(index)
+	var id: int = $OptionButton.get_item_id(index)
+	selected = id
+	item_selected.emit(id)

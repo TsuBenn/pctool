@@ -1,10 +1,9 @@
-@abstract
-class_name AssetData
+@abstract class_name AssetData
 extends Resource
 
-var id: String
-var display_name: String
-var source_path: String
+@export var id: String
+@export var display_name: String
+@export var source_path: String
 
 @abstract func get_count() -> int
 @abstract func get_preview_texture(index: int) -> Texture2D

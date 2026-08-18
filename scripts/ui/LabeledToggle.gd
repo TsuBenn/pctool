@@ -1,5 +1,6 @@
 @tool
 extends HBoxContainer
+class_name LabeledToggle
 
 @onready var check_button: CheckButton = $CheckButton
 

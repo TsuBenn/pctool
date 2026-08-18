@@ -1,11 +1,19 @@
 class_name ImageAssetData
 extends AssetData
 
-var preview_texture: Texture2D
-var original_image: Image
-var pixel_dimensions: Vector2i
+@export var preview_texture: Texture2D
+@export var original_image: Image
+@export var pixel_dimensions: Vector2i
 
-func _init(new_id: String = "", file_name: String = "", path: String = "", tex: Texture2D = null, img: Image = null, dim: Vector2i = Vector2i.ZERO) -> void:
+
+func _init(
+	new_id: String = "",
+	file_name: String = "",
+	path: String = "",
+	tex: Texture2D = null,
+	img: Image = null,
+	dim: Vector2i = Vector2i.ZERO
+) -> void:
 	id = new_id
 	display_name = file_name
 	source_path = path
@@ -13,23 +21,29 @@ func _init(new_id: String = "", file_name: String = "", path: String = "", tex: 
 	original_image = img
 	pixel_dimensions = dim
 
+
 func get_count() -> int:
 	return 1
+
 
 func get_image(index: int) -> Image:
 	return original_image
 
+
 func get_preview_texture(index: int) -> Texture2D:
 	return preview_texture
 
+
 static func create_from_file(path: String) -> ImageAssetData:
 	if not FileAccess.file_exists(path):
-		push_error("ImageAssetData: File from path \"%s\" does not exists!" % path)
+		Global.notice("File not found", 'File from path "%s" does not exists!' % path)
+		push_error('ImageAssetData: File from path "%s" does not exists!' % path)
 		return null
 
 	var img_buffer: PackedByteArray = FileAccess.get_file_as_bytes(path)
 	if img_buffer.is_empty():
-		push_error("ImageAssetData: File from path \"%s\" is empty!" % path)
+		Global.notice("Cannot load file", 'File from path "%s" is empty!' % path)
+		push_error('ImageAssetData: File from path "%s" is empty!' % path)
 		return null
 
 	var img: Image = Image.new()
@@ -39,19 +53,26 @@ static func create_from_file(path: String) -> ImageAssetData:
 
 	if ext in ["jpg", "jpeg"]:
 		err = img.load_jpg_from_buffer(img_buffer)
-		if err != OK: err = img.load_png_from_buffer(img_buffer)
-		if err != OK: err = img.load_webp_from_buffer(img_buffer)
+		if err != OK:
+			err = img.load_png_from_buffer(img_buffer)
+		if err != OK:
+			err = img.load_webp_from_buffer(img_buffer)
 	if ext == "png":
 		err = img.load_png_from_buffer(img_buffer)
-		if err != OK: err = img.load_jpg_from_buffer(img_buffer)
-		if err != OK: err = img.load_webp_from_buffer(img_buffer)
+		if err != OK:
+			err = img.load_jpg_from_buffer(img_buffer)
+		if err != OK:
+			err = img.load_webp_from_buffer(img_buffer)
 	if ext == "webp":
 		err = img.load_webp_from_buffer(img_buffer)
-		if err != OK: err = img.load_jpg_from_buffer(img_buffer)
-		if err != OK: err = img.load_png_from_buffer(img_buffer)
+		if err != OK:
+			err = img.load_jpg_from_buffer(img_buffer)
+		if err != OK:
+			err = img.load_png_from_buffer(img_buffer)
 
 	if err != OK:
-		push_error("ImageAssetData: Image from path \"%s\" is unsupported or corrupted" % path)
+		Global.notice("Cannot load file", 'File from path "%s" is unsupported or corrupted' % path)
+		push_error('ImageAssetData: Image from path "%s" is unsupported or corrupted' % path)
 		return null
 
 	var tex: Texture2D = ImageTexture.create_from_image(img)

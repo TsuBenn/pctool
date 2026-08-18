@@ -8,7 +8,7 @@ script = ExtResource("1_klo2q")
 [node name="Label" type="Label" parent="." unique_id=773598281]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Label:"
+text = "Label"
 
 [node name="CheckButton" type="CheckButton" parent="." unique_id=545590713]
 layout_mode = 2

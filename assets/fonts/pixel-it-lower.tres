@@ -1,6 +1,6 @@
 [gd_resource type="FontVariation" format=3 uid="uid://c0wf104f15yes"]
 
-[ext_resource type="FontFile" uid="uid://t8dnikm7ntn0" path="res://assets/fonts/pixel-it.ttf" id="1_brjuv"]
+[ext_resource type="FontVariation" uid="uid://cxcfjysq0kin1" path="res://assets/fonts/theme_font_lower.tres" id="1_brjuv"]
 
 [resource]
 base_font = ExtResource("1_brjuv")
