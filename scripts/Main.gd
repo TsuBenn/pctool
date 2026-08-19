@@ -23,6 +23,8 @@ class_name Main
 @onready var notice_dialog: AcceptDialog = %NoticeDialog
 @onready var export_dialog: FileDialog = %ExportDialog
 
+@onready var about_window: Window = %AboutWindow
+
 @onready var workspace_tab_container: TabContainer = %WorkspaceTabContainer
 @onready var document_panel: DocumentPanel = %DocumentPanel
 
@@ -50,20 +52,39 @@ enum {
 		FILE_EXPORT_IMAGE,
 	}
 
-enum ExportMode {
-	IMAGE,
-	PDF
+enum {
+		VIEW_FIT,
+		VIEW_CENTER,
+		VIEW_ZOOM_IN,
+		VIEW_ZOOM_OUT,
 	}
 
-var export_mode: ExportMode = ExportMode.IMAGE
+enum {
+		HELP_ABOUT
+	}
+
+var export_mode: int = ExportEngine.EXPORT_PNG
+
+@onready var update_checker: UpdateChecker = %UpdateChecker
 
 func _ready() -> void:
+
+	update_checker.check_for_updates()
+
 	get_window().min_size = Vector2i(800, 600)
-	get_tree().node_added.connect(_on_node_added)
-	_apply_nearest_filter(get_tree().root)
-	_apply_custom_cursor()
+
 	file_menu.about_to_popup.connect(_file_menu_setup)
 	file_menu.id_pressed.connect(_on_file_menu_pressed)
+
+	view_menu.about_to_popup.connect(_view_menu_setup)
+	view_menu.id_pressed.connect(_on_view_menu_pressed)
+
+	help_menu.id_pressed.connect(
+		func(id):
+			match id:
+				HELP_ABOUT:
+					about_window.popup_centered()
+	)
 
 	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(300,200)))
 	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(300,200)))
@@ -78,9 +99,13 @@ func _ready() -> void:
 
 	Global.on_noticed.connect(_show_notice_dialog)
 
+	get_tree().node_added.connect(_on_node_added)
+	_apply_nearest_filter(get_tree().root)
+	_apply_custom_cursor()
+
 func _export_file(file_path: String):
 	if current_workspace:
-		ExportEngine.export_document(current_workspace.document_data, file_path)
+		ExportEngine.export_document(current_workspace.document_data, file_path, export_mode)
 
 func _open_documents(files: PackedStringArray):
 	for file in files:
@@ -101,7 +126,7 @@ func _on_file_dropped(files: PackedStringArray) -> void:
 		if ["png", "jpg", "jpeg", "webp"].has(file.get_extension()):
 			image_files.append(file)
 			continue
-		if file.get_extension() == DocumentManager.extension:
+		if file.get_extension() == DocumentManager.EXTENSION:
 			document_files.append(file)
 			continue
 
@@ -122,13 +147,30 @@ func _on_file_dropped(files: PackedStringArray) -> void:
 func _file_menu_setup():
 	var popup = file_menu.get_popup()
 	if current_workspace == null:
+		popup.set_item_disabled(popup.get_item_index(FILE_SAVE), true)
+		popup.set_item_disabled(popup.get_item_index(FILE_SAVE_AS), true)
 		popup.set_item_disabled(popup.get_item_index(FILE_IMPORT_ASSETS), true)
 		popup.set_item_disabled(popup.get_item_index(FILE_EXPORT_PDF), true)
 		popup.set_item_disabled(popup.get_item_index(FILE_EXPORT_IMAGE), true)
 	else:
+		popup.set_item_disabled(popup.get_item_index(FILE_SAVE), false)
+		popup.set_item_disabled(popup.get_item_index(FILE_SAVE_AS), false)
 		popup.set_item_disabled(popup.get_item_index(FILE_IMPORT_ASSETS), false)
 		popup.set_item_disabled(popup.get_item_index(FILE_EXPORT_PDF), false)
 		popup.set_item_disabled(popup.get_item_index(FILE_EXPORT_IMAGE), false)
+
+func _view_menu_setup():
+	var popup = view_menu.get_popup()
+	if current_workspace == null:
+		popup.set_item_disabled(popup.get_item_index(VIEW_FIT), true)
+		popup.set_item_disabled(popup.get_item_index(VIEW_CENTER), true)
+		popup.set_item_disabled(popup.get_item_index(VIEW_ZOOM_IN), true)
+		popup.set_item_disabled(popup.get_item_index(VIEW_ZOOM_OUT), true)
+	else:
+		popup.set_item_disabled(popup.get_item_index(VIEW_FIT), false)
+		popup.set_item_disabled(popup.get_item_index(VIEW_CENTER), false)
+		popup.set_item_disabled(popup.get_item_index(VIEW_ZOOM_IN), false)
+		popup.set_item_disabled(popup.get_item_index(VIEW_ZOOM_OUT), false)
 
 func _on_file_menu_pressed(id: int):
 	match id:
@@ -145,12 +187,20 @@ func _on_file_menu_pressed(id: int):
 		FILE_IMPORT_ASSETS:
 			current_workspace._on_import_dialog_requested()
 		FILE_EXPORT_PDF:
-			Global.notice("Feature not implemented", "Export to PDFs has not been implemented.")
+			export_mode = ExportEngine.EXPORT_PDF
+			export_dialog.title = "Export to PDF"
+			export_dialog.popup_centered(Vector2(300, 200))
 		FILE_EXPORT_IMAGE:
-			export_mode = ExportMode.IMAGE
+			export_mode = ExportEngine.EXPORT_PNG
+			export_dialog.title = "Export to PNG(s)"
 			export_dialog.popup_centered(Vector2(300, 200))
 
-func _request_export_document(mode: ExportMode = ExportMode.IMAGE):
+func _on_view_menu_pressed(id: int):
+	if current_workspace:
+		current_workspace.canvas_panel._on_canvas_context_menu_pressed(id)
+
+
+func _request_export_document(mode: int = ExportEngine.EXPORT_PNG):
 	export_mode = mode
 	export_dialog.popup_centered(Vector2(300, 200))
 

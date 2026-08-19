@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://1y4tgs2087c2" path="res://scripts/ui/FileDialog.gd" id="9_wp0k4"]
 [ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="10_bjd11"]
 [ext_resource type="FontVariation" uid="uid://c0wf104f15yes" path="res://assets/fonts/pixel-it-lower.tres" id="11_qmy6f"]
+[ext_resource type="Script" uid="uid://dcgd53sullin3" path="res://scripts/engine/UpdateChecker.gd" id="12_bjd11"]
+[ext_resource type="PackedScene" uid="uid://cn3eh3w2vkmk" path="res://scenes/components/AboutWindow.tscn" id="13_qmy6f"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k4rpm"]
 atlas = ExtResource("3_nxtc6")
@@ -76,7 +78,7 @@ region = Rect2(896, -1, 64, 64)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhgcu"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mwfav"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wp0k4"]
 content_margin_left = 3.0
 content_margin_right = 3.0
 texture = ExtResource("10_bjd11")
@@ -86,7 +88,7 @@ texture_margin_right = 1.0
 texture_margin_bottom = 1.0
 region_rect = Rect2(55, 0, 11, 12)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3p2gp"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bjd11"]
 content_margin_left = 3.0
 content_margin_top = 1.0
 content_margin_right = 3.0
@@ -98,7 +100,7 @@ texture_margin_right = 2.0
 texture_margin_bottom = 2.0
 region_rect = Rect2(770, 0, 11, 12)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cvmbd"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qmy6f"]
 content_margin_left = 3.0
 content_margin_right = 3.0
 texture = ExtResource("10_bjd11")
@@ -108,7 +110,7 @@ texture_margin_right = 1.0
 texture_margin_bottom = 1.0
 region_rect = Rect2(66, 0, 11, 12)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ft6cd"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mwfav"]
 content_margin_left = 3.0
 content_margin_top = 1.0
 content_margin_right = 3.0
@@ -192,42 +194,36 @@ popup/item_9/id = 7
 label = "File"
 items = Array[String](["New Document | Ctrl+N", "Open Document | Ctrl+O", "Open Recent", "-", "Save | Ctrl+S", "Save as | Ctrl+Shift+O", "Import Assets | Ctrl+I", "-", "Export as PDFs | Ctrl+Shift+E", "Export as Image(s) | Ctrl+E"])
 
-[node name="EditMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=968440852]
+[node name="EditMenu" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1015493921 instance=ExtResource("4_jlsqs")]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Edit"
-flat = false
-item_count = 2
-popup/item_0/text = "Undo"
-popup/item_0/id = 0
-popup/item_1/text = "Redo"
-popup/item_1/id = 1
+item_count = 1
+popup/item_0/text = "Not implemented yet"
+label = "Edit"
+items = Array[String](["Not implemented yet"])
 
-[node name="ViewMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=320246399]
+[node name="ViewMenu" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1840047350 instance=ExtResource("4_jlsqs")]
 unique_name_in_owner = true
 layout_mode = 2
 text = "View"
-flat = false
-item_count = 3
-popup/item_0/text = "Zoom In"
-popup/item_0/id = 7
-popup/item_1/text = "Zoom Out"
-popup/item_1/id = 1
-popup/item_2/text = "Fit to Window"
-popup/item_2/id = 2
+item_count = 4
+popup/item_0/text = "Fit to Window"
+popup/item_1/text = "Center to Window"
+popup/item_2/text = "Zoom In"
+popup/item_3/text = "Zoom Out"
+popup/item_3/id = 3
+label = "View"
+items = Array[String](["Fit to Window", "Center to Window", "Zoom In", "Zoom Out"])
 
-[node name="HelpMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1187781383]
+[node name="HelpMenu" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1530251371 instance=ExtResource("4_jlsqs")]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Help"
-flat = false
-item_count = 3
-popup/item_0/text = "Keyboard Shortcuts"
-popup/item_0/id = 0
-popup/item_1/id = 1
-popup/item_1/separator = true
-popup/item_2/text = "About"
-popup/item_2/id = 2
+item_count = 1
+popup/item_0/text = "About"
+label = "Help"
+items = Array[String](["About"])
 
 [node name="DocumentPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=2019930383]
 unique_name_in_owner = true
@@ -244,11 +240,12 @@ layout_mode = 2
 script = ExtResource("2_0bbpv")
 
 [node name="HomePanel" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1743728114 instance=ExtResource("4_vcsgt")]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="ImageImportDialog" type="FileDialog" parent="." unique_id=865625906]
 unique_name_in_owner = true
-canvas_item_default_texture_filter = 0
+canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Open File(s)"
 initial_position = 2
@@ -259,10 +256,10 @@ filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
 favorites_enabled = false
 recent_list_enabled = false
 script = ExtResource("9_wp0k4")
-normal_style = SubResource("StyleBoxTexture_mwfav")
-hover_style = SubResource("StyleBoxTexture_3p2gp")
-pressed_style = SubResource("StyleBoxTexture_cvmbd")
-hover_pressed_style = SubResource("StyleBoxTexture_ft6cd")
+normal_style = SubResource("StyleBoxTexture_wp0k4")
+hover_style = SubResource("StyleBoxTexture_bjd11")
+pressed_style = SubResource("StyleBoxTexture_qmy6f")
+hover_pressed_style = SubResource("StyleBoxTexture_mwfav")
 font_color = Color(0, 0, 0, 1)
 font_hover_color = Color(0, 0, 0, 1)
 font_pressed_color = Color(0, 0, 0, 1)
@@ -271,7 +268,7 @@ custom_font = ExtResource("11_qmy6f")
 
 [node name="NoticeDialog" type="AcceptDialog" parent="." unique_id=1152503669]
 unique_name_in_owner = true
-canvas_item_default_texture_filter = 0
+canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 position = Vector2i(0, 12)
 size = Vector2i(120, 80)
@@ -279,7 +276,7 @@ dialog_autowrap = true
 
 [node name="ExportDialog" type="FileDialog" parent="." unique_id=1980741276]
 unique_name_in_owner = true
-canvas_item_default_texture_filter = 0
+canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Export to Image"
 position = Vector2i(0, 11)
@@ -287,10 +284,20 @@ size = Vector2i(320, 200)
 access = 2
 favorites_enabled = false
 recent_list_enabled = false
+script = ExtResource("9_wp0k4")
+normal_style = SubResource("StyleBoxTexture_wp0k4")
+hover_style = SubResource("StyleBoxTexture_bjd11")
+pressed_style = SubResource("StyleBoxTexture_qmy6f")
+hover_pressed_style = SubResource("StyleBoxTexture_mwfav")
+font_color = Color(0, 0, 0, 1)
+font_hover_color = Color(0, 0, 0, 1)
+font_pressed_color = Color(0, 0, 0, 1)
+font_hover_pressed_color = Color(0, 0, 0, 1)
+custom_font = ExtResource("11_qmy6f")
 
 [node name="OpenDocumentDialog" type="FileDialog" parent="." unique_id=686707132]
 unique_name_in_owner = true
-canvas_item_default_texture_filter = 0
+canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Open File(s)"
 position = Vector2i(0, 11)
@@ -300,3 +307,21 @@ access = 2
 filters = PackedStringArray("*.pctl; PCtool Files")
 favorites_enabled = false
 recent_list_enabled = false
+script = ExtResource("9_wp0k4")
+normal_style = SubResource("StyleBoxTexture_wp0k4")
+hover_style = SubResource("StyleBoxTexture_bjd11")
+pressed_style = SubResource("StyleBoxTexture_qmy6f")
+hover_pressed_style = SubResource("StyleBoxTexture_mwfav")
+font_color = Color(0, 0, 0, 1)
+font_hover_color = Color(0, 0, 0, 1)
+font_pressed_color = Color(0, 0, 0, 1)
+font_hover_pressed_color = Color(0, 0, 0, 1)
+custom_font = ExtResource("11_qmy6f")
+
+[node name="UpdateChecker" type="Node" parent="." unique_id=313336559]
+unique_name_in_owner = true
+script = ExtResource("12_bjd11")
+
+[node name="AboutWindow" parent="." unique_id=263161894 instance=ExtResource("13_qmy6f")]
+unique_name_in_owner = true
+visible = false

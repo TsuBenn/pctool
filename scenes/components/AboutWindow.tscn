@@ -1,0 +1,161 @@
+[gd_scene format=3 uid="uid://cn3eh3w2vkmk"]
+
+[ext_resource type="StyleBox" uid="uid://brnr25rdjjtcr" path="res://assets/style/panel_flat.tres" id="1_8n6ds"]
+[ext_resource type="StyleBox" uid="uid://c6sjn5n1vtofw" path="res://assets/style/panel_inverted.tres" id="1_f4cc4"]
+[ext_resource type="Texture2D" uid="uid://lsa0mwvc7oav" path="res://assets/logo_shadow.png" id="2_j3866"]
+
+[sub_resource type="GDScript" id="GDScript_8n6ds"]
+script/source = "extends Window
+
+@onready var version = $Panel/Version
+@onready var os_description = $Panel/Panel2/Description4
+
+func _ready() -> void:
+	version.text = Global.version_v
+	os_description.text = \"Running on: %s\" % OS.get_name()
+
+func _on_button_2_pressed() -> void:
+	OS.shell_open(\"https://github.com/TsuBenn/pctool\")
+
+func _on_button_pressed() -> void:
+	hide()
+
+func _on_close_requested() -> void:
+	hide()
+	pass # Replace with function body.
+"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8bk25"]
+atlas = ExtResource("2_j3866")
+region = Rect2(15, 3, 41, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_36xpn"]
+atlas = ExtResource("2_j3866")
+region = Rect2(3, 2, 11, 13)
+
+[node name="AboutWindow" type="Window" unique_id=263161894]
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+position = Vector2i(0, 11)
+size = Vector2i(240, 153)
+exclusive = true
+unresizable = true
+always_on_top = true
+extend_to_title = true
+script = SubResource("GDScript_8n6ds")
+
+[node name="Panel" type="Panel" parent="." unique_id=991885355]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("1_8n6ds")
+
+[node name="Logo" type="TextureRect" parent="Panel" unique_id=1905137830]
+layout_mode = 0
+offset_left = 82.0
+offset_top = 7.0
+offset_right = 205.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+texture = SubResource("AtlasTexture_8bk25")
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="Panel" unique_id=923612030]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 1.0
+offset_right = 80.0
+offset_bottom = 53.0
+texture = SubResource("AtlasTexture_36xpn")
+
+[node name="Author" type="Label" parent="Panel" unique_id=592409413]
+layout_mode = 0
+offset_left = 86.0
+offset_top = 43.0
+offset_right = 206.0
+offset_bottom = 50.0
+text = "By TsuBenn"
+
+[node name="Version" type="Label" parent="Panel" unique_id=2036596663]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 54.0
+offset_right = 236.0
+offset_bottom = 61.0
+theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
+text = "v0.1.0"
+horizontal_alignment = 2
+
+[node name="Panel2" type="Panel" parent="Panel" unique_id=194893570]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 63.0
+offset_right = -1.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("1_f4cc4")
+
+[node name="Description" type="Label" parent="Panel/Panel2" unique_id=338489947]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 4.0
+offset_right = 236.0
+offset_bottom = 25.0
+text = "PCTool (PhotoCopyTool) is a lightweight utility designed to streamline batch photo & document print workflows."
+autowrap_mode = 3
+
+[node name="Description2" type="Label" parent="Panel/Panel2" unique_id=2086212563]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 66.0
+offset_right = 235.0
+offset_bottom = 74.0
+theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
+text = "Made with GODOT ENGINE (MIT license)"
+autowrap_mode = 3
+
+[node name="Description3" type="Label" parent="Panel/Panel2" unique_id=1474838160]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 37.0
+offset_right = 235.0
+offset_bottom = 45.0
+text = "Developed by TsuBenn for his dad"
+autowrap_mode = 3
+
+[node name="Description4" type="Label" parent="Panel/Panel2" unique_id=1901752709]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 57.0
+offset_right = 235.0
+offset_bottom = 65.0
+theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
+text = "Running on:"
+autowrap_mode = 3
+
+[node name="Button" type="Button" parent="Panel" unique_id=1755730384]
+layout_mode = 0
+offset_left = 178.0
+offset_top = 141.0
+offset_right = 193.0
+offset_bottom = 152.0
+text = "Ok
+"
+
+[node name="Button2" type="Button" parent="Panel" unique_id=1109597540]
+layout_mode = 0
+offset_left = 29.0
+offset_top = 141.0
+offset_right = 100.0
+offset_bottom = 152.0
+text = "Visit GitHub Page"
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="pressed" from="Panel/Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Panel/Button2" to="." method="_on_button_2_pressed"]

@@ -47,7 +47,7 @@ func _on_add_asset_to_sheet(asset_datas: Array[AssetData], add_assets_action: Ca
 func request_save_document(file: String = document_data.save_path):
 	var save_path = document_data.save_path
 	if file.is_empty() and (save_path.is_empty() or not FileAccess.file_exists(save_path)):
-		save_document_dialog.get_line_edit().text = name.to_lower().replace(" ", "-") + DocumentManager.extension
+		save_document_dialog.get_line_edit().text = name.to_lower().replace(" ", "-") + DocumentManager.EXTENSION
 		save_document_dialog.popup_centered(Vector2i(300,200))
 		return
 

@@ -18,6 +18,14 @@ extends FileDialog
 func _ready() -> void:
 	await get_tree().process_frame
 	_override_menu_button_styles()
+	make_dialog_pixel_perfect(get_window())
+	if OS.get_name() == "Windows":
+		use_native_dialog = true
+
+func make_dialog_pixel_perfect(window: Window) -> void:
+	window.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	for child in window.find_children("*", "CanvasItem", true, false):
+		(child as CanvasItem).texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _override_menu_button_styles() -> void:
 	var menu_buttons: Array[Node] = find_children("*", "MenuButton", true, false)

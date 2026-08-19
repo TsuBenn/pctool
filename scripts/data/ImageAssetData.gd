@@ -5,6 +5,8 @@ extends AssetData
 @export var original_image: Image
 @export var pixel_dimensions: Vector2i
 
+@export var raw_file_buffer: PackedByteArray = PackedByteArray()
+@export var file_extension: String = "png"
 
 func _init(
 	new_id: String = "",
@@ -35,6 +37,10 @@ func get_preview_texture(index: int) -> Texture2D:
 
 
 static func create_from_file(path: String) -> ImageAssetData:
+	var buffer: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	if buffer.is_empty():
+		return null
+
 	if not FileAccess.file_exists(path):
 		Global.notice("File not found", 'File from path "%s" does not exists!' % path)
 		push_error('ImageAssetData: File from path "%s" does not exists!' % path)
@@ -80,4 +86,8 @@ static func create_from_file(path: String) -> ImageAssetData:
 	var file_name = path.get_file()
 	var new_id = Marshalls.raw_to_base64(Crypto.new().generate_random_bytes(8))
 
-	return ImageAssetData.new(new_id, file_name, path, tex, img, dim)
+	var asset: ImageAssetData = ImageAssetData.new(new_id, file_name, path, tex, img, dim)
+	asset.raw_file_buffer = buffer # Cache the untouched original bytes!
+	asset.file_extension = path.get_extension().to_lower()
+
+	return asset

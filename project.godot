@@ -27,8 +27,8 @@ Global="*uid://dvsq2i70xgdn7"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=800
+window/size/viewport_height=600
 window/energy_saving/keep_screen_on=false
 window/stretch/aspect="expand"
 window/stretch/scale=2.0

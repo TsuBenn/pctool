@@ -64,7 +64,7 @@ var view_offset: Vector2 = Vector2.ZERO:
 var offset_padding: Vector2:
 	get:
 		if paper_sheet.is_node_ready():
-			return Vector2(40,60)
+			return Vector2(0,0)
 		else:
 			return Vector2.ZERO
 
@@ -227,6 +227,19 @@ func _on_paper_container_gui_input(event: InputEvent):
 				elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 					zoom_slider.value -= 10
 				accept_event()
+			else:
+				if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+					if view_offset.y == _get_clamped().y:
+						if advance_page(-1):
+							view_offset.y = -_get_clamped().y
+					view_offset.y += 20
+					accept_event()
+				elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+					if view_offset.y == -_get_clamped().y:
+						if advance_page(1):
+							view_offset.y = _get_clamped().y
+					view_offset.y -= 20
+					accept_event()
 	elif event is InputEventMouseMotion:
 		if _is_panning:
 			if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
@@ -499,7 +512,7 @@ func update_scrollbars():
 	paper_container_h_scrollbar.visible = paper_container_h_scrollbar.max_value - paper_container_h_scrollbar.min_value > paper_container_h_scrollbar.page
 	paper_container_h_scrollbar.set_value_no_signal(-view_offset.x)
 
-func _clamp_offset(offset: Vector2) -> Vector2:
+func _get_clamped() -> Vector2:
 	var pad_x: float = offset_padding.x
 	var pad_y: float = offset_padding.y
 
@@ -512,4 +525,10 @@ func _clamp_offset(offset: Vector2) -> Vector2:
 	var clamped_x: float = max(pad_x - (view_x - paper_x)/2,0)
 	var clamped_y: float = max(pad_y - (view_y - paper_y)/2,0)
 
-	return offset.clamp(Vector2(-clamped_x, -clamped_y),Vector2(clamped_x, clamped_y))
+	return Vector2(clamped_x, clamped_y)
+
+func _clamp_offset(offset: Vector2) -> Vector2:
+
+	var clamped: Vector2 = _get_clamped()
+
+	return offset.clamp(Vector2(-clamped.x, -clamped.y),Vector2(clamped.x, clamped.y))
