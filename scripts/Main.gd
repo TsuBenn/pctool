@@ -123,7 +123,7 @@ func _on_file_dropped(files: PackedStringArray) -> void:
 			Global.notice("File Not Found", 'File from path "%s" does not exists!' % file)
 			return
 
-		if ["png", "jpg", "jpeg", "webp"].has(file.get_extension()):
+		if ["png", "jpg", "jpeg", "webp"].has(file.get_extension().to_lower()):
 			image_files.append(file)
 			continue
 		if file.get_extension() == DocumentManager.EXTENSION:

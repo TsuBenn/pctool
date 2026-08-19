@@ -1,7 +1,8 @@
 class_name DocumentManager
 extends RefCounted
 
-const EXTENSION: String = ".pctl"
+const EXTENSION: String = "pctl"
+const EXTENSION_DOT: String = ".pctl"
 const MANIFEST_FILENAME: String = "project.json"
 
 
@@ -12,8 +13,8 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 		push_error("DocumentManager: Cannot save null DocumentData!")
 		return ERR_INVALID_PARAMETER
 
-	if not output_path.ends_with(EXTENSION):
-		output_path += EXTENSION
+	if not output_path.ends_with(EXTENSION_DOT):
+		output_path += EXTENSION_DOT
 
 	var packer: ZIPPacker = ZIPPacker.new()
 	var err: Error = packer.open(output_path, ZIPPacker.APPEND_CREATE)

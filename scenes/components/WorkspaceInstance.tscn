@@ -879,3 +879,4 @@ size = Vector2i(300, 200)
 access = 2
 favorites_enabled = false
 recent_list_enabled = false
+script = ExtResource("11_okkpv")
