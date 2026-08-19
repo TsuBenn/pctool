@@ -176,7 +176,6 @@ theme_override_constants/separation = 0
 unique_name_in_owner = true
 layout_mode = 2
 item_count = 10
-popup/item_0/text = "New Document | Ctrl+N"
 popup/item_1/text = "Open Document"
 popup/item_3/id = -1
 popup/item_4/text = "Save"
@@ -191,7 +190,7 @@ popup/item_8/id = 6
 popup/item_9/text = "Export as Image(s)"
 popup/item_9/id = 7
 label = "File"
-items = Array[String](["New Document | Ctrl+N", "Open Document", "Open Recent", "-", "Save", "Save as", "Import Assets", "-", "Export as PDFs", "Export as Image(s)"])
+items = Array[String](["New Document | Ctrl+N", "Open Document | Ctrl+O", "Open Recent", "-", "Save | Ctrl+S", "Save as | Ctrl+Shift+O", "Import Assets | Ctrl+I", "-", "Export as PDFs | Ctrl+Shift+E", "Export as Image(s) | Ctrl+E"])
 
 [node name="EditMenu" type="MenuButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=968440852]
 unique_name_in_owner = true

@@ -57,24 +57,6 @@ enum ExportMode {
 
 var export_mode: ExportMode = ExportMode.IMAGE
 
-# func _unhandled_input(event: InputEvent) -> void:
-# 	if event is InputEventKey and event.is_pressed():
-# 		if event.keycode == KEY_E and event.ctrl_pressed:
-# 			_on_file_menu_pressed(FILE_EXPORT_IMAGE)
-# 			accept_event()
-# 		elif event.keycode == KEY_S and event.ctrl_pressed and event.shift_pressed:
-# 			_on_file_menu_pressed(FILE_SAVE_AS)
-# 			accept_event()
-# 		elif event.keycode == KEY_S and event.ctrl_pressed:
-# 			_on_file_menu_pressed(FILE_SAVE)
-# 			accept_event()
-# 		elif event.keycode == KEY_N and event.ctrl_pressed:
-# 			_on_file_menu_pressed(FILE_NEW)
-# 			accept_event()
-# 		elif event.keycode == KEY_O and event.ctrl_pressed:
-# 			_on_file_menu_pressed(FILE_OPEN)
-# 			accept_event()
-
 func _ready() -> void:
 	get_window().min_size = Vector2i(800, 600)
 	get_tree().node_added.connect(_on_node_added)
