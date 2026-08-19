@@ -70,7 +70,7 @@ static func render_page_to_image(document_data: DocumentData, layout: PrintLayou
 		_blend_photo_img(master_image,photo_img,frame_size_px,frame_pos_px,crop_pos_px)
 
 		if item.border_enabled and item.border_width > 0:
-			var border_width: int = max(item.border_width, 1) * px_per_mm
+			var border_width: int = max(item.border_width, 0.2) * px_per_mm
 			_draw_border_rect(master_image, frame_pos_px, frame_size_px, border_width, item.border_color)
 
 	return master_image
@@ -156,4 +156,3 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 			row_height = max(row_height, tile_size.y)
 
 	return layout
-

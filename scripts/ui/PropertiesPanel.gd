@@ -133,7 +133,7 @@ func _ready() -> void:
 			var aspect = photo_item.size_mm.aspect()
 			if aspect == 0:
 				lock_ratio_check_button.button_pressed = false
-			photo_item.size_mm = Vector2(new, new / aspect if lock_ratio else photo_item.size_mm.x)
+			photo_item.size_mm = Vector2(new, (new / aspect) if lock_ratio else photo_item.size_mm.y)
 			match photo_item.size_mm:
 				Vector2(30.0,40.0):
 					properties_presets_option_button.selected = PRESET_3_BY_4
@@ -144,7 +144,7 @@ func _ready() -> void:
 	)
 	properties_height_spin_box.value_changed.connect(
 		func(new):
-			photo_item.size_mm = Vector2(new * photo_item.size_mm.aspect() if lock_ratio else photo_item.size_mm.y, new)
+			photo_item.size_mm = Vector2((new * photo_item.size_mm.aspect()) if lock_ratio else photo_item.size_mm.x, new)
 			match photo_item.size_mm:
 				Vector2(30.0,40.0):
 					properties_presets_option_button.selected = PRESET_3_BY_4

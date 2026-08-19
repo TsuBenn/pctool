@@ -15,6 +15,14 @@ func _ready() -> void:
 	workspace_tab_container.child_entered_tree.connect(_update_view_state)
 	workspace_tab_container.get_tab_bar().tab_close_pressed.connect(_on_tab_close_pressed)
 
+	workspace_tab_container.tab_changed.connect(
+		func(tab):
+			if tab != -1:
+				get_window().title = Global.app_title_prefix + " - %s" % workspace_tab_container.get_child(tab).name
+			else:
+				get_window().title = Global.app_title_prefix
+	)
+
 	home_panel.new_document_requested.connect(open_document)
 	home_panel.open_document_requested.connect(open_document_requested.emit)
 	home_panel.import_assets_requested.connect(import_assets_requested.emit)

@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="12_uxgfi"]
 [ext_resource type="PackedScene" uid="uid://chrdu5m11thxk" path="res://scenes/components/PhotoTileView.tscn" id="13_bn7i6"]
 [ext_resource type="Script" uid="uid://dwsdjgm1o2vcp" path="res://scripts/ui/PropertiesPanel.gd" id="14_cx2ea"]
+[ext_resource type="PackedScene" uid="uid://cwdi1o6rensku" path="res://scenes/modules/PopupMenuSimplified.tscn" id="14_k0bj0"]
 [ext_resource type="FontVariation" uid="uid://c0wf104f15yes" path="res://assets/fonts/pixel-it-lower.tres" id="15_8vahb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhgcu"]
@@ -223,6 +224,7 @@ theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
 text = "No imported assets
 Drag and drop
 or select 'Import'
+or double click here
 to import assets"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -264,7 +266,7 @@ expand_mode = "Label"
 slider_width = 60
 tick_count = 5.0
 ticks_on_borders = true
-value = 1.0
+value = 2.0
 min_value = 1.0
 max_value = 5.0
 
@@ -334,23 +336,45 @@ size_flags_vertical = 3
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("4_omfjr")
 
-[node name="PaperContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport" unique_id=1320361640]
+[node name="PaperContainer" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport" unique_id=1539723448]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
+mouse_filter = 1
 
-[node name="CenterContainer" type="CenterContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer" unique_id=1487525637]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
+[node name="PaperAnchor" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer" unique_id=1579330321]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
 offset_transform_visual_only = false
+mouse_filter = 2
 
-[node name="PaperMarginsContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/CenterContainer" unique_id=338255097]
+[node name="PaperMarginsContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/PaperAnchor" unique_id=338255097]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -76.0
+offset_top = -107.0
+offset_right = 76.0
+offset_bottom = 107.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+mouse_filter = 2
 
-[node name="PaperSheet" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/CenterContainer/PaperMarginsContainer" unique_id=255838542]
+[node name="PaperSheet" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/PaperAnchor/PaperMarginsContainer" unique_id=255838542]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(148, 210)
 layout_mode = 2
@@ -359,13 +383,56 @@ size_flags_vertical = 6
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_mhgcu")
 
-[node name="PhotoTilesContainer" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/CenterContainer/PaperMarginsContainer/PaperSheet" unique_id=1162142853]
+[node name="PhotoTilesContainer" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/PaperAnchor/PaperMarginsContainer/PaperSheet" unique_id=1162142853]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 
-[node name="MarginOverlay" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/CenterContainer/PaperMarginsContainer/PaperSheet" unique_id=1908139367]
+[node name="MarginOverlay" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/PaperAnchor/PaperMarginsContainer/PaperSheet" unique_id=1908139367]
 unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 1
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer" unique_id=208223628]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer" unique_id=1452743964]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer/HBoxContainer2" unique_id=250831142]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="PaperContainerVScrollBar" type="VScrollBar" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer/HBoxContainer2" unique_id=1712313390]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer" unique_id=685971423]
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="PaperContainerHScrollBar" type="HScrollBar" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer/HBoxContainer" unique_id=1320064047]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+
+[node name="Control" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer/HBoxContainer" unique_id=408329045]
 layout_mode = 2
 mouse_filter = 2
 
@@ -439,6 +506,16 @@ ticks_on_borders = true
 [node name="DuplicateAssetsConfirmationDialog" type="ConfirmationDialog" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=1073781215]
 unique_name_in_owner = true
 title = "Duplicate Assets"
+
+[node name="CanvasContextMenu" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=1036242746 instance=ExtResource("14_k0bj0")]
+unique_name_in_owner = true
+visible = false
+items = Array[String](["Fit to Window", "Center to Window", "-", "Zoom In", "Zoom Out", "-", "Switch to Landscape"])
+
+[node name="PhotoTileContextMenu" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=2060811951 instance=ExtResource("14_k0bj0")]
+unique_name_in_owner = true
+visible = false
+items = Array[String](["Increment Quantity", "Decrement Quantity", "-", "Copy Properties", "Paste Properties", "-", "Duplicate", "Remove"])
 
 [node name="PropertiesPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=562294387]
 unique_name_in_owner = true

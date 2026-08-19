@@ -22,13 +22,17 @@ var document_data: DocumentData
 var print_layout: PrintLayout = PrintLayout.new()
 var current_page_index: int = 0
 
-@onready var paper_container: ScrollContainer = %PaperContainer
-@onready var paper_margins_container: MarginContainer = %PaperMarginsContainer
+@onready var paper_container: Control = %PaperContainer
+@onready var paper_anchor: Control = %PaperAnchor
+
 @onready var paper_sheet: PanelContainer = %PaperSheet
 
 @onready var photo_tiles_container: Control = %PhotoTilesContainer
 
 @onready var margins_overlay: Control = %MarginOverlay
+
+@onready var paper_container_v_scrollbar: VScrollBar = %PaperContainerVScrollBar
+@onready var paper_container_h_scrollbar: HScrollBar = %PaperContainerHScrollBar
 
 @onready var first_page_button: Button = %FirstPageButton
 @onready var previous_page_button: Button = %PreviousPageButton
@@ -39,6 +43,9 @@ var current_page_index: int = 0
 @onready var zoom_presets_option_button: OptionButton = %ZoomPresetsOptionButton
 @onready var zoom_slider: HSlider = %ZoomSlider
 
+@onready var canvas_context_menu: PopupMenuSimplified = %CanvasContextMenu
+@onready var photo_tile_context_menu: PopupMenuSimplified = %PhotoTileContextMenu
+
 @onready
 var duplicate_assets_confirmation_dialog: ConfirmationDialog = %DuplicateAssetsConfirmationDialog
 
@@ -46,8 +53,23 @@ var view_scale: float = 1.0:
 	set(new):
 		view_scale = new
 		_sync_ui()
-@export var vertical_padding: int = 40
-@export var horizontal_padding: int = 60
+
+var view_offset: Vector2 = Vector2.ZERO:
+	set(new):
+		view_offset = _clamp_offset(new)
+		paper_anchor.offset_transform_enabled = true
+		paper_anchor.offset_transform_position = view_offset
+		update_scrollbars()
+
+var offset_padding: Vector2:
+	get:
+		if paper_sheet.is_node_ready():
+			return Vector2(40,60)
+		else:
+			return Vector2.ZERO
+
+
+@export var paper_padding: int = 16
 
 func advance_page(delta: int) -> bool:
 	var new = clamp(current_page_index + delta, 0, print_layout.total_pages - 1)
@@ -58,7 +80,20 @@ func advance_page(delta: int) -> bool:
 	return false
 
 func _ready() -> void:
-	paper_container.resized.connect(_sync_ui)
+	canvas_context_menu.id_pressed.connect(_on_canvas_context_menu_pressed)
+	photo_tile_context_menu.id_pressed.connect(_on_photo_tile_context_menu_pressed)
+	paper_container.resized.connect(
+	func():
+		_sync_ui()
+	)
+	paper_container_v_scrollbar.value_changed.connect(
+		func(new):
+			view_offset.y = -new
+	)
+	paper_container_h_scrollbar.value_changed.connect(
+		func(new):
+			view_offset.x = -new
+	)
 	margins_overlay.draw.connect(_draw_margins_overlay)
 	paper_container.gui_input.connect(_on_paper_container_gui_input)
 	first_page_button.pressed.connect(
@@ -124,11 +159,6 @@ func _ready() -> void:
 					)
 	)
 
-	paper_margins_container.add_theme_constant_override("margin_top", vertical_padding)
-	paper_margins_container.add_theme_constant_override("margin_bottom", vertical_padding)
-	paper_margins_container.add_theme_constant_override("margin_left", horizontal_padding)
-	paper_margins_container.add_theme_constant_override("margin_right", horizontal_padding)
-
 	duplicate_assets_confirmation_dialog.ok_button_text = "Increment Quantity"
 	duplicate_assets_confirmation_dialog.add_button("Add as New Item", false, "add_new")
 
@@ -152,7 +182,6 @@ func _ready() -> void:
 			assets_on_hold.clear()
 	)
 
-
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	# Only accept drops that carry our specific asset payload
 	if data is Dictionary and data.get("type") == "asset_data_group":
@@ -160,7 +189,7 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	return false
 
 
-func _drop_data(at_position: Vector2, data: Variant) -> void:
+func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if data is Dictionary and data.get("type") == "asset_data_group":
 		var dropped_assets: Array[AssetData] = data.get("assets")
 		if dropped_assets:
@@ -179,40 +208,128 @@ func _on_paper_container_gui_input(event: InputEvent):
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.is_pressed():
 				_deselect_all_photo_items()
+				accept_event()
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.is_pressed():
+				_open_canvas_context_menu()
 		elif event.button_index == MOUSE_BUTTON_MIDDLE:
 			if event.is_pressed():
-				_is_panning = true
+				_is_panning = event.is_pressed()
 				paper_container.mouse_default_cursor_shape = CursorShape.CURSOR_DRAG
 			elif event.is_released():
-				_is_panning = false
+				_is_panning = event.is_pressed()
 				paper_container.mouse_default_cursor_shape = CursorShape.CURSOR_ARROW
 			accept_event()
 		elif event.is_pressed():
 			if event.ctrl_pressed:
 				if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 					zoom_slider.value += 10
-					accept_event()
-				if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 					zoom_slider.value -= 10
-					accept_event()
+				accept_event()
+	elif event is InputEventMouseMotion:
+		if _is_panning:
+			if Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
+				view_offset += event.relative
+				accept_event()
 			else:
-				if event.button_index == MOUSE_BUTTON_WHEEL_UP and paper_container.scroll_vertical <= floor(paper_container.get_v_scroll_bar().min_value):
-					if advance_page(-1):
-						paper_container.set_deferred("scroll_vertical", paper_container.get_v_scroll_bar().max_value - paper_container.get_v_scroll_bar().page)
-					accept_event()
-				if event.button_index == MOUSE_BUTTON_WHEEL_DOWN and paper_container.scroll_vertical >= floor(paper_container.get_v_scroll_bar().max_value - paper_container.get_v_scroll_bar().page):
-					if advance_page(1):
-						paper_container.scroll_vertical = 0
-					accept_event()
-	if event is InputEventMouseMotion and _is_panning:
-		paper_container.scroll_horizontal -= int(event.relative.x)
-		paper_container.scroll_vertical -= int(event.relative.y)
-		accept_event()
+				_is_panning = false
+				paper_container.mouse_default_cursor_shape = CursorShape.CURSOR_ARROW
 
+enum {
+		CANVAS_FIT_TO_WINDOW,
+		CANVAS_CENTER_TO_WINDOW,
+		CANVAS_ZOOM_IN,
+		CANVAS_ZOOM_OUT,
+		CANVAS_ROTATE_PAPER,
+	}
+
+enum {
+		TILE_INCREMENT,
+		TILE_DECREMENT,
+		TILE_COPY_PROPERTIES,
+		TILE_PASTE_PROPERTIES,
+		TILE_DUPLICATE,
+		TILE_REMOVE,
+	}
+
+var photo_item_clipboard: PhotoItemData = null
+
+func _on_canvas_context_menu_pressed(id: int):
+	match id:
+		CANVAS_FIT_TO_WINDOW:
+			zoom_slider.value = 100
+			view_offset = Vector2.ZERO
+		CANVAS_CENTER_TO_WINDOW:
+			view_offset = Vector2.ZERO
+		CANVAS_ZOOM_IN:
+			zoom_slider.value += 10
+		CANVAS_ZOOM_OUT:
+			zoom_slider.value -= 10
+		CANVAS_ROTATE_PAPER:
+			document_data.is_landscape = not document_data.is_landscape
+
+func _open_canvas_context_menu():
+	canvas_context_menu.set_item_text(canvas_context_menu.get_item_index(CANVAS_ROTATE_PAPER), "Switch to Portrait" if document_data.is_landscape else "Switch to Landscape")
+	canvas_context_menu.popup()
+
+func _on_photo_tile_context_menu_pressed(id: int):
+	var selected_photo_item = selected_photo_items.back()
+	if selected_photo_item:
+		match id:
+			TILE_INCREMENT:
+				selected_photo_item.quantity += 1
+			TILE_DECREMENT:
+				selected_photo_item.quantity -= 1
+			TILE_COPY_PROPERTIES:
+				_copy_properties()
+			TILE_PASTE_PROPERTIES:
+				_paste_properties()
+			TILE_DUPLICATE:
+				var to_duplicate: Array[AssetData] = []
+				to_duplicate.assign([selected_photo_item.asset])
+				add_asset_to_sheet(to_duplicate, CanvasPanel.AddAssetAction.FORCE_ADD, true)
+			TILE_REMOVE:
+				document_data.remove_photo_item(selected_photo_item)
+				pass
+
+func _copy_properties():
+	var selected_photo_item = selected_photo_items.back()
+	if selected_photo_item:
+		photo_item_clipboard = selected_photo_item.duplicate()
+
+func _paste_properties():
+	if photo_item_clipboard == null:
+		Global.notice("Cannot Paste Properties", "Photo Item Data clipboard is empty, copy something first!")
+
+	for item in selected_photo_items:
+		item.size_mm = photo_item_clipboard.size_mm
+		item.rotation = photo_item_clipboard.rotation
+		item.flipped_h = photo_item_clipboard.flipped_h
+		item.flipped_v = photo_item_clipboard.flipped_v
+		item.quantity = photo_item_clipboard.quantity
+		item.filter_mode = photo_item_clipboard.filter_mode
+		item.fitting_mode = photo_item_clipboard.fitting_mode
+		item.scale = photo_item_clipboard.scale
+		item.offset = photo_item_clipboard.offset
+		item.border_enabled = photo_item_clipboard.border_enabled
+		item.border_width = photo_item_clipboard.border_width
+		item.border_color = photo_item_clipboard.border_color
+
+
+func _open_photo_tile_context_menu(tile: PhotoTileView):
+	_deselect_all_photo_items(false)
+	for tile_view: PhotoTileView in photo_tiles_container.get_children():
+		if tile_view.photo_item == tile.photo_item:
+			tile_view.is_selected = true
+	selected_photo_items.append(tile.photo_item)
+	on_photo_item_selected.emit(tile.photo_item)
+	photo_tile_context_menu.set_item_disabled(photo_tile_context_menu.get_item_index(TILE_PASTE_PROPERTIES), photo_item_clipboard == null)
+	photo_tile_context_menu.popup()
 
 func _get_px_per_mm_scale() -> float:
-	var scale_w = (paper_container.size.x - horizontal_padding * 2) / document_data.paper_size_mm.x
-	var scale_h = (paper_container.size.y - vertical_padding * 2) / document_data.paper_size_mm.y
+	var scale_w = (paper_container.size.x - paper_padding * 2) / document_data.paper_size_mm.x
+	var scale_h = (paper_container.size.y - paper_padding * 2) / document_data.paper_size_mm.y
 	var fit_scale = min(scale_w, scale_h) * view_scale
 	return fit_scale
 
@@ -244,9 +361,9 @@ func add_asset_to_sheet(
 	asset_datas: Array[AssetData], add_asset_action: AddAssetAction = AddAssetAction.ADD, select_on_add: bool = false
 ):
 
-	var on_hold: bool = false
 	var duplicated_count: int = 0
 	for asset in asset_datas:
+		var on_hold: bool = false
 		var incremented: bool = false
 		match add_asset_action:
 			AddAssetAction.ADD:
@@ -291,7 +408,7 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 		photo_tiles_container.remove_child(tile)
 		tile.queue_free()
 
-	current_page_index = clamp(current_page_index, 0, print_layout.total_pages)
+	current_page_index = clamp(current_page_index, 0, max(print_layout.total_pages - 1, 0))
 
 	var new_tiles: Array[PhotoTile] = print_layout.get_page_tiles(current_page_index)
 
@@ -301,6 +418,7 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 		photo_tiles_container.add_child(new_tile_view)
 		new_tile_view.setup(new_tile, scale_px_per_mm, new_tile.photo_item in selected_photo_items, document_data.spacing_mm)
 		new_tile_view.on_tile_view_clicked.connect(_on_tile_view_clicked)
+		new_tile_view.on_tile_view_right_clicked.connect(_open_photo_tile_context_menu)
 
 func _deselect_all_photo_items(update_properties: bool = true):
 	selected_photo_items.clear()
@@ -333,22 +451,14 @@ func _sync_ui():
 	if not is_node_ready() or not document_data:
 		return
 
-	await get_tree().process_frame
-
 	var scale_px_per_mm = _get_px_per_mm_scale()
 
 	print_layout = ExportEngine._calculate_layout(document_data)
 
-	var old_size: Vector2 = paper_sheet.custom_minimum_size
 	var new_size: Vector2 = _get_preview_size(scale_px_per_mm)
 	paper_sheet.custom_minimum_size = new_size
 
 	reinstantiate_photo_tile_views(scale_px_per_mm)
-
-	var delta: Vector2 = (new_size - old_size) * 0.5
-
-	# Apply the scroll offset after ScrollContainer updates its scroll limits
-	_apply_scroll_offset.call_deferred(delta)
 
 	margins_overlay.queue_redraw()
 
@@ -362,11 +472,44 @@ func _sync_ui():
 	next_page_button.visible = show_page_nav
 	previous_page_button.visible = show_page_nav
 
+	view_offset = _clamp_offset(view_offset)
 
-func _apply_scroll_offset(delta: Vector2) -> void:
-	paper_container.set_deferred(
-		"scroll_horizontal", paper_container.scroll_horizontal + int(delta.x)
-	)
-	# paper_container.set_deferred(
-	# 	"scroll_vertical", paper_container.scroll_vertical + int(delta.y)
-	# )
+func update_scrollbars():
+	var pad_x: float = offset_padding.x
+	var pad_y: float = offset_padding.y
+
+	var paper_x: float = paper_sheet.custom_minimum_size.x
+	var paper_y: float = paper_sheet.custom_minimum_size.y
+
+	var view_x: float = paper_container.size.x
+	var view_y: float = paper_container.size.y
+
+	var clamped_x: float = max(pad_x - (view_x - paper_x)/2,0)
+	var clamped_y: float = max(pad_y - (view_y - paper_y)/2,0)
+
+	paper_container_v_scrollbar.page = paper_y
+	paper_container_v_scrollbar.min_value = -clamped_y
+	paper_container_v_scrollbar.max_value = clamped_y + paper_y
+	paper_container_v_scrollbar.set_value_no_signal(-view_offset.y)
+	paper_container_v_scrollbar.visible = paper_container_v_scrollbar.max_value - paper_container_v_scrollbar.min_value > paper_container_v_scrollbar.page
+
+	paper_container_h_scrollbar.page = paper_x
+	paper_container_h_scrollbar.min_value = -clamped_x
+	paper_container_h_scrollbar.max_value = clamped_x + paper_x
+	paper_container_h_scrollbar.visible = paper_container_h_scrollbar.max_value - paper_container_h_scrollbar.min_value > paper_container_h_scrollbar.page
+	paper_container_h_scrollbar.set_value_no_signal(-view_offset.x)
+
+func _clamp_offset(offset: Vector2) -> Vector2:
+	var pad_x: float = offset_padding.x
+	var pad_y: float = offset_padding.y
+
+	var paper_x: float = paper_sheet.size.x
+	var paper_y: float = paper_sheet.size.y
+
+	var view_x: float = paper_container.size.x
+	var view_y: float = paper_container.size.y
+
+	var clamped_x: float = max(pad_x - (view_x - paper_x)/2,0)
+	var clamped_y: float = max(pad_y - (view_y - paper_y)/2,0)
+
+	return offset.clamp(Vector2(-clamped_x, -clamped_y),Vector2(clamped_x, clamped_y))

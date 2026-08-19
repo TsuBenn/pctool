@@ -3,6 +3,7 @@ class_name PhotoTileView
 extends Control
 
 signal on_tile_view_clicked(tile: PhotoTileView)
+signal on_tile_view_right_clicked(tile: PhotoTileView)
 
 @onready var image_texture: TextureRect = %ImageTexture
 @onready var selection_outline: Panel = %SelectionOutline
@@ -43,9 +44,12 @@ func _ready() -> void:
 	pass
 
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.is_pressed():
-		if event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
 			on_tile_view_clicked.emit(self)
+			accept_event()
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.is_pressed():
+			on_tile_view_right_clicked.emit(self)
 			accept_event()
 
 func _update_image_rect():

@@ -62,6 +62,5 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 			document_data.assets.append(asset)
 			assets_panel.instantiate_asset_card(asset)
 
-
 func _on_import_dialog_requested() -> void:
 	image_import_dialog.popup_centered(Vector2i(300, 200))

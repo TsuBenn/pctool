@@ -72,13 +72,17 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed:
 		if event.keycode == KEY_ESCAPE:
 			_deselect_all_asset_cards()
+			accept_event()
 		elif event.keycode == KEY_A and event.ctrl_pressed:
 			_select_all_asset_cards()
+			accept_event()
 
 
 func _on_assets_container_pressed(event: InputEvent):
 	if event is InputEventMouseButton and event.is_pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT and not event.ctrl_pressed:
+		if event.is_double_click() and event.button_index == MOUSE_BUTTON_LEFT:
+			_on_import_button_pressed()
+		elif event.button_index == MOUSE_BUTTON_LEFT and not event.ctrl_pressed:
 			_deselect_all_asset_cards()
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			_show_container_context_menu(get_global_mouse_position())

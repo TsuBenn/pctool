@@ -9,9 +9,12 @@ signal import_assets_requested()
 @onready var open_document_button: Button = %OpenDocumentButton
 @onready var import_assets_button: Button = %ImportAssetsButton
 
+@onready var version_label: Label = %VersionLabel
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	new_document_button.pressed.connect(new_document_requested.emit)
 	open_document_button.pressed.connect(open_document_requested.emit)
 	import_assets_button.pressed.connect(import_assets_requested.emit)
 
+	version_label.text = Global.version_v

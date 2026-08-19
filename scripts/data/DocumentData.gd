@@ -17,6 +17,10 @@ extends Resource
 	set(new):
 		if is_landscape != new:
 			is_landscape = new
+			if new:
+				paper_size_mm = Vector2(max(paper_size_mm.x, paper_size_mm.y), min(paper_size_mm.x, paper_size_mm.y))
+			else:
+				paper_size_mm = Vector2(min(paper_size_mm.x, paper_size_mm.y), max(paper_size_mm.x, paper_size_mm.y))
 			emit_changed()
 
 @export var margins_mm: float = 20.0:
