@@ -1,7 +1,5 @@
 [gd_scene format=3 uid="uid://cn3eh3w2vkmk"]
 
-[ext_resource type="StyleBox" uid="uid://brnr25rdjjtcr" path="res://assets/style/panel_flat.tres" id="1_8n6ds"]
-[ext_resource type="StyleBox" uid="uid://c6sjn5n1vtofw" path="res://assets/style/panel_inverted.tres" id="1_f4cc4"]
 [ext_resource type="Texture2D" uid="uid://lsa0mwvc7oav" path="res://assets/logo_shadow.png" id="2_j3866"]
 
 [sub_resource type="GDScript" id="GDScript_8n6ds"]
@@ -36,7 +34,7 @@ region = Rect2(3, 2, 11, 13)
 [node name="AboutWindow" type="Window" unique_id=263161894]
 canvas_item_default_texture_filter = 0
 oversampling_override = 1.0
-position = Vector2i(0, 11)
+position = Vector2i(0, 36)
 size = Vector2i(240, 153)
 exclusive = true
 unresizable = true
@@ -50,7 +48,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = ExtResource("1_8n6ds")
 
 [node name="Logo" type="TextureRect" parent="Panel" unique_id=1905137830]
 layout_mode = 0
@@ -99,7 +96,6 @@ offset_right = -1.0
 offset_bottom = -14.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = ExtResource("1_f4cc4")
 
 [node name="Description" type="Label" parent="Panel/Panel2" unique_id=338489947]
 layout_mode = 0

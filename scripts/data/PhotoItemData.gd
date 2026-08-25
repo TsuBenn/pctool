@@ -71,7 +71,7 @@ enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
 		border_enabled = new
 		emit_changed()
 
-@export var border_width: float = 1:
+@export var border_width: float = 0.4:
 	set(new):
 		border_width = new
 		emit_changed()

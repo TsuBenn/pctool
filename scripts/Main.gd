@@ -86,8 +86,8 @@ func _ready() -> void:
 					about_window.popup_centered()
 	)
 
-	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(300,200)))
-	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(300,200)))
+	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(600,400)))
+	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(600,400)))
 
 	export_dialog.file_selected.connect(_export_file)
 	open_document_dialog.files_selected.connect(_open_documents)
@@ -123,10 +123,12 @@ func _on_file_dropped(files: PackedStringArray) -> void:
 			Global.notice("File Not Found", 'File from path "%s" does not exists!' % file)
 			return
 
-		if ["png", "jpg", "jpeg", "webp"].has(file.get_extension().to_lower()):
+		var ext = file.get_extension().to_lower()
+
+		if ["png", "jpg", "jpeg", "webp"].has(ext):
 			image_files.append(file)
 			continue
-		if file.get_extension() == DocumentManager.EXTENSION:
+		elif ext == DocumentManager.EXTENSION:
 			document_files.append(file)
 			continue
 
@@ -177,7 +179,7 @@ func _on_file_menu_pressed(id: int):
 		FILE_NEW:
 			document_panel.open_document()
 		FILE_OPEN:
-			open_document_dialog.popup_centered(Vector2i(300,200))
+			open_document_dialog.popup_centered(Vector2i(600,400))
 		FILE_SAVE:
 			if current_workspace:
 				current_workspace.request_save_document()
@@ -187,13 +189,17 @@ func _on_file_menu_pressed(id: int):
 		FILE_IMPORT_ASSETS:
 			current_workspace._on_import_dialog_requested()
 		FILE_EXPORT_PDF:
-			export_mode = ExportEngine.EXPORT_PDF
-			export_dialog.title = "Export to PDF"
-			export_dialog.popup_centered(Vector2(300, 200))
+			if current_workspace:
+				export_mode = ExportEngine.EXPORT_PDF
+				export_dialog.title = "Export to PDF"
+				export_dialog.get_line_edit().text = current_workspace.name.to_lower().replace(" ", "-") + ".pdf"
+				export_dialog.popup_centered(Vector2(600, 400))
 		FILE_EXPORT_IMAGE:
-			export_mode = ExportEngine.EXPORT_PNG
-			export_dialog.title = "Export to PNG(s)"
-			export_dialog.popup_centered(Vector2(300, 200))
+			if current_workspace:
+				export_mode = ExportEngine.EXPORT_PNG
+				export_dialog.title = "Export to PNG(s)"
+				export_dialog.get_line_edit().text = current_workspace.name.to_lower().replace(" ", "-") + ".png"
+				export_dialog.popup_centered(Vector2(600, 400))
 
 func _on_view_menu_pressed(id: int):
 	if current_workspace:
@@ -202,13 +208,13 @@ func _on_view_menu_pressed(id: int):
 
 func _request_export_document(mode: int = ExportEngine.EXPORT_PNG):
 	export_mode = mode
-	export_dialog.popup_centered(Vector2(300, 200))
+	export_dialog.popup_centered(Vector2(600, 400))
 
 func _show_notice_dialog(title: String, message: String, ok_button_text: String):
 	notice_dialog.title = title
 	notice_dialog.dialog_text = message
 	notice_dialog.ok_button_text = ok_button_text
-	notice_dialog.popup_centered(Vector2i(180, 60))
+	notice_dialog.popup_centered(Vector2i(360, 180))
 
 
 func _on_node_added(node: Node) -> void:

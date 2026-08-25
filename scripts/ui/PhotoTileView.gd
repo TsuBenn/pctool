@@ -83,6 +83,6 @@ func _update_tile_rect():
 
 	if photo_item:
 		border.visible = photo_item.border_enabled
-		border.border_width = snapped(max(photo_item.border_width * view_scale,1/get_window().content_scale_factor),0.5)
+		border.border_width = snapped(max(photo_item.border_width * view_scale,1/get_window().content_scale_factor),1)
 
 	_update_image_rect()

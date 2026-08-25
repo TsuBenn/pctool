@@ -1,0 +1,15 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://dsyaqgy2qvc4r"]
+
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_new_atlas.tres" id="1_1yyda"]
+
+[resource]
+content_margin_left = 6.0
+content_margin_top = 2.0
+content_margin_right = 6.0
+content_margin_bottom = 0.0
+texture = ExtResource("1_1yyda")
+texture_margin_left = 4.0
+texture_margin_top = 4.0
+texture_margin_right = 4.0
+texture_margin_bottom = 4.0
+region_rect = Rect2(260, 4, 24, 24)

@@ -1,0 +1,15 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://cdfvrstaehhfj"]
+
+[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="1_so2p1"]
+
+[resource]
+content_margin_left = 3.0
+content_margin_top = 0.0
+content_margin_right = 3.0
+content_margin_bottom = 1.0
+texture = ExtResource("1_so2p1")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 3.0
+region_rect = Rect2(11, 0, 11, 12)

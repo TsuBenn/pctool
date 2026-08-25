@@ -28,7 +28,7 @@ var grid_scale: int = 1:
 	set(new_scale):
 		grid_scale = new_scale
 		if view_mode == ViewMode.GRID and is_node_ready():
-			var thumbnail_size: int = 16 + 16 * grid_scale
+			var thumbnail_size: int = 32 + 32 * grid_scale
 			texture_rect.custom_minimum_size = Vector2i(thumbnail_size, thumbnail_size)
 			texture_rect.custom_maximum_size = Vector2i(thumbnail_size, thumbnail_size)
 
@@ -97,7 +97,7 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 
 	preview_instance.display_name = asset_data.display_name
 	preview_instance.texture = asset_data.get_preview_texture(0)
-	preview_instance.texture_size = Vector2i(16 + 16*grid_scale, 16 + 16*grid_scale)
+	preview_instance.texture_size = Vector2i(32 + 32*grid_scale, 32 + 32*grid_scale)
 	var assets_panel: AssetsPanel = find_parent("AssetsPanel")
 	var asset_data_group: Array[AssetData] = []
 	if assets_panel:
@@ -123,7 +123,7 @@ func update_view_mode(mode: ViewMode):
 		return
 	match mode:
 		ViewMode.GRID:
-			var thumbnail_size: int = 16 + 16 * grid_scale
+			var thumbnail_size: int = 32 + 32 * grid_scale
 			box_container.vertical = true
 			if asset_data:
 				texture_rect.texture = asset_data.get_preview_texture(0)

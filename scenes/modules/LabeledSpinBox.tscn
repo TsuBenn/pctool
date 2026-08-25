@@ -1,92 +1,15 @@
 [gd_scene format=3 uid="uid://doot08emp6rvu"]
 
 [ext_resource type="Script" uid="uid://moh3aogcueik" path="res://scripts/ui/LabeledSpinBox.gd" id="1_1t8ie"]
-[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="2_7b05i"]
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7b05i"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-texture = ExtResource("2_7b05i")
-texture_margin_left = 1.0
-texture_margin_top = 1.0
-texture_margin_right = 1.0
-texture_margin_bottom = 2.0
-region_rect = Rect2(0, 0, 11, 12)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7uyib"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 1.0
-texture = ExtResource("2_7b05i")
-texture_margin_left = 1.0
-texture_margin_top = 2.0
-texture_margin_right = 1.0
-texture_margin_bottom = 1.0
-region_rect = Rect2(22, 0, 11, 12)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_airir"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-texture = ExtResource("2_7b05i")
-texture_margin_left = 2.0
-texture_margin_top = 2.0
-texture_margin_right = 2.0
-texture_margin_bottom = 3.0
-region_rect = Rect2(11, 0, 11, 12)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7g1yr"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 1.0
-texture = ExtResource("2_7b05i")
-texture_margin_left = 2.0
-texture_margin_top = 3.0
-texture_margin_right = 2.0
-texture_margin_bottom = 2.0
-region_rect = Rect2(33, 0, 11, 12)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kxa0g"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 1.0
-texture = ExtResource("2_7b05i")
-texture_margin_left = 1.0
-texture_margin_top = 2.0
-texture_margin_right = 1.0
-texture_margin_bottom = 1.0
-region_rect = Rect2(44, 0, 11, 12)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ytr7v"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-texture = ExtResource("2_7b05i")
-texture_margin_left = 3.0
-texture_margin_top = 3.0
-texture_margin_right = 3.0
-texture_margin_bottom = 3.0
-expand_margin_left = 2.0
-expand_margin_top = 2.0
-expand_margin_right = 2.0
-expand_margin_bottom = 2.0
-region_rect = Rect2(1122, 0, 11, 12)
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_new_atlas.tres" id="2_7b05i"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_airir"]
 atlas = ExtResource("2_7b05i")
-region = Rect2(1014, 3, 6, 6)
+region = Rect2(1320, 8, 14, 14)
+margin = Rect2(2, 0, 4, 0)
 
 [node name="LabeledSpinBox" type="HBoxContainer" unique_id=1930336959]
 script = ExtResource("1_1t8ie")
-reset_button = null
-default_value = null
 
 [node name="Label" type="Label" parent="." unique_id=1227593897]
 layout_mode = 2
@@ -94,16 +17,10 @@ size_flags_horizontal = 3
 text = "Label:"
 
 [node name="Button" type="Button" parent="." unique_id=767116013]
-visible = false
 layout_mode = 2
 offset_transform_position = Vector2(0, -0.2)
 offset_transform_visual_only = false
-theme_override_styles/normal = SubResource("StyleBoxTexture_7b05i")
-theme_override_styles/pressed = SubResource("StyleBoxTexture_7uyib")
-theme_override_styles/hover = SubResource("StyleBoxTexture_airir")
-theme_override_styles/hover_pressed = SubResource("StyleBoxTexture_7g1yr")
-theme_override_styles/disabled = SubResource("StyleBoxTexture_kxa0g")
-theme_override_styles/focus = SubResource("StyleBoxTexture_ytr7v")
+disabled = true
 icon = SubResource("AtlasTexture_airir")
 
 [node name="SpinBox" type="SpinBox" parent="." unique_id=399211834]

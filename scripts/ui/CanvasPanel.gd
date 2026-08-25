@@ -64,7 +64,7 @@ var view_offset: Vector2 = Vector2.ZERO:
 var offset_padding: Vector2:
 	get:
 		if paper_sheet.is_node_ready():
-			return Vector2(0,0)
+			return Vector2(paper_padding*2,paper_padding)
 		else:
 			return Vector2.ZERO
 
@@ -364,7 +364,7 @@ func _draw_margins_overlay():
 
 	var rect = Rect2(preview_margins, preview_margins, overlay_w, overlay_h)
 
-	margins_overlay.draw_rect(rect, Color.from_rgba8(0, 0, 0, int(255 * 0.3)), false, 0.5, true)
+	margins_overlay.draw_rect(rect, Color.from_rgba8(0, 0, 0, int(255 * 0.3)), false, 1, true)
 
 
 var assets_on_hold: Array[AssetData]
@@ -387,7 +387,7 @@ func add_asset_to_sheet(
 							'%s already on the paper sheet.\nWould you like to:\n - Increment its existing Photo Item quantity?\n - Add a new Photo Item itself?'
 							% ("Asset of name " + str(asset.display_name) + " is" if duplicated_count == 1 else "There are " + str(duplicated_count) + " assets that are")
 						)
-						duplicate_assets_confirmation_dialog.popup_centered(Vector2i(180, 60))
+						duplicate_assets_confirmation_dialog.popup_centered(Vector2i(360, 120))
 						on_hold = true
 						break
 			AddAssetAction.INCREMENT:
@@ -480,12 +480,16 @@ func _sync_ui():
 	page_spin_box.set_value_no_signal(current_page_index + 1)
 
 	# Responsive breakpoints
-	zoom_presets_option_button.visible = paper_container.size.x > 238
-	var show_page_nav: bool = paper_container.size.x > 158
+	print(paper_container.size.x)
+	zoom_presets_option_button.visible = paper_container.size.x > 527
+	var show_page_nav: bool = paper_container.size.x > 365
 	next_page_button.visible = show_page_nav
 	previous_page_button.visible = show_page_nav
+	last_page_button.visible = show_page_nav
+	first_page_button.visible = show_page_nav
 
 	view_offset = _clamp_offset(view_offset)
+	update_scrollbars()
 
 func update_scrollbars():
 	var pad_x: float = offset_padding.x

@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://segepotf8qr3"]
 
-[ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_elqb8"]
 [ext_resource type="Script" uid="uid://dgkdfoixnoogu" path="res://scripts/ui/WorkspaceTabContainer.gd" id="2_0bbpv"]
 [ext_resource type="Script" uid="uid://bicy0fur7vwvd" path="res://scripts/Main.gd" id="2_c01mt"]
 [ext_resource type="Script" uid="uid://lexvh7h7ivq3" path="res://scripts/ui/DocumentPanel.gd" id="2_rarhs"]
 [ext_resource type="PackedScene" uid="uid://bdtx4oepgf23f" path="res://scenes/components/WorkspaceInstance.tscn" id="2_rvslj"]
 [ext_resource type="Texture2D" uid="uid://bhkngrtlqx4yl" path="res://assets/cursor/cursor_sheet.png" id="3_nxtc6"]
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_new_atlas.tres" id="3_qmy6f"]
 [ext_resource type="PackedScene" uid="uid://ccf66dlsufh2i" path="res://scenes/modules/MenuButtonSimplified.tscn" id="4_jlsqs"]
 [ext_resource type="PackedScene" uid="uid://ck4qdc8tbgvyf" path="res://scenes/HomePanel.tscn" id="4_vcsgt"]
 [ext_resource type="Script" uid="uid://1y4tgs2087c2" path="res://scripts/ui/FileDialog.gd" id="9_wp0k4"]
@@ -74,7 +74,9 @@ region = Rect2(832, -1, 64, 64)
 atlas = ExtResource("3_nxtc6")
 region = Rect2(896, -1, 64, 64)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4lqhh"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3p2gp"]
+texture = ExtResource("3_qmy6f")
+region_rect = Rect2(0, 4, 1, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhgcu"]
 
@@ -132,7 +134,6 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme = ExtResource("1_elqb8")
 script = ExtResource("2_c01mt")
 pointer = SubResource("AtlasTexture_k4rpm")
 hand_point = SubResource("AtlasTexture_jlsqs")
@@ -157,7 +158,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_4lqhh")
+theme_override_styles/panel = SubResource("StyleBoxTexture_3p2gp")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=38083367]
 layout_mode = 2
@@ -192,7 +193,7 @@ popup/item_8/id = 6
 popup/item_9/text = "Export as Image(s)"
 popup/item_9/id = 7
 label = "File"
-items = Array[String](["New Document | Ctrl+N", "Open Document | Ctrl+O", "Open Recent", "-", "Save | Ctrl+S", "Save as | Ctrl+Shift+O", "Import Assets | Ctrl+I", "-", "Export as PDFs | Ctrl+Shift+E", "Export as Image(s) | Ctrl+E"])
+items = Array[String](["New Document | Ctrl+N", "Open Document | Ctrl+O", "Open Recent", "-", "Save | Ctrl+S", "Save as | Ctrl+Shift+S", "Import Assets | Ctrl+I", "-", "Export as PDFs | Ctrl+Shift+E", "Export as Image(s) | Ctrl+E"])
 
 [node name="EditMenu" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1015493921 instance=ExtResource("4_jlsqs")]
 unique_name_in_owner = true
@@ -249,7 +250,7 @@ canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Open File(s)"
 initial_position = 2
-size = Vector2i(300, 200)
+size = Vector2i(385, 200)
 file_mode = 1
 access = 2
 filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
@@ -270,8 +271,10 @@ custom_font = ExtResource("11_qmy6f")
 unique_name_in_owner = true
 canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
-position = Vector2i(0, 12)
+position = Vector2i(0, 36)
 size = Vector2i(120, 80)
+dialog_text = "test
+testing"
 dialog_autowrap = true
 
 [node name="ExportDialog" type="FileDialog" parent="." unique_id=1980741276]
@@ -279,8 +282,8 @@ unique_name_in_owner = true
 canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Export to Image"
-position = Vector2i(0, 11)
-size = Vector2i(320, 200)
+position = Vector2i(0, 36)
+size = Vector2i(421, 200)
 access = 2
 favorites_enabled = false
 recent_list_enabled = false
@@ -301,7 +304,7 @@ canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Open File(s)"
 position = Vector2i(0, 11)
-size = Vector2i(300, 200)
+size = Vector2i(385, 200)
 file_mode = 1
 access = 2
 filters = PackedStringArray("*.pctl; PCtool Files")

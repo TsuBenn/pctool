@@ -27,17 +27,17 @@ Global="*uid://dvsq2i70xgdn7"
 
 [display]
 
-window/size/viewport_width=800
-window/size/viewport_height=600
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/mode=2
 window/energy_saving/keep_screen_on=false
 window/stretch/aspect="expand"
-window/stretch/scale=2.0
 window/stretch/scale_mode="integer"
 
 [gui]
 
 common/snap_controls_to_pixels=false
-theme/custom="uid://x5wixduenntj"
+theme/custom="uid://bovn4bvvq80qj"
 
 [physics]
 

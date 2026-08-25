@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://ca75d881fbjj3"]
 
-[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="3_ls52h"]
 [ext_resource type="Texture2D" uid="uid://d2oicq24kp41h" path="res://assets/texture/32_icons_sheets.png" id="4_3p2l4"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dw7qm"]
@@ -23,7 +22,7 @@ func _ready() -> void:
 	texture_rect.texture = texture
 	texture_rect.custom_minimum_size = texture_size
 	texture_rect.custom_maximum_size = texture_size
-	stack_counter.text = str(stack_count)
+	stack_counter.text = \" \" + str(stack_count) + \" \"
 	stack_counter.visible = stack_count > 1
 	multi_assets_indicator.visible = stack_count > 1
 "
@@ -31,18 +30,6 @@ func _ready() -> void:
 [sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
 atlas = ExtResource("4_3p2l4")
 region = Rect2(39, 4, 18, 24)
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wi5mg"]
-content_margin_left = 4.0
-content_margin_top = 3.0
-content_margin_right = 3.0
-content_margin_bottom = 2.0
-texture = ExtResource("3_ls52h")
-texture_margin_left = 1.0
-texture_margin_top = 1.0
-texture_margin_right = 1.0
-texture_margin_bottom = 2.0
-region_rect = Rect2(0, 0, 11, 12)
 
 [node name="AssetCardDragPreview" type="PanelContainer" unique_id=1057240620]
 offset_right = 38.0
@@ -108,5 +95,4 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 offset_transform_enabled = true
 mouse_filter = 2
-theme_override_styles/normal = SubResource("StyleBoxTexture_wi5mg")
-text = "2"
+text = " 2 "

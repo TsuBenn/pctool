@@ -113,9 +113,9 @@ func _update_status_footer():
 
 
 func _on_resized():
-	var card_width = 16 + 16 * grid_scale_slider.value + 14
+	var card_width = 32 + 32 * grid_scale_slider.value + 28
 	var spacing = grid_assets_container.get_theme_constant("h_separation")
-	var container_width = size.x - 10
+	var container_width = size.x - 20
 
 	var new_columns = floor((container_width + spacing) / (card_width + spacing))
 
@@ -350,7 +350,7 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 			"%s currently placed on the print sheet.\nRemoving will also clear its copies from the canvas. Continue?"
 			% ("This asset is" if count == 1 else "There are %d items" % count)
 		)
-		assets_removal_confirmation_dialog.popup_centered(Vector2i(240, 80))
+		assets_removal_confirmation_dialog.popup_centered(Vector2i(480, 160))
 		return
 
 	# 4. EXECUTE REMOVAL: Clean up canvas items first

@@ -4,7 +4,6 @@
 
 [node name="HBoxContainer" type="HBoxContainer" unique_id=1222683963]
 script = ExtResource("1_gxyww")
-selected = null
 
 [node name="Label" type="Label" parent="." unique_id=768531146]
 layout_mode = 2
@@ -13,3 +12,5 @@ text = "Option:"
 
 [node name="OptionButton" type="OptionButton" parent="." unique_id=1421781513]
 layout_mode = 2
+item_count = 1
+popup/item_0/id = 0

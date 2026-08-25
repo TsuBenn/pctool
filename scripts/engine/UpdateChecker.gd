@@ -71,7 +71,7 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 			"A new version (%s) is available! (Current: %s)\n\nNotes:\n%s\n\nWould you like to open the download page?"
 			% [tag_name, current_version, changelog]
 		)
-		_update_dialog.popup_centered(Vector2i(180, 60))
+		_update_dialog.popup_centered(Vector2i(260, 120))
 
 
 ## Returns true if remote_version is strictly newer than current_version

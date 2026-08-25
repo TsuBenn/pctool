@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://cf4josvlj3d2h"]
 
-[ext_resource type="Theme" uid="uid://x5wixduenntj" path="res://assets/themes/app_theme.theme" id="1_elqb8"]
 [ext_resource type="Texture2D" uid="uid://cx314tvd882uh" path="res://assets/texture/icons/grid.tres" id="2_7kf5l"]
 
 [node name="ThemeTest" type="Control" unique_id=224504194]
@@ -11,7 +10,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_elqb8")
 
 [node name="Control" type="Control" parent="." unique_id=1094412437]
 layout_mode = 1
@@ -20,13 +18,14 @@ scale = Vector2(2, 2)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Control" unique_id=1412965870]
 layout_mode = 0
-offset_right = 306.5
+offset_right = 274.5
 offset_bottom = 196.0
 theme_override_constants/separation = 0
 
 [node name="TabBar" type="TabBar" parent="Control/VBoxContainer" unique_id=818796421]
 layout_mode = 2
 current_tab = 0
+tab_close_display_policy = 2
 tab_count = 1
 tab_0/title = "Test"
 
@@ -69,10 +68,10 @@ metadata/_tab_index = 5
 
 [node name="Button" type="Button" parent="Control" unique_id=1967025936]
 layout_mode = 0
-offset_left = 50.0
-offset_top = 40.0
-offset_right = 92.0
-offset_bottom = 51.0
+offset_left = 53.0
+offset_top = 44.5
+offset_right = 95.0
+offset_bottom = 57.5
 text = "checkbox
 "
 
@@ -89,9 +88,9 @@ text = "checkbox
 [node name="CheckBox" type="CheckBox" parent="Control" unique_id=268229483]
 layout_mode = 0
 offset_left = 12.5
-offset_top = 38.0
+offset_top = 43.0
 offset_right = 25.5
-offset_bottom = 51.0
+offset_bottom = 56.0
 action_mode = 0
 
 [node name="CheckBox2" type="CheckBox" parent="Control" unique_id=1885073211]
@@ -107,9 +106,9 @@ text = "checkbox
 [node name="CheckButton" type="CheckButton" parent="Control" unique_id=127222825]
 layout_mode = 0
 offset_left = 28.5
-offset_top = 38.0
-offset_right = 45.5
-offset_bottom = 50.0
+offset_top = 43.0
+offset_right = 48.5
+offset_bottom = 55.0
 action_mode = 0
 
 [node name="CheckButton2" type="CheckButton" parent="Control" unique_id=684960664]
@@ -206,10 +205,10 @@ offset_bottom = 138.5
 
 [node name="SpinBox" type="SpinBox" parent="Control" unique_id=1908394036]
 layout_mode = 0
-offset_left = 158.0
-offset_top = 27.5
-offset_right = 198.0
-offset_bottom = 38.5
+offset_left = 198.5
+offset_top = 50.5
+offset_right = 242.5
+offset_bottom = 64.5
 
 [node name="HSlider" type="HSlider" parent="Control" unique_id=212117313]
 layout_mode = 0
@@ -220,17 +219,17 @@ offset_bottom = 153.5
 
 [node name="VSlider" type="VSlider" parent="Control" unique_id=2095907500]
 layout_mode = 0
-offset_left = 252.0
-offset_top = 42.5
-offset_right = 263.0
-offset_bottom = 111.0
+offset_left = 240.5
+offset_top = 37.5
+offset_right = 251.5
+offset_bottom = 106.0
 
 [node name="VScrollBar" type="VScrollBar" parent="Control" unique_id=923804171]
 layout_mode = 0
-offset_left = 274.5
-offset_top = 40.5
-offset_right = 278.5
-offset_bottom = 111.5
+offset_left = 260.5
+offset_top = 37.0
+offset_right = 264.5
+offset_bottom = 108.0
 
 [node name="HSeparator" type="HSeparator" parent="Control" unique_id=1150525929]
 layout_mode = 0
@@ -241,8 +240,8 @@ offset_bottom = 63.0
 
 [node name="LineEdit" type="LineEdit" parent="Control" unique_id=529740002]
 layout_mode = 0
-offset_left = 158.0
-offset_top = 41.0
-offset_right = 188.0
-offset_bottom = 52.0
+offset_left = 198.5
+offset_top = 68.0
+offset_right = 228.5
+offset_bottom = 82.0
 text = "0"

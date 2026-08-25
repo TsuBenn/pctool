@@ -19,8 +19,9 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_override_menu_button_styles()
 	make_dialog_pixel_perfect(get_window())
-	if OS.get_name() == "Windows":
-		use_native_dialog = true
+
+	# if OS.get_name() == "Windows":
+	use_native_dialog = true
 
 func make_dialog_pixel_perfect(window: Window) -> void:
 	window.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST

@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://ckshrbf7di8y1" path="res://scripts/ui/AssetCard.gd" id="2_k4rpm"]
 [ext_resource type="PackedScene" uid="uid://ca75d881fbjj3" path="res://scenes/components/AssetCardDragPreview.tscn" id="3_3v0yx"]
 [ext_resource type="Texture2D" uid="uid://d32ndbskt14xh" path="res://assets/texture/icons_sheet.png" id="3_k4rpm"]
-[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="3_xtx1l"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dw7qm"]
 
@@ -13,10 +12,10 @@ atlas = ExtResource("3_k4rpm")
 region = Rect2(267, 3, 5, 7)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_evmly"]
-content_margin_left = 1.0
-content_margin_top = 1.0
-content_margin_right = 1.0
-content_margin_bottom = 1.0
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1bb1y"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
@@ -37,18 +36,6 @@ expand_margin_bottom = 1.0
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sv0m1"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hpsqv"]
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xtx1l"]
-texture = ExtResource("3_xtx1l")
-texture_margin_left = 1.0
-texture_margin_top = 1.0
-texture_margin_right = 1.0
-texture_margin_bottom = 1.0
-expand_margin_left = 1.0
-expand_margin_top = 1.0
-expand_margin_right = 1.0
-expand_margin_bottom = 1.0
-region_rect = Rect2(66, 0, 11, 12)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
 atlas = ExtResource("2_0lv2k")
@@ -87,7 +74,6 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_xtx1l")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=519561460]
 unique_name_in_owner = true
@@ -107,8 +93,8 @@ vertical = true
 
 [node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/BoxContainer" unique_id=877244563]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
-custom_maximum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(64, 64)
+custom_maximum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 2

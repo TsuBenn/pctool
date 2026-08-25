@@ -47,8 +47,8 @@ func _on_add_asset_to_sheet(asset_datas: Array[AssetData], add_assets_action: Ca
 func request_save_document(file: String = document_data.save_path):
 	var save_path = document_data.save_path
 	if file.is_empty() and (save_path.is_empty() or not FileAccess.file_exists(save_path)):
-		save_document_dialog.get_line_edit().text = name.to_lower().replace(" ", "-") + DocumentManager.EXTENSION
-		save_document_dialog.popup_centered(Vector2i(300,200))
+		save_document_dialog.get_line_edit().text = name.to_lower().replace(" ", "-") + DocumentManager.EXTENSION_DOT
+		save_document_dialog.popup_centered(Vector2i(600,400))
 		return
 
 	document_data.save_path = file
@@ -63,4 +63,4 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 			assets_panel.instantiate_asset_card(asset)
 
 func _on_import_dialog_requested() -> void:
-	image_import_dialog.popup_centered(Vector2i(300, 200))
+	image_import_dialog.popup_centered(Vector2i(600, 400))

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dhsqjt8f0e6dj"]
 
-[ext_resource type="Script" uid="uid://de4reih0vgxeq" path="res://scenes/modules/LabeledCheckButton.gd" id="1_gg8m4"]
+[ext_resource type="Script" uid="uid://de4reih0vgxeq" path="res://scripts/ui/LabeledCheckButton.gd" id="1_gg8m4"]
 
 [node name="LabeledCheckButton" type="HBoxContainer" unique_id=1508100861]
 script = ExtResource("1_gg8m4")
@@ -13,3 +13,4 @@ text = "Label:"
 [node name="CheckButton" type="CheckButton" parent="." unique_id=908469961]
 layout_mode = 2
 action_mode = 0
+flat = true
