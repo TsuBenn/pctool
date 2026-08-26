@@ -233,7 +233,7 @@ theme_override_constants/v_separation = 4
 [node name="SortOptionButton" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel/HBoxContainer2" unique_id=677697434 instance=ExtResource("1_n10jr")]
 layout_mode = 2
 size_flags_horizontal = 3
-label = "Sort:"
+label = "Sort: "
 expand_on = "OptionButton"
 items = Array[String](["Name", "Date", "Type", "Size"])
 

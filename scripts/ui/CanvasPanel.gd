@@ -130,6 +130,11 @@ func _ready() -> void:
 					zoom_slider.value = 150
 				ZoomPreset.PERCENT_200:
 					zoom_slider.value = 200
+
+			var custom_index = zoom_presets_option_button.get_item_index(ZoomPreset.CUSTOM)
+			zoom_presets_option_button.set_item_text(
+				custom_index, "Custom"
+			)
 	)
 	zoom_slider.value_changed.connect(
 		func(new):

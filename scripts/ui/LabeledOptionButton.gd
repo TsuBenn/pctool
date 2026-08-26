@@ -41,10 +41,18 @@ signal item_selected(id: int)
 		if is_node_ready():
 			_select_by_id(selected)
 
+@export var button_width: int = 100:
+	set(new):
+		button_width = max(new, 0)
+		if is_node_ready():
+			$OptionButton.custom_minimum_size = Vector2(new, 0)
+			$OptionButton.fit_to_longest_item = new == 0
 
 func _ready() -> void:
 	$Label.text = label
 	$OptionButton.disabled = disabled
+	$OptionButton.custom_minimum_size = Vector2(button_width, 0)
+	$OptionButton.fit_to_longest_item = button_width == 0
 	match expand_on:
 		"Label":
 			$Label.size_flags_horizontal = SizeFlags.SIZE_EXPAND_FILL
@@ -56,7 +64,6 @@ func _ready() -> void:
 
 	if not Engine.is_editor_hint():
 		$OptionButton.item_selected.connect(_on_option_button_item_selected)
-
 
 func _update_items() -> void:
 	$OptionButton.clear()

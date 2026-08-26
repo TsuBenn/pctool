@@ -238,6 +238,7 @@ workspace_instance = ExtResource("2_rvslj")
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+drag_to_rearrange_enabled = true
 script = ExtResource("2_0bbpv")
 
 [node name="HomePanel" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1743728114 instance=ExtResource("4_vcsgt")]
