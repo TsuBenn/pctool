@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://ck4qdc8tbgvyf"]
 
 [ext_resource type="Texture2D" uid="uid://lsa0mwvc7oav" path="res://assets/logo_shadow.png" id="1_2k3ry"]
-[ext_resource type="PackedScene" uid="uid://ewicow2ui0ag" path="res://scenes/modules/PanelHeader.tscn" id="2_75ha7"]
 [ext_resource type="Script" uid="uid://bhogd2wkkypqi" path="res://scripts/ui/HomePanel.gd" id="2_g6ena"]
+[ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="4_75ha7"]
 
 [node name="HomePanel" type="Panel" unique_id=1743728114]
 custom_minimum_size = Vector2(560, 360)
@@ -24,7 +24,6 @@ theme_override_constants/margin_bottom = 8
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=878795784]
 layout_mode = 2
-theme_override_constants/separation = 4
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=87378464]
 layout_mode = 2
@@ -51,6 +50,7 @@ text = "v0.0.1"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=1521162612]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="NewDocumentButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=473685540]
 unique_name_in_owner = true
@@ -67,33 +67,15 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Import Assets"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/VBoxContainer" unique_id=774908709]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Header" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer" unique_id=266167749 instance=ExtResource("2_75ha7")]
+[node name="PresetsGroupBox" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=25486442 instance=ExtResource("4_75ha7")]
 layout_mode = 2
 title = "Presets"
-
-[node name="PresetsPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer" unique_id=1198509254]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-size_flags_vertical = 3
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1212344522]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/HBoxContainer" unique_id=601646738]
+[node name="RecentsGroupBox" parent="MarginContainer/HBoxContainer/HBoxContainer" unique_id=1471613207 instance=ExtResource("4_75ha7")]
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Header" parent="MarginContainer/HBoxContainer/HBoxContainer/VBoxContainer" unique_id=276169684 instance=ExtResource("2_75ha7")]
-layout_mode = 2
-title = "Recent"
-
-[node name="RecentPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer/HBoxContainer/VBoxContainer" unique_id=277471114]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-size_flags_vertical = 3
+title = "Recents"

@@ -6,7 +6,7 @@
 [sub_resource type="AtlasTexture" id="AtlasTexture_airir"]
 atlas = ExtResource("2_7b05i")
 region = Rect2(1320, 8, 14, 14)
-margin = Rect2(2, 0, 4, 0)
+margin = Rect2(0, 2, 0, 2)
 
 [node name="LabeledSpinBox" type="HBoxContainer" unique_id=1930336959]
 script = ExtResource("1_1t8ie")

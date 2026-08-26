@@ -480,7 +480,7 @@ func _sync_ui():
 	page_spin_box.set_value_no_signal(current_page_index + 1)
 
 	# Responsive breakpoints
-	print(paper_container.size.x)
+	# print(paper_container.size.x)
 	zoom_presets_option_button.visible = paper_container.size.x > 527
 	var show_page_nav: bool = paper_container.size.x > 365
 	next_page_button.visible = show_page_nav

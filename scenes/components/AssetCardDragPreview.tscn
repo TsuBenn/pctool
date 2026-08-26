@@ -25,6 +25,10 @@ func _ready() -> void:
 	stack_counter.text = \" \" + str(stack_count) + \" \"
 	stack_counter.visible = stack_count > 1
 	multi_assets_indicator.visible = stack_count > 1
+	
+func _process(_delta: float) -> void:
+	offset_transform_position.y = -floor(size.y/2)
+	offset_transform_position.x = -floor(size.x/2)
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
@@ -32,12 +36,11 @@ atlas = ExtResource("4_3p2l4")
 region = Rect2(39, 4, 18, 24)
 
 [node name="AssetCardDragPreview" type="PanelContainer" unique_id=1057240620]
-offset_right = 38.0
-offset_bottom = 49.0
+offset_right = 44.0
+offset_bottom = 92.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 offset_transform_enabled = true
-offset_transform_position_ratio = Vector2(-0.5, -0.5)
 theme_override_styles/panel = SubResource("StyleBoxEmpty_dw7qm")
 script = SubResource("GDScript_v5ylk")
 
@@ -45,7 +48,7 @@ script = SubResource("GDScript_v5ylk")
 unique_name_in_owner = true
 layout_mode = 2
 offset_transform_enabled = true
-offset_transform_position = Vector2(2, 2)
+offset_transform_position = Vector2(4, 4)
 mouse_filter = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=460855514]

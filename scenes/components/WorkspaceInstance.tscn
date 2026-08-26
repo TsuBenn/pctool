@@ -190,14 +190,15 @@ spinbox_width = 100
 [node name="Workspace" type="HSplitContainer" parent="MarginContainer/VBoxContainer" unique_id=390090371]
 layout_mode = 2
 size_flags_vertical = 3
-split_offsets = PackedInt32Array(112, -150)
-split_offset = 112
+split_offsets = PackedInt32Array(224, -300)
+split_offset = 224
 
 [node name="AssetsPanelConatiner" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=179409485]
 layout_mode = 2
 
 [node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner" unique_id=1286471012]
 layout_mode = 2
+theme_override_constants/margin_top = 4
 
 [node name="AssetsPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2" unique_id=680579051]
 unique_name_in_owner = true
@@ -411,7 +412,7 @@ mouse_filter = 2
 
 [node name="PaperSheet" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/PaperAnchor/PaperMarginsContainer" unique_id=255838542]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(148, 210)
+custom_minimum_size = Vector2(296, 420)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
@@ -585,8 +586,8 @@ horizontal_scroll_mode = 5
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_bottom = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = 4
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/PropertiesScrollContainer/MarginContainer" unique_id=1273650802]
 layout_mode = 2
@@ -625,7 +626,7 @@ label = "Width"
 suffix = "mm"
 min_value = 0.1
 step = 0.1
-spinbox_width = 100
+spinbox_width = 120
 
 [node name="PropertiesHeightSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=737214299 instance=ExtResource("2_gdvak")]
 unique_name_in_owner = true
@@ -635,7 +636,7 @@ label = "Height"
 suffix = "mm"
 min_value = 0.1
 step = 0.1
-spinbox_width = 100
+spinbox_width = 120
 
 [node name="LockRatioCheckButton" type="CheckBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/DimensionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2068999316]
 unique_name_in_owner = true
@@ -706,12 +707,13 @@ unique_name_in_owner = true
 layout_mode = 2
 label = "Quantity"
 min_value = 1.0
+spinbox_width = 100
 
 [node name="FilterModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=1350035097 instance=ExtResource("1_n10jr")]
 unique_name_in_owner = true
 layout_mode = 2
 label = "Filter mode:"
-items = Array[String](["Nearest", "Bilinear", "Cubic", "Trilinear", "Lanczos"])
+items = Array[String](["Nearest", "Bilinear", "Cubic", "Trilinear", "Lanzcos"])
 selected = 5
 
 [node name="FittingModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImageFoldable/MarginContainer/VBoxContainer" unique_id=677269162 instance=ExtResource("1_n10jr")]
@@ -797,7 +799,7 @@ suffix = "mm"
 value = 0.4
 min_value = 0.2
 step = 0.1
-spinbox_width = 100
+spinbox_width = 120
 
 [node name="BrightnessFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/EffectsFoldable/MarginContainer/VBoxContainer" unique_id=1302916979]
 visible = false

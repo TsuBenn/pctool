@@ -11,6 +11,7 @@ script/source = "extends Window
 func _ready() -> void:
 	version.text = Global.version_v
 	os_description.text = \"Running on: %s\" % OS.get_name()
+	title = \"About PCTool %s\" % Global.version_v
 
 func _on_button_2_pressed() -> void:
 	OS.shell_open(\"https://github.com/TsuBenn/pctool\")
@@ -34,8 +35,9 @@ region = Rect2(3, 2, 11, 13)
 [node name="AboutWindow" type="Window" unique_id=263161894]
 canvas_item_default_texture_filter = 0
 oversampling_override = 1.0
+title = "About PCTool"
 position = Vector2i(0, 36)
-size = Vector2i(240, 153)
+size = Vector2i(520, 310)
 exclusive = true
 unresizable = true
 always_on_top = true
@@ -51,36 +53,36 @@ grow_vertical = 2
 
 [node name="Logo" type="TextureRect" parent="Panel" unique_id=1905137830]
 layout_mode = 0
-offset_left = 82.0
-offset_top = 7.0
-offset_right = 205.0
-offset_bottom = 40.0
+offset_left = 184.0
+offset_top = 23.0
+offset_right = 430.0
+offset_bottom = 89.0
 size_flags_horizontal = 3
 texture = SubResource("AtlasTexture_8bk25")
 stretch_mode = 5
 
 [node name="Icon" type="TextureRect" parent="Panel" unique_id=923612030]
 layout_mode = 0
-offset_left = 36.0
-offset_top = 1.0
-offset_right = 80.0
-offset_bottom = 53.0
+offset_left = 92.0
+offset_top = 11.0
+offset_right = 180.0
+offset_bottom = 115.0
 texture = SubResource("AtlasTexture_36xpn")
 
 [node name="Author" type="Label" parent="Panel" unique_id=592409413]
 layout_mode = 0
-offset_left = 86.0
-offset_top = 43.0
-offset_right = 206.0
-offset_bottom = 50.0
+offset_left = 190.0
+offset_top = 86.0
+offset_right = 310.0
+offset_bottom = 109.0
 text = "By TsuBenn"
 
 [node name="Version" type="Label" parent="Panel" unique_id=2036596663]
 layout_mode = 0
-offset_left = 150.0
-offset_top = 54.0
-offset_right = 236.0
-offset_bottom = 61.0
+offset_left = 344.0
+offset_top = 86.0
+offset_right = 430.0
+offset_bottom = 109.0
 theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
 text = "v0.1.0"
 horizontal_alignment = 2
@@ -90,66 +92,67 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1.0
-offset_top = 63.0
-offset_right = -1.0
-offset_bottom = -14.0
+offset_left = 8.0
+offset_top = 124.0
+offset_right = -8.0
+offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Description" type="Label" parent="Panel/Panel2" unique_id=338489947]
 layout_mode = 0
-offset_left = 5.0
+offset_left = 6.0
 offset_top = 4.0
-offset_right = 236.0
-offset_bottom = 25.0
+offset_right = 498.0
+offset_bottom = 48.0
 text = "PCTool (PhotoCopyTool) is a lightweight utility designed to streamline batch photo & document print workflows."
 autowrap_mode = 3
 
 [node name="Description2" type="Label" parent="Panel/Panel2" unique_id=2086212563]
 layout_mode = 0
-offset_left = 4.0
-offset_top = 66.0
-offset_right = 235.0
-offset_bottom = 74.0
+offset_left = 6.0
+offset_top = 120.0
+offset_right = 497.0
+offset_bottom = 144.0
 theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
 text = "Made with GODOT ENGINE (MIT license)"
 autowrap_mode = 3
 
 [node name="Description3" type="Label" parent="Panel/Panel2" unique_id=1474838160]
 layout_mode = 0
-offset_left = 4.0
-offset_top = 37.0
-offset_right = 235.0
-offset_bottom = 45.0
+offset_left = 6.0
+offset_top = 62.0
+offset_right = 495.0
+offset_bottom = 106.0
 text = "Developed by TsuBenn for his dad"
 autowrap_mode = 3
 
 [node name="Description4" type="Label" parent="Panel/Panel2" unique_id=1901752709]
 layout_mode = 0
-offset_left = 4.0
-offset_top = 57.0
-offset_right = 235.0
-offset_bottom = 65.0
+offset_left = 6.0
+offset_top = 101.0
+offset_right = 237.0
+offset_bottom = 124.0
 theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
 text = "Running on:"
 autowrap_mode = 3
 
 [node name="Button" type="Button" parent="Panel" unique_id=1755730384]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 0
-offset_left = 178.0
-offset_top = 141.0
-offset_right = 193.0
-offset_bottom = 152.0
+offset_left = 334.0
+offset_top = 275.0
+offset_right = 434.0
+offset_bottom = 301.0
 text = "Ok
 "
 
 [node name="Button2" type="Button" parent="Panel" unique_id=1109597540]
 layout_mode = 0
-offset_left = 29.0
-offset_top = 141.0
-offset_right = 100.0
-offset_bottom = 152.0
+offset_left = 62.0
+offset_top = 276.0
+offset_right = 208.0
+offset_bottom = 302.0
 text = "Visit GitHub Page"
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
