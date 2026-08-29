@@ -5,7 +5,7 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_airir"]
 atlas = ExtResource("2_7b05i")
-region = Rect2(1318, 8, 18, 18)
+region = Rect2(1318, 8, 16, 18)
 
 [node name="LabeledSpinBox" type="HBoxContainer" unique_id=1930336959]
 script = ExtResource("1_1t8ie")
@@ -17,6 +17,7 @@ theme_type_variation = &"DimLabel"
 text = "Label:"
 
 [node name="Button" type="Button" parent="." unique_id=767116013]
+visible = false
 layout_mode = 2
 offset_transform_position = Vector2(0, -0.2)
 offset_transform_visual_only = false
@@ -26,3 +27,4 @@ icon = SubResource("AtlasTexture_airir")
 [node name="SpinBox" type="SpinBox" parent="." unique_id=399211834]
 layout_mode = 2
 size_flags_horizontal = 8
+select_all_on_focus = true

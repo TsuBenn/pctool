@@ -303,6 +303,9 @@ icon = SubResource("AtlasTexture_2ofn6")
 layout_mode = 2
 icon = SubResource("AtlasTexture_yxlcp")
 
+[node name="VSeparator" type="VSeparator" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1283749058]
+layout_mode = 2
+
 [node name="UndoButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1149138538]
 layout_mode = 2
 icon = SubResource("AtlasTexture_36rkl")

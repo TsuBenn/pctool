@@ -1,7 +1,7 @@
 extends VBoxContainer
 class_name CanvasPanel
 
-signal on_photo_item_selected(photo_item: PhotoItemData)
+signal on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int)
 
 enum ZoomPreset {
 	PERCENT_50,
@@ -11,7 +11,8 @@ enum ZoomPreset {
 	CUSTOM,
 }
 
-var selected_photo_items: Array[PhotoItemData] = []
+var selected_photo_item: PhotoItemData = null
+var selected_sub_asset_index: int = 0
 
 enum AddAssetAction { ADD, INCREMENT, FORCE_ADD }
 
@@ -272,6 +273,7 @@ enum {
 	}
 
 var photo_item_clipboard: PhotoItemData = null
+var photo_item_clipboard_sub_asset_index: int = 0
 
 func _on_canvas_context_menu_pressed(id: int):
 	match id:
@@ -292,49 +294,48 @@ func _open_canvas_context_menu():
 	canvas_context_menu.popup()
 
 func _on_photo_tile_context_menu_pressed(id: int):
-	var selected_photo_item = selected_photo_items.back()
-	if selected_photo_item:
+	var item = selected_photo_item
+	if item:
 		match id:
 			TILE_INCREMENT:
-				selected_photo_item.quantity += 1
+				item.quantity += 1
 			TILE_DECREMENT:
-				selected_photo_item.quantity -= 1
+				item.quantity -= 1
 			TILE_COPY_PROPERTIES:
 				_copy_properties()
 			TILE_PASTE_PROPERTIES:
 				_paste_properties()
 			TILE_DUPLICATE:
 				var to_duplicate: Array[AssetData] = []
-				to_duplicate.assign([selected_photo_item.asset])
+				to_duplicate.assign([item.asset])
 				add_asset_to_sheet(to_duplicate, CanvasPanel.AddAssetAction.FORCE_ADD, true)
 			TILE_REMOVE:
-				selected_photo_items.erase(selected_photo_item)
-				on_photo_item_selected.emit(null)
-				document_data.remove_photo_item(selected_photo_item)
+				selected_photo_item = null
+				on_photo_item_selected.emit(null, 0)
+				document_data.remove_photo_item(item)
 				pass
 
 func _copy_properties():
-	var selected_photo_item = selected_photo_items.back()
 	if selected_photo_item:
 		photo_item_clipboard = selected_photo_item.duplicate()
+		photo_item_clipboard_sub_asset_index = selected_sub_asset_index
 
 func _paste_properties():
 	if photo_item_clipboard == null:
 		Global.notice("Cannot Paste Properties", "Photo Item Data clipboard is empty, copy something first!")
 
-	for item in selected_photo_items:
-		item.size_mm = photo_item_clipboard.size_mm
-		item.rotation = photo_item_clipboard.rotation
-		item.flipped_h = photo_item_clipboard.flipped_h
-		item.flipped_v = photo_item_clipboard.flipped_v
-		item.quantity = photo_item_clipboard.quantity
-		item.filter_mode = photo_item_clipboard.filter_mode
-		item.fitting_mode = photo_item_clipboard.fitting_mode
-		item.scale = photo_item_clipboard.scale
-		item.offset = photo_item_clipboard.offset
-		item.border_enabled = photo_item_clipboard.border_enabled
-		item.border_width = photo_item_clipboard.border_width
-		item.border_color = photo_item_clipboard.border_color
+	selected_photo_item.size_mm = photo_item_clipboard.size_mm
+	selected_photo_item.rotation = photo_item_clipboard.rotation
+	selected_photo_item.flipped_h = photo_item_clipboard.flipped_h
+	selected_photo_item.flipped_v = photo_item_clipboard.flipped_v
+	selected_photo_item.quantity = photo_item_clipboard.quantity
+	selected_photo_item.filter_mode = photo_item_clipboard.filter_mode
+	#selected_photo_item.fitting_mode = photo_item_clipboard.fitting_mode
+	#selected_photo_item.scale = photo_item_clipboard.scale
+	#selected_photo_item.offset = photo_item_clipboard.offset
+	selected_photo_item.border_enabled = photo_item_clipboard.border_enabled
+	selected_photo_item.border_width = photo_item_clipboard.border_width
+	selected_photo_item.border_color = photo_item_clipboard.border_color
 
 
 func _open_photo_tile_context_menu(tile: PhotoTileView):
@@ -342,8 +343,9 @@ func _open_photo_tile_context_menu(tile: PhotoTileView):
 	for tile_view: PhotoTileView in photo_tiles_container.get_children():
 		if tile_view.photo_item == tile.photo_item:
 			tile_view.is_selected = true
-	selected_photo_items.append(tile.photo_item)
-	on_photo_item_selected.emit(tile.photo_item)
+	selected_photo_item = tile.photo_item
+	selected_sub_asset_index = tile.photo_tile.sub_asset_index
+	on_photo_item_selected.emit(tile.photo_item, tile.photo_tile.sub_asset_index)
 	photo_tile_context_menu.set_item_disabled(photo_tile_context_menu.get_item_index(TILE_PASTE_PROPERTIES), photo_item_clipboard == null)
 	photo_tile_context_menu.popup()
 
@@ -380,7 +382,6 @@ var assets_on_hold: Array[AssetData]
 func add_asset_to_sheet(
 	asset_datas: Array[AssetData], add_asset_action: AddAssetAction = AddAssetAction.ADD, select_on_add: bool = false
 ):
-
 	var duplicated_count: int = 0
 	for asset in asset_datas:
 		var on_hold: bool = false
@@ -417,8 +418,9 @@ func add_asset_to_sheet(
 		document_data.add_photo_item_no_signal(item)
 		if select_on_add:
 			_deselect_all_photo_items()
-			selected_photo_items.append(item)
-			on_photo_item_selected.emit(item)
+			selected_photo_item = item
+			selected_sub_asset_index = 0
+			on_photo_item_selected.emit(item, 0)
 
 	document_data.emit_changed()
 
@@ -428,44 +430,44 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 		photo_tiles_container.remove_child(tile)
 		tile.queue_free()
 
+
 	current_page_index = clamp(current_page_index, 0, max(print_layout.total_pages - 1, 0))
 
 	var new_tiles: Array[PhotoTile] = print_layout.get_page_tiles(current_page_index)
+
 
 	for new_tile in new_tiles:
 		var new_tile_view = photo_tile_view_instance.instantiate()
 
 		photo_tiles_container.add_child(new_tile_view)
-		new_tile_view.setup(new_tile, scale_px_per_mm, new_tile.photo_item in selected_photo_items, document_data.spacing_mm)
+		new_tile_view.setup(new_tile, scale_px_per_mm, new_tile.photo_item == selected_photo_item, new_tile.sub_asset_index == selected_sub_asset_index, document_data.spacing_mm)
 		new_tile_view.on_tile_view_clicked.connect(_on_tile_view_clicked)
 		new_tile_view.on_tile_view_right_clicked.connect(_open_photo_tile_context_menu)
 
+
 func _deselect_all_photo_items(update_properties: bool = true):
-	selected_photo_items.clear()
+	selected_photo_item = null
 	for tile_view: PhotoTileView in photo_tiles_container.get_children():
 		tile_view.is_selected = false
 	if update_properties:
-		on_photo_item_selected.emit(null)
+		on_photo_item_selected.emit(null, 0)
 
 
 func _on_tile_view_clicked(tile: PhotoTileView):
-	# print(tile.position)
-	if tile.photo_item in selected_photo_items:
+	if tile.photo_item == selected_photo_item:
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = false
-		selected_photo_items.erase(tile.photo_item)
-		if selected_photo_items.size() > 0:
-			on_photo_item_selected.emit(selected_photo_items.back())
-		else:
-			on_photo_item_selected.emit(null)
+		selected_photo_item = null
+		on_photo_item_selected.emit(null, 0)
 	else:
 		_deselect_all_photo_items(false)
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = true
-		selected_photo_items.append(tile.photo_item)
-		on_photo_item_selected.emit(tile.photo_item)
+		selected_photo_item = tile.photo_item
+		selected_sub_asset_index = tile.photo_tile.sub_asset_index
+		on_photo_item_selected.emit(tile.photo_item, tile.photo_tile.sub_asset_index)
 	pass
 
 func _sync_ui():

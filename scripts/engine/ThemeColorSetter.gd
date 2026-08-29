@@ -59,24 +59,37 @@ enum {
 		FOLDABLE_COLOR = 16*9,
 		FOLDABLE_COLLAPSED_COLOR,
 		FOLDABLE_HOVER_COLOR,
+
+		SEPARATOR_COLOR = 16*10,
 }
 
 enum Flat {
-	MENU_BUTTON_HOVER = 16*10,
+	MENU_BUTTON_HOVER = 16*11,
 	MENU_BUTTON_PRESSED,
 
-	POPUP_MENU_HOVER = 16*11,
+	POPUP_MENU_HOVER = 16*12,
 
-	SPIN_BOX_HOVER_PRESSED = 16*12,
+	SPIN_BOX_HOVER_PRESSED = 16*13,
+
+	PANEL_HIGHLIGHTED = 16*14,
+	PANEL_SELECTED,
 }
 
 func apply_texture():
+
+	# ProjectSettings.set_setting("application/boot_splash/bg_color", get_color(Flat.BOOT_SPLASH_BG))
 
 	target_theme.get_stylebox("hover", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_HOVER)
 	target_theme.get_stylebox("hover_pressed", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
 	target_theme.get_stylebox("pressed", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
 
 	target_theme.get_stylebox("hover", "PopupMenu").bg_color = get_color(Flat.POPUP_MENU_HOVER)
+
+	target_theme.get_stylebox("panel", "HighlightedPanel").bg_color = get_color(Flat.PANEL_HIGHLIGHTED)
+	target_theme.get_stylebox("panel", "HighlightedPanelContainer").bg_color = get_color(Flat.PANEL_HIGHLIGHTED)
+
+	target_theme.get_stylebox("panel", "SelectedPanel").bg_color = get_color(Flat.PANEL_SELECTED)
+	target_theme.get_stylebox("panel", "SelectedPanelContainer").bg_color = get_color(Flat.PANEL_SELECTED)
 
 	target_theme.get_stylebox("down_background_hovered", "SpinBox").bg_color = get_color(Flat.SPIN_BOX_HOVER_PRESSED)
 	target_theme.get_stylebox("down_background_pressed", "SpinBox").bg_color = get_color(Flat.SPIN_BOX_HOVER_PRESSED)
@@ -191,6 +204,11 @@ func apply_texture():
 	target_theme.set_color("font_color", "FoldableContainer", get_color(FOLDABLE_COLOR))
 	target_theme.set_color("collapsed_font_color", "FoldableContainer", get_color(FOLDABLE_COLLAPSED_COLOR))
 	target_theme.set_color("hover_font_color", "FoldableContainer", get_color(FOLDABLE_HOVER_COLOR))
+
+
+
+	target_theme.get_stylebox("separator", "HSeparator").color = get_color(SEPARATOR_COLOR)
+	target_theme.get_stylebox("separator", "VSeparator").color = get_color(SEPARATOR_COLOR)
 
 
 

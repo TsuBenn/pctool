@@ -47,23 +47,13 @@ enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
 		filter_mode = new
 		emit_changed()
 
-@export var fitting_mode: FittingMode = FittingMode.FILL:
-	set(new):
-		if new == FittingMode.DISTORT:
-			Global.notice("Feature Not Implemented", "Image Distortions has not been implemented")
-			new = fitting_mode
-		fitting_mode = new
-		emit_changed()
-
-@export var scale: float = 1:
-	set(new):
-		scale = new
-		emit_changed()
-
-@export var offset: Vector2 = Vector2.ZERO:
-	set(new):
-		offset = new.clamp(Vector2(-1,-1), Vector2(1,1))
-		emit_changed()
+# FRAMINGS INCLUDES SCALE, OFFSETS AND FITTING MODE AS DICTS
+# {
+#     scale: float, <- in percentage
+#     offset: Vector2, <- in percentage
+#     fitting_mode: FittingMode,
+# }
+@export var framings: Dictionary = {}
 
 # EFFECTS
 @export var border_enabled: bool = false:
@@ -81,10 +71,30 @@ enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
 		border_color = new
 		emit_changed()
 
+func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode):
+	framings[index] = {
+		"scale": new_scale,
+		"offset": new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1)),
+		"fitting_mode": new_fitting_mode,
+	}
+	emit_changed()
+
+func get_framing(index: int) -> Dictionary:
+	return framings.get(index, {
+		"scale": 1.0,
+		"offset": Vector2.ZERO,
+		"fitting_mode": FittingMode.FILL,
+	})
 
 func get_image_rect_mm(index: int) -> Rect2:
 	if asset == null:
 		return Rect2(Vector2.ZERO, size_mm)
+
+	var framing = get_framing(index)
+
+	var scale = framing.scale
+	var offset = framing.offset
+	var fitting_mode = framing.fitting_mode
 
 	# 1. Fetch aspect ratio safely (e.g. from preview texture or cached dimensions)
 	var preview_tex = asset.get_preview_texture(index)

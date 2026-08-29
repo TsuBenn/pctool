@@ -21,6 +21,31 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhgcu"]
 bg_color = Color(1, 1, 1, 1)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_txjnv"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2112, 8, 14, 4)
+margin = Rect2(2, 8, 4, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1o0ea"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2128, 2, 14, 16)
+margin = Rect2(2, 0, 4, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ckklh"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2070, 0, 18, 20)
+margin = Rect2(0, 2, 0, 4)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l501n"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2144, 0, 14, 18)
+margin = Rect2(2, 0, 4, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qie5n"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2090, 0, 18, 20)
+margin = Rect2(0, 2, 0, 4)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_cx2ea"]
 atlas = ExtResource("1_k0bj0")
 region = Rect2(1064, 12, 12, 10)
@@ -365,7 +390,7 @@ photo_tile_view_instance = ExtResource("13_bn7i6")
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
-theme_type_variation = &"OutlineEmptyPanelContainer"
+theme_type_variation = &"EmptyPanelContainer"
 
 [node name="PaperContainer" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport" unique_id=1539723448]
 unique_name_in_owner = true
@@ -466,6 +491,50 @@ size_flags_vertical = 8
 [node name="Control" type="Control" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/VBoxContainer/HBoxContainer" unique_id=408329045]
 layout_mode = 2
 mouse_filter = 2
+
+[node name="MiniBar" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer" unique_id=133394000]
+layout_mode = 0
+offset_right = 127.0
+offset_bottom = 28.0
+theme_type_variation = &"OutlinePanelContainer"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar" unique_id=834114060]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer" unique_id=1775020015]
+layout_mode = 2
+
+[node name="QuickDecrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=1059264248]
+layout_mode = 2
+icon = SubResource("AtlasTexture_txjnv")
+
+[node name="QuickQuantitySpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=1989702960]
+layout_mode = 2
+theme_type_variation = &"SpinBoxNoArrow"
+select_all_on_focus = true
+
+[node name="QuickIncrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=134122467]
+layout_mode = 2
+icon = SubResource("AtlasTexture_1o0ea")
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=1405355897]
+layout_mode = 2
+
+[node name="QuickCropButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=252547415]
+layout_mode = 2
+icon = SubResource("AtlasTexture_ckklh")
+
+[node name="QuickDuplicateButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=2015274065]
+layout_mode = 2
+icon = SubResource("AtlasTexture_l501n")
+
+[node name="QuickRemoveButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=782029220]
+layout_mode = 2
+icon = SubResource("AtlasTexture_qie5n")
 
 [node name="CanvasToolbar" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=2098321803]
 layout_mode = 2
@@ -753,8 +822,8 @@ suffix = "%"
 reset_button = true
 default_value = 100.0
 value = 100.0
-min_value = 1.0
-max_value = 1000.0
+min_value = 100.0
+max_value = 10000.0
 step = 0.1
 spinbox_width = 120
 
@@ -766,10 +835,13 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 label = "Offset X:"
-suffix = "%"
+suffix = "mm"
 reset_button = true
-min_value = -100.0
+min_value = -10000.0
+max_value = 10000.0
 step = 0.1
+allow_greater = true
+allow_lesser = true
 spinbox_width = 120
 
 [node name="ImageOffsetYSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=635748503 instance=ExtResource("2_gdvak")]
@@ -777,10 +849,12 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 label = "Offset Y:"
-suffix = "%"
+suffix = "mm"
 reset_button = true
-min_value = -100.0
+max_value = 0.0
 step = 0.1
+allow_greater = true
+allow_lesser = true
 spinbox_width = 120
 
 [node name="ConfigureDistortionButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=188502424]

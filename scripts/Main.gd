@@ -69,6 +69,7 @@ var export_mode: int = ExportEngine.EXPORT_PNG
 
 func _ready() -> void:
 
+
 	update_checker.check_for_updates()
 
 	get_window().min_size = Vector2i(800, 600)

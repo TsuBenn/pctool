@@ -33,8 +33,9 @@ func _init_children():
 	canvas_panel.setup(document_data)
 	properties_panel.setup(document_data)
 
-func _on_photo_item_selected(photo_item: PhotoItemData):
+func _on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int):
 	properties_panel.photo_item = photo_item
+	properties_panel.sub_asset_index = sub_asset_index
 	pass
 
 func setup(data: DocumentData, files: PackedStringArray) -> void:

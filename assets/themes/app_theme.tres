@@ -85,7 +85,7 @@ texture_margin_bottom = 2.0
 region_rect = Rect2(1472, 0, 32, 32)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_t3xdf"]
-color = Color(0, 0, 0, 0.5019608)
+color = Color(0.99215686, 0.9411765, 0.9411765, 0.13333334)
 grow_begin = 0.0
 grow_end = 0.0
 thickness = 2
@@ -105,6 +105,12 @@ region = Rect2(1036, 14, 2, 6)
 [sub_resource type="AtlasTexture" id="AtlasTexture_rl5ps"]
 atlas = ExtResource("13_d5hwj")
 region = Rect2(1166, 0, 2, 32)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjspk"]
+bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dds1x"]
+bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_umjuq"]
 
@@ -273,6 +279,12 @@ texture_margin_right = 2.0
 texture_margin_bottom = 2.0
 region_rect = Rect2(896, 0, 32, 32)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdpo6"]
+bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0quv3"]
+bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_ccmpb"]
 atlas = ExtResource("13_d5hwj")
 region = Rect2(1078, 14, 10, 6)
@@ -284,6 +296,10 @@ region = Rect2(1078, 2, 10, 6)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3ggsw"]
 bg_color = Color(0.99215686, 0.9411765, 0.9411765, 0.21568628)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dw7qm"]
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_q4u5f"]
 atlas = ExtResource("13_d5hwj")
 region = Rect2(1002, -2, 14, 14)
@@ -293,7 +309,7 @@ margin = Rect2(2, 2, 4, 4)
 bg_color = Color(0.99215686, 0.9411765, 0.9411765, 0.21568628)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_liy42"]
-color = Color(0, 0, 0, 0.5019608)
+color = Color(0.99215686, 0.9411765, 0.9411765, 0.13333334)
 grow_begin = 0.0
 grow_end = 0.0
 thickness = 2
@@ -431,6 +447,10 @@ HSlider/styles/slider = ExtResource("20_cxof5")
 HSplitContainer/constants/separation = 6
 HSplitContainer/icons/grabber = SubResource("AtlasTexture_rl5ps")
 HSplitContainer/icons/touch_dragger = SubResource("AtlasTexture_rl5ps")
+HighlightedPanel/base_type = &"Panel"
+HighlightedPanel/styles/panel = SubResource("StyleBoxFlat_hjspk")
+HighlightedPanelContainer/base_type = &"PanelContainer"
+HighlightedPanelContainer/styles/panel = SubResource("StyleBoxFlat_dds1x")
 Label/colors/font_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
 Label/constants/line_spacing = -2
 LeftRightOutlinePanel/base_type = &"Panel"
@@ -482,7 +502,6 @@ OptionButton/styles/hover_pressed = SubResource("StyleBoxTexture_tmsm4")
 OptionButton/styles/normal = SubResource("StyleBoxTexture_3ggsw")
 OptionButton/styles/pressed = SubResource("StyleBoxTexture_liy42")
 OutlineButton/base_type = &"Button"
-OutlineButton/colors/font_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 OutlineButton/styles/disabled = SubResource("StyleBoxTexture_3mupa")
 OutlineButton/styles/hover = SubResource("StyleBoxTexture_4mbuc")
 OutlineButton/styles/hover_pressed = SubResource("StyleBoxTexture_dds1x")
@@ -527,6 +546,10 @@ ProgressBar/colors/font_outline_color = Color(0.13333334, 0.11372549, 0.12941177
 ProgressBar/constants/outline_size = 2
 ProgressBar/styles/background = SubResource("StyleBoxTexture_rrfep")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_es4bv")
+SelectedPanel/base_type = &"Panel"
+SelectedPanel/styles/panel = SubResource("StyleBoxFlat_cdpo6")
+SelectedPanelContainer/base_type = &"PanelContainer"
+SelectedPanelContainer/styles/panel = SubResource("StyleBoxFlat_0quv3")
 SpinBox/colors/down_disabled_icon_modulate = Color(0.99215686, 0.9411765, 0.9411765, 0.3137255)
 SpinBox/colors/down_hover_icon_modulate = Color(0.99215686, 0.9411765, 0.9411765, 1)
 SpinBox/colors/down_icon_modulate = Color(0.99215686, 0.9411765, 0.9411765, 1)
@@ -550,6 +573,27 @@ SpinBox/styles/down_background_pressed = SubResource("StyleBoxFlat_3ggsw")
 SpinBox/styles/up_background_hovered = SubResource("StyleBoxFlat_3ggsw")
 SpinBox/styles/up_background_pressed = SubResource("StyleBoxFlat_3ggsw")
 SpinBoxInnerLineEdit/base_type = &"LineEdit"
+SpinBoxNoArrow/base_type = &"SpinBox"
+SpinBoxNoArrow/constants/buttons_width = 0
+SpinBoxNoArrow/icons/down = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/down_disabled = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/down_hover = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/down_pressed = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/up = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/up_disabled = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/up_hover = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/up_pressed = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/icons/updown = SubResource("AtlasTexture_mhgcu")
+SpinBoxNoArrow/styles/down_background = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/down_background_disabled = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/down_background_hovered = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/down_background_pressed = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/field_and_buttons_separator = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/up_background = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/up_background_disabled = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/up_background_hovered = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/up_background_pressed = SubResource("StyleBoxEmpty_dw7qm")
+SpinBoxNoArrow/styles/up_down_buttons_separator = SubResource("StyleBoxEmpty_dw7qm")
 SubtleLabel/base_type = &"Label"
 SubtleLabel/colors/font_color = Color(0.99215686, 0.9411765, 0.9411765, 0.3137255)
 TabBar/colors/font_disabled_color = Color(1, 1, 1, 0.5019608)

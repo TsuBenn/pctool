@@ -16,6 +16,18 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$SpinBox.editable = new_val
 
+@export var select_all_on_focus: bool = true:
+	set(new_val):
+		select_all_on_focus = new_val
+		if is_node_ready():
+			$SpinBox.select_all_on_focus = new_val
+
+@export var show_arrows: bool = true:
+	set(new_val):
+		show_arrows = new_val
+		if is_node_ready():
+			$SpinBox.theme_type_variation = "" if show_arrows else "SpinBoxNoArrow"
+
 @export var prefix: String = "":
 	set(new_prefix):
 		prefix = new_prefix
@@ -65,6 +77,18 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$SpinBox.step = step
 
+@export var allow_greater: bool = false:
+	set(new):
+		allow_greater = new
+		if is_node_ready():
+			$SpinBox.allow_greater = new
+
+@export var allow_lesser: bool = false:
+	set(new):
+		allow_lesser = new
+		if is_node_ready():
+			$SpinBox.allow_lesser = new
+
 @export var spinbox_width: int = 0:
 	set(new_width):
 		spinbox_width = max(new_width, 0)
@@ -79,11 +103,15 @@ func _ready() -> void:
 	$SpinBox.prefix = prefix
 	$SpinBox.suffix = suffix
 	$SpinBox.custom_minimum_size = Vector2(spinbox_width, 0)
-	$SpinBox.value = value
 	$SpinBox.min_value = min_value
 	$SpinBox.max_value = max_value
+	$SpinBox.value = value
 	$SpinBox.step = step
+	$SpinBox.select_all_on_focus = select_all_on_focus
+	$SpinBox.theme_type_variation = "" if show_arrows else "SpinBoxNoArrow"
 	$Button.visible = reset_button
+	$SpinBox.allow_greater = allow_greater
+	$SpinBox.allow_lesser = allow_lesser
 
 	if $SpinBox.value == default_value:
 		$Button.disabled = true

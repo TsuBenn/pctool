@@ -5,6 +5,8 @@ signal add_asset_to_sheet(asset_datas: Array[AssetData])
 
 var document_data: DocumentData
 
+var sub_asset_index: int = 0
+
 var photo_item: PhotoItemData = null:
 	set(new):
 		if photo_item == new:
@@ -86,15 +88,27 @@ func _ready() -> void:
 	)
 	image_zoom_spin_box.value_changed.connect(
 		func(new):
-			photo_item.scale = new/100
+			# var old_scale = photo_item.get_framing(sub_asset_index).scale * 100
+			# var old_offset = photo_item.get_framing(sub_asset_index).offset
+
+			# var new_offset_x = (old_scale/new)*old_offset.x
+			# var new_offset_y = (old_scale/new)*old_offset.y
+
+			# var new_offset = Vector2(new_offset_x,new_offset_y)
+
+			photo_item.set_framing(sub_asset_index, new/100, photo_item.get_framing(sub_asset_index).offset, photo_item.get_framing(sub_asset_index).fitting_mode)
 	)
 	image_offset_x_spin_box.value_changed.connect(
 		func(new):
-			photo_item.offset.x = new/100
+			var new_offset = photo_item.get_framing(sub_asset_index).offset
+			new_offset.x = new/(photo_item.get_image_rect_mm(sub_asset_index).size.x/2)
+			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, new_offset, photo_item.get_framing(sub_asset_index).fitting_mode)
 	)
 	image_offset_y_spin_box.value_changed.connect(
 		func(new):
-			photo_item.offset.y = new/100
+			var new_offset = photo_item.get_framing(sub_asset_index).offset
+			new_offset.y = new/(photo_item.get_image_rect_mm(sub_asset_index).size.y/2)
+			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, new_offset, photo_item.get_framing(sub_asset_index).fitting_mode)
 	)
 	filter_mode_option_button.item_selected.connect(
 		func(new):
@@ -102,7 +116,7 @@ func _ready() -> void:
 	)
 	fitting_mode_option_button.item_selected.connect(
 		func(new):
-			photo_item.fitting_mode = new
+			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, photo_item.get_framing(sub_asset_index).offset, new)
 	)
 	rotate_90_button.pressed.connect(
 		func():
@@ -180,6 +194,8 @@ func _on_document_changed():
 
 func _sync_ui():
 	if photo_item:
+		var framing = photo_item.get_framing(sub_asset_index)
+
 		properties_scroll_container.visible = true
 		properties_empty_state_label.visible = false
 		match photo_item.size_mm:
@@ -193,9 +209,9 @@ func _sync_ui():
 		properties_height_spin_box.set_value_no_signal(photo_item.size_mm.y)
 		quantity_spin_box.set_value_no_signal(photo_item.quantity)
 		filter_mode_option_button.selected = photo_item.filter_mode
-		fitting_mode_option_button.selected = photo_item.fitting_mode
+		fitting_mode_option_button.selected = framing.fitting_mode
 
-		match photo_item.fitting_mode:
+		match framing.fitting_mode:
 			PhotoItemData.FittingMode.FILL:
 				image_zoom_spin_box.visible = true
 				image_offset_x_spin_box.visible = true
@@ -212,9 +228,10 @@ func _sync_ui():
 				image_offset_y_spin_box.visible = false
 				configure_distortion_button.visible = false
 
-		image_zoom_spin_box.set_value_no_signal(photo_item.scale*100)
-		image_offset_x_spin_box.set_value_no_signal(photo_item.offset.x*100)
-		image_offset_y_spin_box.set_value_no_signal(photo_item.offset.y*100)
+		image_zoom_spin_box.set_value_no_signal(framing.scale*100)
+
+		image_offset_x_spin_box.set_value_no_signal(framing.offset.x*(photo_item.get_image_rect_mm(sub_asset_index).size.x/2))
+		image_offset_y_spin_box.set_value_no_signal(framing.offset.y*(photo_item.get_image_rect_mm(sub_asset_index).size.y/2))
 
 		border_enabled_check_button.button_pressed = photo_item.border_enabled
 		border_thickness_spin_box.set_value_no_signal(photo_item.border_width)

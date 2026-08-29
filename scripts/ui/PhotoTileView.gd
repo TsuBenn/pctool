@@ -18,6 +18,10 @@ var is_selected: bool = false:
 		if is_node_ready():
 			selection_outline.visible = new
 
+var is_selected_tile: bool = false:
+	set(new):
+		is_selected_tile = new
+
 var photo_tile: PhotoTile
 
 var photo_item: PhotoItemData:
@@ -29,11 +33,11 @@ var view_scale: float = 1.0:  # (MM TO PIXEL) * VIEWPORT_SCALE providied by Canv
 		view_scale = new
 		_update_tile_rect()
 
-
-func setup(tile: PhotoTile, scale_px_per_mm: float, selected: bool = false, padding: float = 0):
+func setup(tile: PhotoTile, scale_px_per_mm: float, selected: bool = false, selected_tile: bool = false, padding: float = 0):
 	view_scale = scale_px_per_mm
 	photo_tile = tile
 	is_selected = selected
+	is_selected_tile = selected_tile
 	selection_padding = padding + 1
 	if is_node_ready():
 		_update_tile_rect()
@@ -72,14 +76,20 @@ func _update_tile_rect():
 
 	var padding: float = selection_padding*view_scale/2
 
-	if padding <= 1:
+	if selection_padding <= 1:
 		base_selection.visible = false
 	else:
 		base_selection.visible = true
-	selection_outline.get_theme_stylebox("panel").expand_margin_top    = padding
-	selection_outline.get_theme_stylebox("panel").expand_margin_bottom = padding
-	selection_outline.get_theme_stylebox("panel").expand_margin_left   = padding
-	selection_outline.get_theme_stylebox("panel").expand_margin_right  = padding
+
+	selection_outline.offset_left = -padding
+	selection_outline.offset_top = -padding
+	selection_outline.offset_right = padding
+	selection_outline.offset_bottom = padding
+
+	if is_selected_tile:
+		selection_outline.theme_type_variation = "HighlightedPanel"
+	else:
+		selection_outline.theme_type_variation = "SelectedPanel"
 
 	if photo_item:
 		border.visible = photo_item.border_enabled

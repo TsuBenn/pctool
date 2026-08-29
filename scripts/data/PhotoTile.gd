@@ -9,6 +9,11 @@ var rect_mm: Rect2
 var copy_index: int = 0
 var sub_asset_index: int = 0
 
+func get_framing():
+	return photo_item.get_framing(sub_asset_index)
+
+func set_framing(scale: float, offset: Vector2, fitting_mode: PhotoItemData.FittingMode):
+	photo_item.set_framing(sub_asset_index, scale, offset, fitting_mode)
 
 func _init(
 	item: PhotoItemData = null,
