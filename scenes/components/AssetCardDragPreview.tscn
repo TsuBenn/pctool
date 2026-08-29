@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ca75d881fbjj3"]
 
-[ext_resource type="Texture2D" uid="uid://d2oicq24kp41h" path="res://assets/texture/32_icons_sheets.png" id="4_3p2l4"]
+[ext_resource type="Texture2D" uid="uid://cs6mywllsder2" path="res://assets/icon.png" id="1_udofd"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dw7qm"]
 
@@ -31,13 +31,9 @@ func _process(_delta: float) -> void:
 	offset_transform_position.x = -floor(size.x/2)
 "
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
-atlas = ExtResource("4_3p2l4")
-region = Rect2(39, 4, 18, 24)
-
 [node name="AssetCardDragPreview" type="PanelContainer" unique_id=1057240620]
-offset_right = 44.0
-offset_bottom = 92.0
+offset_right = 91.0
+offset_bottom = 123.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 offset_transform_enabled = true
@@ -50,10 +46,12 @@ layout_mode = 2
 offset_transform_enabled = true
 offset_transform_position = Vector2(4, 4)
 mouse_filter = 2
+theme_type_variation = &"OutlinePanelContainer"
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=460855514]
 layout_mode = 2
 mouse_filter = 2
+theme_type_variation = &"OutlinePanelContainer"
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=519561460]
 layout_mode = 2
@@ -71,13 +69,13 @@ vertical = true
 
 [node name="TextureRect" type="TextureRect" parent="PanelContainer/MarginContainer/BoxContainer" unique_id=877244563]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
-custom_maximum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(128, 128)
+custom_maximum_size = Vector2(128, 128)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
 mouse_filter = 2
-texture = SubResource("AtlasTexture_mhgcu")
+texture = ExtResource("1_udofd")
 stretch_mode = 5
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/BoxContainer" unique_id=1716666752]
@@ -86,6 +84,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 offset_transform_enabled = true
 offset_transform_position = Vector2(0, -1)
+theme_type_variation = &"MiniLabel"
 text = "4.png"
 horizontal_alignment = 1
 autowrap_mode = 3

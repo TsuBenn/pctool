@@ -1,7 +1,17 @@
 [gd_scene format=3 uid="uid://dhyej6qqdcw34"]
 
 [ext_resource type="Script" uid="uid://be16oh4g1fh38" path="res://scripts/ui/GroupBox.gd" id="1_kfy4g"]
-[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_new_atlas.tres" id="1_y4w5x"]
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="1_y4w5x"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y4w5x"]
+atlas = ExtResource("1_y4w5x")
+region = Rect2(1078, 14, 10, 6)
+margin = Rect2(0, 2, 0, 4)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c0vqk"]
+atlas = ExtResource("1_y4w5x")
+region = Rect2(1056, 0, 6, 10)
+margin = Rect2(2, 0, 4, 0)
 
 [sub_resource type="Shader" id="Shader_c0vqk"]
 code = "shader_type canvas_item;
@@ -25,9 +35,10 @@ void fragment() {
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_y4w5x"]
 shader = SubResource("Shader_c0vqk")
-shader_parameter/cutout_rect = Vector4(8, 0, 66, 2)
+shader_parameter/cutout_rect = Vector4(-4, 0, 78, 2)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mhgcu"]
+content_margin_bottom = 0.0
 texture = ExtResource("1_y4w5x")
 texture_margin_left = 2.0
 texture_margin_top = 2.0
@@ -36,17 +47,41 @@ texture_margin_bottom = 2.0
 region_rect = Rect2(1440, 0, 32, 32)
 
 [node name="GroupBox" type="Container" unique_id=25486442]
-offset_right = 100.0
-offset_bottom = 29.0
+offset_right = 174.0
+offset_bottom = 31.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_kfy4g")
+emphasized = false
+collapse_enabled = null
+collapse_folded = null
 
 [node name="InternalControl" type="Control" parent="." unique_id=311887209]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="CollapseButton" type="CheckBox" parent="InternalControl" unique_id=1329092696]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+offset_right = 22.0
+offset_bottom = 15.0
+offset_transform_enabled = true
+offset_transform_position = Vector2(8, 2)
+offset_transform_visual_only = false
+mouse_filter = 2
+theme_override_icons/checked = SubResource("AtlasTexture_y4w5x")
+theme_override_icons/unchecked = SubResource("AtlasTexture_c0vqk")
+theme_override_icons/radio_checked = SubResource("AtlasTexture_c0vqk")
+theme_override_icons/radio_unchecked = SubResource("AtlasTexture_y4w5x")
+theme_override_icons/checked_disabled = SubResource("AtlasTexture_y4w5x")
+theme_override_icons/unchecked_disabled = SubResource("AtlasTexture_c0vqk")
+theme_override_icons/radio_checked_disabled = SubResource("AtlasTexture_y4w5x")
+theme_override_icons/radio_unchecked_disabled = SubResource("AtlasTexture_c0vqk")
+button_pressed = true
+flat = true
 
 [node name="Label" type="Label" parent="InternalControl" unique_id=189231060]
 unique_name_in_owner = true
@@ -57,13 +92,12 @@ offset_bottom = 23.0
 size_flags_horizontal = 0
 size_flags_vertical = 0
 offset_transform_enabled = true
-offset_transform_position = Vector2(0, -4)
+offset_transform_position = Vector2(12, -4)
 offset_transform_visual_only = false
 text = "Title"
 
 [node name="PanelContainer" type="PanelContainer" parent="InternalControl" unique_id=1652682446]
 unique_name_in_owner = true
-clip_children = 2
 material = SubResource("ShaderMaterial_y4w5x")
 layout_mode = 1
 anchors_preset = -1
@@ -72,3 +106,15 @@ anchor_bottom = 1.0
 offset_top = 8.0
 pivot_offset = Vector2(0, 12)
 theme_override_styles/panel = SubResource("StyleBoxTexture_mhgcu")
+
+[node name="Button" type="Button" parent="InternalControl" unique_id=1531977780]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.5019608)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+offset_top = -4.0
+offset_bottom = 22.0
+disabled = true
+toggle_mode = true
+flat = true

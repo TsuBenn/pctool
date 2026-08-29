@@ -54,9 +54,9 @@ grow_vertical = 2
 [node name="Logo" type="TextureRect" parent="Panel" unique_id=1905137830]
 layout_mode = 0
 offset_left = 184.0
-offset_top = 26.0
+offset_top = 24.0
 offset_right = 430.0
-offset_bottom = 92.0
+offset_bottom = 90.0
 size_flags_horizontal = 3
 texture = SubResource("AtlasTexture_8bk25")
 stretch_mode = 5
@@ -64,26 +64,26 @@ stretch_mode = 5
 [node name="Icon" type="TextureRect" parent="Panel" unique_id=923612030]
 layout_mode = 0
 offset_left = 92.0
-offset_top = 14.0
+offset_top = 12.0
 offset_right = 180.0
-offset_bottom = 118.0
+offset_bottom = 116.0
 texture = SubResource("AtlasTexture_36xpn")
 
 [node name="Author" type="Label" parent="Panel" unique_id=592409413]
 layout_mode = 0
 offset_left = 190.0
-offset_top = 92.0
+offset_top = 90.0
 offset_right = 310.0
-offset_bottom = 115.0
+offset_bottom = 113.0
 text = "By TsuBenn"
 
 [node name="Version" type="Label" parent="Panel" unique_id=2036596663]
 layout_mode = 0
 offset_left = 344.0
-offset_top = 92.0
+offset_top = 90.0
 offset_right = 430.0
-offset_bottom = 115.0
-theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
+offset_bottom = 113.0
+theme_type_variation = &"SubtleLabel"
 text = "v0.1.0"
 horizontal_alignment = 2
 
@@ -93,11 +93,12 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
-offset_top = 128.0
+offset_top = 127.0
 offset_right = -8.0
-offset_bottom = -40.0
+offset_bottom = -43.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"OutlineEmptyPanel"
 
 [node name="Description" type="Label" parent="Panel/Panel2" unique_id=338489947]
 layout_mode = 0
@@ -111,29 +112,29 @@ autowrap_mode = 3
 [node name="Description2" type="Label" parent="Panel/Panel2" unique_id=2086212563]
 layout_mode = 0
 offset_left = 8.0
-offset_top = 126.0
+offset_top = 124.0
 offset_right = 499.0
-offset_bottom = 150.0
-theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
+offset_bottom = 148.0
+theme_type_variation = &"SubtleLabel"
 text = "Made with GODOT ENGINE (MIT license)"
 autowrap_mode = 3
 
 [node name="Description3" type="Label" parent="Panel/Panel2" unique_id=1474838160]
 layout_mode = 0
 offset_left = 8.0
-offset_top = 62.0
+offset_top = 76.0
 offset_right = 497.0
-offset_bottom = 106.0
+offset_bottom = 98.0
 text = "Developed by TsuBenn for his dad"
 autowrap_mode = 3
 
 [node name="Description4" type="Label" parent="Panel/Panel2" unique_id=1901752709]
 layout_mode = 0
 offset_left = 8.0
-offset_top = 106.0
+offset_top = 104.0
 offset_right = 239.0
-offset_bottom = 129.0
-theme_override_colors/font_color = Color(0.4390491, 0.43904912, 0.43904912, 1)
+offset_bottom = 127.0
+theme_type_variation = &"SubtleLabel"
 text = "Running on:"
 autowrap_mode = 3
 
@@ -151,8 +152,9 @@ text = "Ok
 layout_mode = 0
 offset_left = 62.0
 offset_top = 286.0
-offset_right = 208.0
+offset_right = 234.0
 offset_bottom = 312.0
+theme_type_variation = &"OutlineButton"
 text = "Visit GitHub Page"
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]

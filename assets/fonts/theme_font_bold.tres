@@ -1,0 +1,6 @@
+[gd_resource type="FontVariation" format=3 uid="uid://clmmhydjeiwtm"]
+
+[ext_resource type="FontFile" uid="uid://bfr5a2fk2yhbb" path="res://assets/fonts/JetBrainsMonoNL-ExtraBold.ttf" id="1_2wlbl"]
+
+[resource]
+base_font = ExtResource("1_2wlbl")

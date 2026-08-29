@@ -308,6 +308,8 @@ func _on_photo_tile_context_menu_pressed(id: int):
 				to_duplicate.assign([selected_photo_item.asset])
 				add_asset_to_sheet(to_duplicate, CanvasPanel.AddAssetAction.FORCE_ADD, true)
 			TILE_REMOVE:
+				selected_photo_items.erase(selected_photo_item)
+				on_photo_item_selected.emit(null)
 				document_data.remove_photo_item(selected_photo_item)
 				pass
 
@@ -447,6 +449,7 @@ func _deselect_all_photo_items(update_properties: bool = true):
 
 
 func _on_tile_view_clicked(tile: PhotoTileView):
+	# print(tile.position)
 	if tile.photo_item in selected_photo_items:
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
@@ -486,8 +489,8 @@ func _sync_ui():
 
 	# Responsive breakpoints
 	# print(paper_container.size.x)
-	zoom_presets_option_button.visible = paper_container.size.x > 527
-	var show_page_nav: bool = paper_container.size.x > 365
+	zoom_presets_option_button.visible = paper_container.size.x > 543
+	var show_page_nav: bool = paper_container.size.x > 381
 	next_page_button.visible = show_page_nav
 	previous_page_button.visible = show_page_nav
 	last_page_button.visible = show_page_nav

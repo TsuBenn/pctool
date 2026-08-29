@@ -14,5 +14,6 @@ theme_override_constants/margin_bottom = 2
 
 [node name="Label" type="Label" parent="MarginContainer" unique_id=836411372]
 layout_mode = 2
+theme_type_variation = &"DimLabel"
 text = "Header"
 horizontal_alignment = 1

@@ -1,8 +1,0 @@
-[gd_resource type="FontVariation" format=3 uid="uid://c0wf104f15yes"]
-
-[ext_resource type="FontVariation" uid="uid://cxcfjysq0kin1" path="res://assets/fonts/theme_font_lower.tres" id="1_brjuv"]
-
-[resource]
-base_font = ExtResource("1_brjuv")
-spacing_top = 1
-spacing_bottom = -1

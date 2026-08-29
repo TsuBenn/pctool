@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bnjw1ruuyfglv"]
+
+[ext_resource type="FontVariation" uid="uid://clmmhydjeiwtm" path="res://assets/fonts/theme_font_bold.tres" id="1_b1mju"]
+
+[sub_resource type="GDScript" id="GDScript_b1mju"]
+script/source = "extends Label
+class_name EmphasisLabel
+"
+
+[node name="Label" type="Label" unique_id=173203685]
+theme_override_fonts/font = ExtResource("1_b1mju")
+text = "Properties"
+horizontal_alignment = 1
+script = SubResource("GDScript_b1mju")

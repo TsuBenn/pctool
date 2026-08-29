@@ -3,7 +3,7 @@ class_name DocumentPanel
 extends PanelContainer
 
 @onready var workspace_tab_container: TabContainer = %WorkspaceTabContainer
-@onready var home_panel: Panel = %HomePanel
+@onready var home_panel: HomePanel = %HomePanel
 
 @export var workspace_instance: PackedScene
 

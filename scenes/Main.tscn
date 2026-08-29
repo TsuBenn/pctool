@@ -5,13 +5,13 @@
 [ext_resource type="Script" uid="uid://lexvh7h7ivq3" path="res://scripts/ui/DocumentPanel.gd" id="2_rarhs"]
 [ext_resource type="PackedScene" uid="uid://bdtx4oepgf23f" path="res://scenes/components/WorkspaceInstance.tscn" id="2_rvslj"]
 [ext_resource type="Texture2D" uid="uid://bhkngrtlqx4yl" path="res://assets/cursor/cursor_sheet.png" id="3_nxtc6"]
-[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_new_atlas.tres" id="3_qmy6f"]
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="3_qmy6f"]
 [ext_resource type="PackedScene" uid="uid://ccf66dlsufh2i" path="res://scenes/modules/MenuButtonSimplified.tscn" id="4_jlsqs"]
 [ext_resource type="PackedScene" uid="uid://ck4qdc8tbgvyf" path="res://scenes/HomePanel.tscn" id="4_vcsgt"]
 [ext_resource type="Script" uid="uid://1y4tgs2087c2" path="res://scripts/ui/FileDialog.gd" id="9_wp0k4"]
-[ext_resource type="Texture2D" uid="uid://bhvbsl7mfwm7m" path="res://assets/texture/texture_sheet.png" id="10_bjd11"]
-[ext_resource type="FontVariation" uid="uid://c0wf104f15yes" path="res://assets/fonts/pixel-it-lower.tres" id="11_qmy6f"]
+[ext_resource type="Theme" uid="uid://dlfosfauj3rqr" path="res://assets/themes/app_theme.tres" id="10_qmy6f"]
 [ext_resource type="Script" uid="uid://dcgd53sullin3" path="res://scripts/engine/UpdateChecker.gd" id="12_bjd11"]
+[ext_resource type="Script" uid="uid://cyorikepkbyw4" path="res://scripts/engine/ThemeColorSetter.gd" id="12_mwfav"]
 [ext_resource type="PackedScene" uid="uid://cn3eh3w2vkmk" path="res://scenes/components/AboutWindow.tscn" id="13_qmy6f"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k4rpm"]
@@ -74,16 +74,46 @@ region = Rect2(832, -1, 64, 64)
 atlas = ExtResource("3_nxtc6")
 region = Rect2(896, -1, 64, 64)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3p2gp"]
-texture = ExtResource("3_qmy6f")
-region_rect = Rect2(0, 4, 1, 1)
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhgcu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ebg2g"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(1960, 0, 14, 20)
+margin = Rect2(4, 4, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xa025"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(1976, 0, 14, 20)
+margin = Rect2(4, 4, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1iba3"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(1920, 0, 18, 20)
+margin = Rect2(2, 4, 4, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ofn6"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(1992, 0, 18, 20)
+margin = Rect2(2, 4, 4, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yxlcp"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(1938, 0, 22, 20)
+margin = Rect2(0, 4, 0, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_36rkl"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(2012, 0, 18, 20)
+margin = Rect2(2, 4, 4, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fs0b5"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(2030, 0, 18, 20)
+margin = Rect2(2, 4, 4, 8)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wp0k4"]
 content_margin_left = 3.0
 content_margin_right = 3.0
-texture = ExtResource("10_bjd11")
 texture_margin_left = 1.0
 texture_margin_top = 1.0
 texture_margin_right = 1.0
@@ -95,7 +125,6 @@ content_margin_left = 3.0
 content_margin_top = 1.0
 content_margin_right = 3.0
 content_margin_bottom = 1.0
-texture = ExtResource("10_bjd11")
 texture_margin_left = 2.0
 texture_margin_top = 2.0
 texture_margin_right = 2.0
@@ -105,7 +134,6 @@ region_rect = Rect2(770, 0, 11, 12)
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qmy6f"]
 content_margin_left = 3.0
 content_margin_right = 3.0
-texture = ExtResource("10_bjd11")
 texture_margin_left = 1.0
 texture_margin_top = 1.0
 texture_margin_right = 1.0
@@ -117,12 +145,20 @@ content_margin_left = 3.0
 content_margin_top = 1.0
 content_margin_right = 3.0
 content_margin_bottom = 1.0
-texture = ExtResource("10_bjd11")
 texture_margin_left = 2.0
 texture_margin_top = 2.0
 texture_margin_right = 2.0
 texture_margin_bottom = 2.0
 region_rect = Rect2(781, 0, 11, 12)
+
+[sub_resource type="Resource" id="Resource_sj5fg"]
+metadata/__load_path__ = "res://assets/fonts/pixel-it-lower.tres"
+
+[sub_resource type="Resource" id="Resource_1xgkc"]
+metadata/__load_path__ = "res://assets/fonts/pixel-it-lower.tres"
+
+[sub_resource type="Resource" id="Resource_x1gp3"]
+metadata/__load_path__ = "res://assets/fonts/pixel-it-lower.tres"
 
 [node name="Main" type="Control" unique_id=1898904062]
 texture_filter = 1
@@ -158,7 +194,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_3p2gp")
+theme_type_variation = &"DarkPanelContainer"
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=38083367]
 layout_mode = 2
@@ -234,10 +270,52 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_mhgcu")
 script = ExtResource("2_rarhs")
 workspace_instance = ExtResource("2_rvslj")
 
-[node name="WorkspaceTabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=1375407615]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel" unique_id=873592679]
+layout_mode = 2
+
+[node name="Toolbar" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer" unique_id=1395626808]
+layout_mode = 2
+theme_type_variation = &"TopBottomOutlinePanelContainer"
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar" unique_id=552856286]
+layout_mode = 2
+
+[node name="HFlowContainer" type="HFlowContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer" unique_id=1833455139]
+layout_mode = 2
+
+[node name="NewButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=183908916]
+layout_mode = 2
+icon = SubResource("AtlasTexture_ebg2g")
+
+[node name="OpenButotn" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=2131394351]
+layout_mode = 2
+icon = SubResource("AtlasTexture_xa025")
+
+[node name="SaveButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=711124519]
+layout_mode = 2
+icon = SubResource("AtlasTexture_1iba3")
+
+[node name="ExportButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=449865026]
+layout_mode = 2
+icon = SubResource("AtlasTexture_2ofn6")
+
+[node name="PrintButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1987389846]
+layout_mode = 2
+icon = SubResource("AtlasTexture_yxlcp")
+
+[node name="UndoButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1149138538]
+layout_mode = 2
+icon = SubResource("AtlasTexture_36rkl")
+
+[node name="RedoButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1639237961]
+layout_mode = 2
+icon = SubResource("AtlasTexture_fs0b5")
+
+[node name="WorkspaceTabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer" unique_id=1375407615]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+size_flags_vertical = 3
 drag_to_rearrange_enabled = true
 script = ExtResource("2_0bbpv")
 
@@ -251,7 +329,7 @@ canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 title = "Open File(s)"
 initial_position = 2
-size = Vector2i(385, 200)
+size = Vector2i(415, 200)
 file_mode = 1
 access = 2
 filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
@@ -266,7 +344,7 @@ font_color = Color(0, 0, 0, 1)
 font_hover_color = Color(0, 0, 0, 1)
 font_pressed_color = Color(0, 0, 0, 1)
 font_hover_pressed_color = Color(0, 0, 0, 1)
-custom_font = ExtResource("11_qmy6f")
+custom_font = SubResource("Resource_sj5fg")
 
 [node name="NoticeDialog" type="AcceptDialog" parent="." unique_id=1152503669]
 unique_name_in_owner = true
@@ -297,7 +375,7 @@ font_color = Color(0, 0, 0, 1)
 font_hover_color = Color(0, 0, 0, 1)
 font_pressed_color = Color(0, 0, 0, 1)
 font_hover_pressed_color = Color(0, 0, 0, 1)
-custom_font = ExtResource("11_qmy6f")
+custom_font = SubResource("Resource_1xgkc")
 
 [node name="OpenDocumentDialog" type="FileDialog" parent="." unique_id=686707132]
 unique_name_in_owner = true
@@ -320,7 +398,13 @@ font_color = Color(0, 0, 0, 1)
 font_hover_color = Color(0, 0, 0, 1)
 font_pressed_color = Color(0, 0, 0, 1)
 font_hover_pressed_color = Color(0, 0, 0, 1)
-custom_font = ExtResource("11_qmy6f")
+custom_font = SubResource("Resource_x1gp3")
+
+[node name="Color" type="Control" parent="." unique_id=1703786000]
+anchors_preset = 0
+script = ExtResource("12_mwfav")
+target_theme = ExtResource("10_qmy6f")
+theme_texture = ExtResource("3_qmy6f")
 
 [node name="UpdateChecker" type="Node" parent="." unique_id=313336559]
 unique_name_in_owner = true
@@ -328,4 +412,5 @@ script = ExtResource("12_bjd11")
 
 [node name="AboutWindow" parent="." unique_id=263161894 instance=ExtResource("13_qmy6f")]
 unique_name_in_owner = true
+position = Vector2i(52, 68)
 visible = false

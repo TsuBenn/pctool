@@ -30,6 +30,7 @@ Global="*uid://dvsq2i70xgdn7"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/mode=2
+window/size/extend_to_title=true
 window/energy_saving/keep_screen_on=false
 window/stretch/aspect="expand"
 window/stretch/scale_mode="integer"
@@ -37,7 +38,7 @@ window/stretch/scale_mode="integer"
 [gui]
 
 common/snap_controls_to_pixels=false
-theme/custom="uid://bovn4bvvq80qj"
+theme/custom="uid://dlfosfauj3rqr"
 
 [physics]
 

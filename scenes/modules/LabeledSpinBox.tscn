@@ -1,12 +1,11 @@
 [gd_scene format=3 uid="uid://doot08emp6rvu"]
 
 [ext_resource type="Script" uid="uid://moh3aogcueik" path="res://scripts/ui/LabeledSpinBox.gd" id="1_1t8ie"]
-[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_new_atlas.tres" id="2_7b05i"]
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="2_7b05i"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_airir"]
 atlas = ExtResource("2_7b05i")
-region = Rect2(1320, 8, 14, 14)
-margin = Rect2(0, 2, 0, 2)
+region = Rect2(1318, 8, 18, 18)
 
 [node name="LabeledSpinBox" type="HBoxContainer" unique_id=1930336959]
 script = ExtResource("1_1t8ie")
@@ -14,6 +13,7 @@ script = ExtResource("1_1t8ie")
 [node name="Label" type="Label" parent="." unique_id=1227593897]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"DimLabel"
 text = "Label:"
 
 [node name="Button" type="Button" parent="." unique_id=767116013]

@@ -2,9 +2,11 @@
 
 [ext_resource type="Script" uid="uid://bjx7dff1qytir" path="res://scripts/ui/PhotoTileView.gd" id="1_cdpo6"]
 [ext_resource type="Texture2D" uid="uid://tw4e3ylqee76" path="res://assets/icon_128.png" id="1_w5csh"]
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="2_cdpo6"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cx2ea"]
-bg_color = Color(0.6722776, 0.71764904, 1.3528494, 1)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hjspk"]
+texture = ExtResource("2_cdpo6")
+region_rect = Rect2(14, 6, 2, 2)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjspk"]
 bg_color = Color(1.353, 1.353, 1.353, 1)
@@ -28,7 +30,7 @@ grow_horizontal = 2
 grow_vertical = 2
 offset_transform_enabled = true
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_cx2ea")
+theme_override_styles/panel = SubResource("StyleBoxTexture_hjspk")
 
 [node name="BaseSelection" type="Panel" parent="SelectionOutline" unique_id=755906351]
 unique_name_in_owner = true

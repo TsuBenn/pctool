@@ -9,7 +9,8 @@ script = ExtResource("1_fv7sw")
 
 [node name="Label" type="Label" parent="." unique_id=1625109470]
 layout_mode = 2
-text = "Label:"
+theme_type_variation = &"DimLabel"
+text = "Label"
 
 [node name="HSlider" type="HSlider" parent="." unique_id=967082289]
 layout_mode = 2

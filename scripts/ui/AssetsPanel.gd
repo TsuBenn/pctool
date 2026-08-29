@@ -113,9 +113,9 @@ func _update_status_footer():
 
 
 func _on_resized():
-	var card_width = 32 + 32 * grid_scale_slider.value + 28
+	var card_width = 32 + 32 * grid_scale_slider.value
 	var spacing = grid_assets_container.get_theme_constant("h_separation")
-	var container_width = size.x - 20
+	var container_width = size.x - 52
 
 	var new_columns = floor((container_width + spacing) / (card_width + spacing))
 

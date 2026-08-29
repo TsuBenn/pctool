@@ -1,8 +1,0 @@
-[gd_resource type="FontVariation" format=3 uid="uid://dg6tyib3jof4t"]
-
-[ext_resource type="FontFile" uid="uid://cm3q6tegnxv0s" path="res://assets/fonts/fs-pixel-sans-unicode-regular.ttf" id="1_ypxoa"]
-
-[resource]
-base_font = ExtResource("1_ypxoa")
-spacing_top = -5
-spacing_bottom = -1

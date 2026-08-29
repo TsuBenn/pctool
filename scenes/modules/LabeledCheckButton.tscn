@@ -2,15 +2,34 @@
 
 [ext_resource type="Script" uid="uid://de4reih0vgxeq" path="res://scripts/ui/LabeledCheckButton.gd" id="1_gg8m4"]
 
-[node name="LabeledCheckButton" type="HBoxContainer" unique_id=1508100861]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhgcu"]
+
+[node name="LabeledCheckButton" type="PanelContainer" unique_id=1967269163]
+offset_right = 97.0
+offset_bottom = 27.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mhgcu")
 script = ExtResource("1_gg8m4")
 
-[node name="Label" type="Label" parent="." unique_id=1737528902]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=223166903]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="HBoxContainer" unique_id=1737528902]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"DimLabel"
 text = "Label:"
 
-[node name="CheckButton" type="CheckButton" parent="." unique_id=908469961]
+[node name="CheckButton" type="CheckButton" parent="HBoxContainer" unique_id=908469961]
+unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 action_mode = 0
+flat = true
+
+[node name="Button" type="Button" parent="." unique_id=915111090]
+unique_name_in_owner = true
+layout_mode = 2
+toggle_mode = true
 flat = true
