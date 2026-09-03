@@ -52,7 +52,7 @@ region = Rect2(384, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cvmbd"]
 atlas = ExtResource("3_nxtc6")
-region = Rect2(384, 0, 64, 64)
+region = Rect2(448, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ft6cd"]
 atlas = ExtResource("3_nxtc6")
@@ -86,6 +86,11 @@ atlas = ExtResource("3_qmy6f")
 region = Rect2(1976, 0, 14, 20)
 margin = Rect2(4, 4, 8, 8)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_ma7h6"]
+atlas = ExtResource("3_qmy6f")
+region = Rect2(2260, 0, 20, 20)
+margin = Rect2(2, 4, 2, 8)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_1iba3"]
 atlas = ExtResource("3_qmy6f")
 region = Rect2(1920, 0, 18, 20)
@@ -93,8 +98,8 @@ margin = Rect2(2, 4, 4, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2ofn6"]
 atlas = ExtResource("3_qmy6f")
-region = Rect2(1992, 0, 18, 20)
-margin = Rect2(2, 4, 4, 8)
+region = Rect2(1992, 0, 20, 20)
+margin = Rect2(2, 4, 2, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yxlcp"]
 atlas = ExtResource("3_qmy6f")
@@ -284,34 +289,58 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="NewButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=183908916]
+unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Open New Document"
 icon = SubResource("AtlasTexture_ebg2g")
 
-[node name="OpenButotn" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=2131394351]
+[node name="OpenButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=2131394351]
+unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Open Existing Document"
 icon = SubResource("AtlasTexture_xa025")
 
-[node name="SaveButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=711124519]
+[node name="ImportButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=947745987]
+unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Import Asset(s)"
+icon = SubResource("AtlasTexture_ma7h6")
+
+[node name="SaveButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=711124519]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Save Active Document"
+disabled = true
 icon = SubResource("AtlasTexture_1iba3")
 
 [node name="ExportButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=449865026]
+unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Export Active Document as PDF"
+disabled = true
 icon = SubResource("AtlasTexture_2ofn6")
 
 [node name="PrintButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1987389846]
+unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Print Active Document"
+disabled = true
 icon = SubResource("AtlasTexture_yxlcp")
 
 [node name="VSeparator" type="VSeparator" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1283749058]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="UndoButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1149138538]
+unique_name_in_owner = true
 layout_mode = 2
+disabled = true
 icon = SubResource("AtlasTexture_36rkl")
 
 [node name="RedoButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer/Toolbar/MarginContainer/HFlowContainer" unique_id=1639237961]
+unique_name_in_owner = true
 layout_mode = 2
+disabled = true
 icon = SubResource("AtlasTexture_fs0b5")
 
 [node name="WorkspaceTabContainer" type="TabContainer" parent="PanelContainer/MarginContainer/VBoxContainer/DocumentPanel/VBoxContainer" unique_id=1375407615]
@@ -354,7 +383,7 @@ unique_name_in_owner = true
 canvas_item_default_texture_filter = 4
 oversampling_override = 1.0
 position = Vector2i(0, 36)
-size = Vector2i(120, 80)
+size = Vector2i(320, 100)
 dialog_text = "test
 testing"
 dialog_autowrap = true

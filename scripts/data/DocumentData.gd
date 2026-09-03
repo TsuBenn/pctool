@@ -23,7 +23,7 @@ extends Resource
 				paper_size_mm = Vector2(min(paper_size_mm.x, paper_size_mm.y), max(paper_size_mm.x, paper_size_mm.y))
 			emit_changed()
 
-@export var margins_mm: float = 20.0:
+@export var margins_mm: float = 5.0:
 	set(new):
 		if margins_mm != new:
 			margins_mm = new
@@ -48,6 +48,20 @@ extends Resource
 			emit_changed()
 
 @export var save_path: String = ""
+
+func _get_maximum_photo_item_size(photo_item: PhotoItemData, lock_ratio: bool = false) -> Vector2:
+	var max_w: float = paper_size_mm.x - margins_mm * 2
+	var max_h: float = paper_size_mm.y - margins_mm * 2
+
+	var photo_aspect: float = photo_item.size_mm.aspect()
+
+	if lock_ratio:
+		if max_w/max_h < photo_aspect:
+			max_h = max_w / photo_aspect
+		else :
+			max_w = max_h * photo_aspect
+
+	return Vector2(max_w, max_h)
 
 func add_photo_item_no_signal(photo_item: PhotoItemData):
 	add_photo_item(photo_item, false)
@@ -78,5 +92,3 @@ func clear_photo_items(signal_changed: bool = true):
 	photo_items.clear()
 	if signal_changed:
 		emit_changed()
-
-

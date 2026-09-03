@@ -1,0 +1,213 @@
+[gd_scene format=3 uid="uid://dsb2nge86xj"]
+
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="1_k2kir"]
+[ext_resource type="Script" uid="uid://qi1aen4chyc2" path="res://scripts/ui/ResizeGizmo.gd" id="1_wap1w"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qie5n"]
+texture = ExtResource("1_k2kir")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+region_rect = Rect2(2208, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
+atlas = ExtResource("1_k2kir")
+region = Rect2(2176, 0, 14, 14)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wap1w"]
+atlas = ExtResource("1_k2kir")
+region = Rect2(2194, 0, 14, 14)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2k5i"]
+atlas = ExtResource("1_k2kir")
+region = Rect2(2176, 18, 14, 14)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ab1ob"]
+atlas = ExtResource("1_k2kir")
+region = Rect2(2194, 18, 14, 14)
+
+[node name="ResizeGizmo" type="Control" unique_id=592728226]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 60.0
+offset_bottom = 60.0
+offset_transform_enabled = true
+offset_transform_visual_only = false
+mouse_filter = 2
+script = ExtResource("1_wap1w")
+
+[node name="Border" type="Panel" parent="." unique_id=2073514674]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_qie5n")
+
+[node name="THandle" type="Control" parent="." unique_id=2109556299]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 10.0
+offset_top = -8.0
+offset_right = -10.0
+offset_bottom = 6.0
+grow_horizontal = 2
+mouse_default_cursor_shape = 9
+
+[node name="RHandle" type="Control" parent="." unique_id=1096792689]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.0
+offset_top = 10.0
+offset_right = 8.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_default_cursor_shape = 10
+
+[node name="BHandle" type="Control" parent="." unique_id=1959280789]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -6.0
+offset_right = -10.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_default_cursor_shape = 9
+
+[node name="LHandle" type="Control" parent="." unique_id=1963160941]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = 10.0
+offset_right = 6.0
+offset_bottom = -10.0
+grow_vertical = 2
+mouse_default_cursor_shape = 10
+
+[node name="TLHandle" type="Control" parent="." unique_id=1459171849]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 10.0
+offset_bottom = 10.0
+mouse_default_cursor_shape = 12
+
+[node name="KnobTexture" type="TextureRect" parent="TLHandle" unique_id=508523667]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_mhgcu")
+
+[node name="TRHandle" type="Control" parent="." unique_id=914241790]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -10.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 10.0
+grow_horizontal = 0
+mouse_default_cursor_shape = 11
+
+[node name="KnobTexture" type="TextureRect" parent="TRHandle" unique_id=1541431109]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_wap1w")
+
+[node name="BLHandle" type="Control" parent="." unique_id=594283658]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 12.0
+grow_vertical = 0
+mouse_default_cursor_shape = 11
+
+[node name="KnobTexture" type="TextureRect" parent="BLHandle" unique_id=739139293]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_g2k5i")
+
+[node name="BRHandle" type="Control" parent="." unique_id=826158637]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 12.0
+offset_bottom = 12.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_default_cursor_shape = 12
+
+[node name="KnobTexture" type="TextureRect" parent="BRHandle" unique_id=1128603782]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_ab1ob")

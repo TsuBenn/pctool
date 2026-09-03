@@ -87,7 +87,7 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 
 
-func _get_drag_data(at_position: Vector2) -> Variant:
+func _get_drag_data(_at_position: Vector2) -> Variant:
 	if asset_data == null:
 		return null
 

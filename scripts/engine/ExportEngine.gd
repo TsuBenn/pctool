@@ -53,7 +53,7 @@ static func bake_tile_image(tile: PhotoTile, dpi: int) -> Image:
 	var tile_h: int = int(tile.rect_mm.size.y * px_per_mm)
 
 	var tile_image: Image = Image.create(tile_w, tile_h, false, Image.FORMAT_RGBA8)
-	tile_image.fill(Color(1,1,1,0))
+	tile_image.fill(Color(1,1,1,1))
 
 	var image_rect_mm: Rect2 = tile.photo_item.get_image_rect_mm(tile.sub_asset_index)
 
@@ -83,7 +83,7 @@ static func bake_tile_image(tile: PhotoTile, dpi: int) -> Image:
 	var dst_x : int = max(crop_pos_px.x, 0)
 	var dst_y : int = max(crop_pos_px.y, 0)
 
-	tile_image.blit_rect(asset_image, Rect2i(src_x,src_y,src_w,src_h), Vector2i(dst_x,dst_y))
+	tile_image.blend_rect(asset_image, Rect2i(src_x,src_y,src_w,src_h), Vector2i(dst_x,dst_y))
 
 	return tile_image
 

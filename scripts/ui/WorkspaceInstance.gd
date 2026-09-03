@@ -12,6 +12,8 @@ var quick_import_files: PackedStringArray
 @onready var canvas_panel: CanvasPanel = %CanvasPanel
 @onready var properties_panel: PropertiesPanel = %PropertiesPanel
 
+@onready var advanced_cropping_window: Window = %AdvancedCroppingWindow
+
 func _ready() -> void:
 	assets_panel.request_import_dialog.connect(_on_import_dialog_requested)
 	assets_panel.add_asset_to_sheet.connect(_on_add_asset_to_sheet)
@@ -21,6 +23,9 @@ func _ready() -> void:
 
 	canvas_panel.on_photo_item_selected.connect(_on_photo_item_selected)
 	properties_panel.add_asset_to_sheet.connect(_on_add_asset_to_sheet)
+
+	properties_panel.request_advanced_cropping.connect(_open_advanced_cropping_window)
+
 	_init_children()
 
 	if not quick_import_files.is_empty():
@@ -65,3 +70,8 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 
 func _on_import_dialog_requested() -> void:
 	image_import_dialog.popup_centered(Vector2i(600, 400))
+
+func _open_advanced_cropping_window():
+	var item: PhotoItemData = canvas_panel.selected_photo_item
+	var index: int = canvas_panel.selected_sub_asset_index
+	advanced_cropping_window.request_open(item, index)

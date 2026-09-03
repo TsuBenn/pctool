@@ -7,6 +7,10 @@ signal value_changed(new_value: float)
 @export var label: String = "Label:":
 	set(new_text):
 		label = new_text
+		if label.is_empty():
+			add_theme_constant_override("separation", 0)
+		else:
+			remove_theme_constant_override("separation")
 		if is_node_ready():
 			$Label.text = new_text
 
@@ -113,7 +117,12 @@ func _ready() -> void:
 	$SpinBox.allow_greater = allow_greater
 	$SpinBox.allow_lesser = allow_lesser
 
-	if $SpinBox.value == default_value:
+	if label.is_empty():
+		add_theme_constant_override("separation", 0)
+	else:
+		remove_theme_constant_override("separation")
+
+	if snapped($SpinBox.value, step) == snapped(default_value, step):
 		$Button.disabled = true
 	else:
 		$Button.disabled = false

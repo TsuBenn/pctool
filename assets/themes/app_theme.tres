@@ -1,6 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://dlfosfauj3rqr"]
 
 [ext_resource type="StyleBox" uid="uid://cn66w8namdfoa" path="res://assets/style/new/window_panel.tres" id="1_8ehde"]
+[ext_resource type="StyleBox" uid="uid://b5fag7l5t57h8" path="res://assets/style/new/border_panel.tres" id="2_0quv3"]
 [ext_resource type="StyleBox" uid="uid://dsyaqgy2qvc4r" path="res://assets/style/new/button_pressed.tres" id="2_skgs8"]
 [ext_resource type="StyleBox" uid="uid://1myc00mnlxwp" path="res://assets/style/new/focus_outline_thick.tres" id="3_dds1x"]
 [ext_resource type="StyleBox" uid="uid://bofd36ta07lng" path="res://assets/style/new/button_hover.tres" id="4_0quv3"]
@@ -41,19 +42,19 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_t3xdf"]
 atlas = ExtResource("13_d5hwj")
-region = Rect2(588, 4, 40, 24)
+region = Rect2(588, 6, 40, 20)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_liy42"]
 atlas = ExtResource("13_d5hwj")
-region = Rect2(1868, 4, 40, 24)
+region = Rect2(1868, 6, 40, 20)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3ggsw"]
 atlas = ExtResource("13_d5hwj")
-region = Rect2(524, 4, 40, 24)
+region = Rect2(524, 6, 40, 20)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rrfep"]
 atlas = ExtResource("13_d5hwj")
-region = Rect2(1804, 4, 40, 24)
+region = Rect2(1804, 6, 40, 20)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1o0ea"]
 atlas = ExtResource("13_d5hwj")
@@ -351,24 +352,16 @@ expand_margin_right = 4.0
 expand_margin_bottom = 4.0
 region_rect = Rect2(96, 0, 32, 32)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mytdb"]
-texture = ExtResource("13_d5hwj")
-texture_margin_left = 2.0
-texture_margin_top = 2.0
-texture_margin_right = 2.0
-texture_margin_bottom = 2.0
-expand_margin_left = 2.0
-expand_margin_top = 2.0
-expand_margin_right = 2.0
-expand_margin_bottom = 2.0
-region_rect = Rect2(32, 0, 32, 32)
-
 [resource]
 default_font = ExtResource("36_8ehde")
 default_font_size = 16
 AccentLabel/base_type = &"Label"
 AccentLabel/colors/font_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
 AcceptDialog/styles/panel = ExtResource("1_8ehde")
+BorderPanel/base_type = &"Panel"
+BorderPanel/styles/panel = ExtResource("2_0quv3")
+BorderPanelContainer/base_type = &"PanelContainer"
+BorderPanelContainer/styles/panel = ExtResource("2_0quv3")
 Button/colors/font_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
 Button/colors/font_disabled_color = Color(0.99215686, 0.9411765, 0.9411765, 0.3137255)
 Button/colors/font_focus_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
@@ -672,8 +665,9 @@ VSplitContainer/icons/grabber = SubResource("AtlasTexture_5o1xf")
 Window/colors/title_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
 Window/constants/close_h_offset = 20
 Window/constants/close_v_offset = 22
+Window/constants/resize_margin = 8
 Window/constants/title_height = 26
 Window/icons/close = SubResource("AtlasTexture_2bwpg")
 Window/icons/close_pressed = SubResource("AtlasTexture_m7sqt")
 Window/styles/embedded_border = SubResource("StyleBoxTexture_dsbyh")
-Window/styles/embedded_unfocused_border = SubResource("StyleBoxTexture_mytdb")
+Window/styles/embedded_unfocused_border = SubResource("StyleBoxTexture_dsbyh")

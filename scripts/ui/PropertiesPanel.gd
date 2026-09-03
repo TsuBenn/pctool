@@ -2,6 +2,7 @@ extends VBoxContainer
 class_name PropertiesPanel
 
 signal add_asset_to_sheet(asset_datas: Array[AssetData])
+signal request_advanced_cropping()
 
 var document_data: DocumentData
 
@@ -36,19 +37,16 @@ enum {
 
 @onready var properties_presets_option_button: LabeledOptionButton = %PropertiesPresetsOptionButton
 
-@onready var rotate_90_button: Button = %Rotate90Button
-@onready var flip_h_button: Button = %FlipHButton
-@onready var flip_v_button: Button = %FlipVButton
-
+@onready var decrement_quantity_button: Button = %DecrementQuantityButton
 @onready var quantity_spin_box: LabeledSpinBox = %QuantitySpinBox
+@onready var increment_quantity_button: Button = %IncrementQuantityButton
 
 @onready var filter_mode_option_button: LabeledOptionButton = %FilterModeOptionButton
-@onready var fitting_mode_option_button: LabeledOptionButton = %FittingModeOptionButton
-@onready var image_zoom_spin_box: LabeledSpinBox = %ImageZoomSpinBox
-@onready var image_offset_x_spin_box: LabeledSpinBox = %ImageOffsetXSpinBox
-@onready var image_offset_y_spin_box: LabeledSpinBox = %ImageOffsetYSpinBox
 
-@onready var configure_distortion_button: Button = %ConfigureDistortionButton
+@onready var sub_asset_spin_box: LabeledSpinBox = %SubAssetSpinBox
+@onready var fitting_mode_option_button: LabeledOptionButton = %FittingModeOptionButton
+
+@onready var advanced_cropping_button: Button = %AdvancedCroppingButton
 
 @onready var border_enabled_check_button: LabeledCheckButton = %BorderEnabledCheckButton
 @onready var border_thickness_spin_box: LabeledSpinBox = %BorderThicknessSpinBox
@@ -66,6 +64,7 @@ var lock_ratio: bool:
 
 func _ready() -> void:
 	lock_ratio_check_button.toggled.connect(_on_document_changed)
+	advanced_cropping_button.pressed.connect(request_advanced_cropping.emit)
 	properties_remove_button.pressed.connect(
 		func():
 			var to_remove: PhotoItemData = photo_item
@@ -86,30 +85,6 @@ func _ready() -> void:
 		func(new):
 			photo_item.border_width = new
 	)
-	image_zoom_spin_box.value_changed.connect(
-		func(new):
-			# var old_scale = photo_item.get_framing(sub_asset_index).scale * 100
-			# var old_offset = photo_item.get_framing(sub_asset_index).offset
-
-			# var new_offset_x = (old_scale/new)*old_offset.x
-			# var new_offset_y = (old_scale/new)*old_offset.y
-
-			# var new_offset = Vector2(new_offset_x,new_offset_y)
-
-			photo_item.set_framing(sub_asset_index, new/100, photo_item.get_framing(sub_asset_index).offset, photo_item.get_framing(sub_asset_index).fitting_mode)
-	)
-	image_offset_x_spin_box.value_changed.connect(
-		func(new):
-			var new_offset = photo_item.get_framing(sub_asset_index).offset
-			new_offset.x = new/(photo_item.get_image_rect_mm(sub_asset_index).size.x/2)
-			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, new_offset, photo_item.get_framing(sub_asset_index).fitting_mode)
-	)
-	image_offset_y_spin_box.value_changed.connect(
-		func(new):
-			var new_offset = photo_item.get_framing(sub_asset_index).offset
-			new_offset.y = new/(photo_item.get_image_rect_mm(sub_asset_index).size.y/2)
-			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, new_offset, photo_item.get_framing(sub_asset_index).fitting_mode)
-	)
 	filter_mode_option_button.item_selected.connect(
 		func(new):
 			photo_item.filter_mode = new
@@ -118,17 +93,13 @@ func _ready() -> void:
 		func(new):
 			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, photo_item.get_framing(sub_asset_index).offset, new)
 	)
-	rotate_90_button.pressed.connect(
+	decrement_quantity_button.pressed.connect(
 		func():
-			Global.notice("Feature Not Implemented", "Rotating Photo Item by 90 Degrees has not been implemented!")
+			photo_item.quantity = max(photo_item.quantity - 1, 1)
 	)
-	flip_h_button.pressed.connect(
+	increment_quantity_button.pressed.connect(
 		func():
-			Global.notice("Feature Not Implemented", "Flipping Photo Item Horizontally has not been implemented!")
-	)
-	flip_v_button.pressed.connect(
-		func():
-			Global.notice("Feature Not Implemented", "Flipping Photo Item Vertically has not been implemented!")
+			photo_item.quantity = max(photo_item.quantity + 1, 1)
 	)
 	quantity_spin_box.value_changed.connect(
 		func(new):
@@ -209,29 +180,10 @@ func _sync_ui():
 		properties_height_spin_box.set_value_no_signal(photo_item.size_mm.y)
 		quantity_spin_box.set_value_no_signal(photo_item.quantity)
 		filter_mode_option_button.selected = photo_item.filter_mode
+		sub_asset_spin_box.max_value = photo_item.asset.get_count()
+		sub_asset_spin_box.value = sub_asset_index + 1
+		sub_asset_spin_box.suffix = "/%d" % photo_item.asset.get_count()
 		fitting_mode_option_button.selected = framing.fitting_mode
-
-		match framing.fitting_mode:
-			PhotoItemData.FittingMode.FILL:
-				image_zoom_spin_box.visible = true
-				image_offset_x_spin_box.visible = true
-				image_offset_y_spin_box.visible = true
-				configure_distortion_button.visible = false
-			PhotoItemData.FittingMode.DISTORT:
-				image_zoom_spin_box.visible = false
-				image_offset_x_spin_box.visible = false
-				image_offset_y_spin_box.visible = false
-				configure_distortion_button.visible = true
-			_:
-				image_zoom_spin_box.visible = false
-				image_offset_x_spin_box.visible = false
-				image_offset_y_spin_box.visible = false
-				configure_distortion_button.visible = false
-
-		image_zoom_spin_box.set_value_no_signal(framing.scale*100)
-
-		image_offset_x_spin_box.set_value_no_signal(framing.offset.x*(photo_item.get_image_rect_mm(sub_asset_index).size.x/2))
-		image_offset_y_spin_box.set_value_no_signal(framing.offset.y*(photo_item.get_image_rect_mm(sub_asset_index).size.y/2))
 
 		border_enabled_check_button.button_pressed = photo_item.border_enabled
 		border_thickness_spin_box.set_value_no_signal(photo_item.border_width)

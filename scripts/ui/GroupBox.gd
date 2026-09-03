@@ -123,14 +123,14 @@ func _get_minimum_size() -> Vector2:
 			max_w = max(max_w, child.get_minimum_size().x)
 	return Vector2(
 		max(padding*2 + label.size.x,(max_w + (margin_left + margin_right) if max_w > 0 else 0)),
-		max(17, 12 + (max_h + (margin_top + margin_bottom) if max_h > 0 else 0) if not collapse_folded else 17)
+	max(22, 16 + (max_h + (margin_top + margin_bottom) if max_h > 0 else 0) if not collapse_folded else 22)
 	)
 
 func _update_position():
 	if not internal_control or not label or not panel_container or not collapse_button:
 		return
 
-	panel_container.get_theme_stylebox("panel").modulate_color = Color.WHITE if show_border else Color.TRANSPARENT
+	panel_container.self_modulate = Color.WHITE if show_border else Color.TRANSPARENT
 	label.theme_type_variation = "EmphasisLabel" if emphasized else ""
 
 	button.disabled = not collapse_enabled
@@ -138,8 +138,8 @@ func _update_position():
 	collapse_button.visible = collapse_enabled
 	collapse_button.button_pressed = not collapse_folded
 
-	if size.y == 17:
-		panel_container.offset_bottom = -7
+	if size.y <= 22:
+		panel_container.offset_bottom = -10
 	else:
 		panel_container.offset_bottom = 0
 
@@ -163,7 +163,7 @@ func _update_position():
 			Vector4(
 				label.offset_transform_position.x - title_padding - (int(collapse_button.size.x) + collapse_button_offset - (12 - collapse_button_spacing) if collapse_enabled else 0),
 				0,
-				label.size.x + title_padding*2 + (int(collapse_button.size.x) + collapse_button_offset - (12 - collapse_button_spacing) if collapse_enabled else 0),
+				label.size.x + title_padding*2 + ((int(collapse_button.size.x) + collapse_button_offset - (12 - collapse_button_spacing)) if collapse_enabled else 0),
 				2
 			)
 		)
@@ -172,8 +172,8 @@ func _update_position():
 		if child != internal_control:
 			child.visible = not collapse_enabled or not collapse_folded
 			var content_x = panel_container.position.x + margin_left
-			var content_y = panel_container.position.y + margin_top + 4
+			var content_y = panel_container.position.y + margin_top + 6
 			var content_w = panel_container.size.x - (margin_left + margin_right)
-			var content_h = panel_container.size.y - (margin_top + margin_bottom) - 4
+			var content_h = panel_container.size.y - (margin_top + margin_bottom) - 6
 			fit_child_in_rect(child, Rect2(content_x, content_y, content_w, content_h))
 

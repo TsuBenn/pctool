@@ -98,7 +98,7 @@ offset_right = -8.0
 offset_bottom = -43.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"OutlineEmptyPanel"
+theme_type_variation = &"EmptyPanel"
 
 [node name="Description" type="Label" parent="Panel/Panel2" unique_id=338489947]
 layout_mode = 0
@@ -125,7 +125,7 @@ offset_left = 8.0
 offset_top = 76.0
 offset_right = 497.0
 offset_bottom = 98.0
-text = "Developed by TsuBenn for his dad"
+text = "Developed by TsuBenn for his dad."
 autowrap_mode = 3
 
 [node name="Description4" type="Label" parent="Panel/Panel2" unique_id=1901752709]

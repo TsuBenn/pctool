@@ -11,6 +11,11 @@ enum Rotation {
 	ROTATE_270,
 }
 
+class Framing extends Resource:
+	var scale: float = 1
+	var offset: Vector2 = Vector2.ZERO
+	var fitting_mode: FittingMode = FittingMode.FILL
+
 # TRANSFORMS
 @export var size_mm: Vector2 = Vector2(30.0, 40.0):
 	set(new):
@@ -39,7 +44,7 @@ enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
 # IMAGE
 @export var quantity: int = 1:
 	set(new):
-		quantity = new
+		quantity = max(new,1)
 		emit_changed()
 
 @export var filter_mode: FilterMode = FilterMode.LANCZOS:
@@ -53,15 +58,15 @@ enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
 #     offset: Vector2, <- in percentage
 #     fitting_mode: FittingMode,
 # }
-@export var framings: Dictionary = {}
+var framings: Dictionary[int, Framing] = {}
 
 # EFFECTS
-@export var border_enabled: bool = false:
+@export var border_enabled: bool = true:
 	set(new):
 		border_enabled = new
 		emit_changed()
 
-@export var border_width: float = 0.4:
+@export var border_width: float = 0.2:
 	set(new):
 		border_width = new
 		emit_changed()
@@ -71,20 +76,52 @@ enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
 		border_color = new
 		emit_changed()
 
-func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode):
-	framings[index] = {
-		"scale": new_scale,
-		"offset": new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1)),
-		"fitting_mode": new_fitting_mode,
-	}
+func apply_framing_to_all(base_index: int):
+	for f in framings.keys():
+		if f == base_index:
+			continue
+		framings[f] = framings[base_index].duplicate()
 	emit_changed()
 
-func get_framing(index: int) -> Dictionary:
-	return framings.get(index, {
-		"scale": 1.0,
-		"offset": Vector2.ZERO,
-		"fitting_mode": FittingMode.FILL,
-	})
+func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode):
+	var new_framing = Framing.new()
+	new_framing.scale = max(new_scale,1)
+	new_framing.offset = new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1))
+	new_framing.fitting_mode = new_fitting_mode
+	framings[index] = new_framing
+	emit_changed()
+
+func set_framing_scale(index: int, new: float, ratio: bool = false):
+	var f = get_framing(index)
+	var old_scale = f.scale
+	set_framing(index, new, f.offset, f.fitting_mode)
+	if ratio:
+		var new_rect = get_image_rect_mm(index)
+		var max_offset = (new_rect.size - size_mm)
+		var offset_aspect_x = (new_rect.size.x - size_mm.x/(old_scale/new))/max_offset.x if max_offset.x > 0 else 0
+		var offset_aspect_y = (new_rect.size.y - size_mm.y/(old_scale/new))/max_offset.y if max_offset.y > 0 else 0
+		set_framing_offset(index, f.offset * Vector2(offset_aspect_x,offset_aspect_y))
+
+func set_framing_offset(index: int, new: Vector2):
+	var f = get_framing(index)
+	set_framing(index, f.scale, new, f.fitting_mode)
+
+func set_framing_offset_x(index: int, new: float):
+	var f = get_framing(index)
+	set_framing(index, f.scale, Vector2(new, f.offset.y), f.fitting_mode)
+
+func set_framing_offset_y(index: int, new: float):
+	var f = get_framing(index)
+	set_framing(index, f.scale, Vector2(f.offset.x, new), f.fitting_mode)
+
+func set_framing_fitting_mode(index: int, new: int):
+	var f = get_framing(index)
+	set_framing(index, f.scale, f.offset, new as FittingMode)
+
+func get_framing(index: int) -> Framing:
+	if framings.has(index):
+		return framings[index]
+	return Framing.new()
 
 func get_image_rect_mm(index: int) -> Rect2:
 	if asset == null:

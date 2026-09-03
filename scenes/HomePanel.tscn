@@ -71,7 +71,9 @@ text = "Import Assets"
 layout_mode = 2
 title = "Presets"
 collapse_enabled = false
-collapse_folded = false
+
+[node name="Panel" type="Panel" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2/GroupBox" unique_id=1990328240]
+layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1212344522]
 layout_mode = 2
@@ -82,4 +84,3 @@ size_flags_vertical = 3
 layout_mode = 2
 title = "Recents"
 collapse_enabled = false
-collapse_folded = false

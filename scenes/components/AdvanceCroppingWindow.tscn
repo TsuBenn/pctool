@@ -1,0 +1,366 @@
+[gd_scene format=3 uid="uid://bup7vqarswn2u"]
+
+[ext_resource type="Script" uid="uid://dq51i31q4p4om" path="res://scripts/ui/AdvancedCroppingWindow.gd" id="1_l3h74"]
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="1_timqo"]
+[ext_resource type="PackedScene" uid="uid://doot08emp6rvu" path="res://scenes/modules/LabeledSpinBox.tscn" id="2_l3h74"]
+[ext_resource type="Texture2D" uid="uid://cs6mywllsder2" path="res://assets/icon.png" id="3_7bbgc"]
+[ext_resource type="PackedScene" uid="uid://b48x8pokkdf1m" path="res://scenes/modules/LabeledOptionButton.tscn" id="5_7bbgc"]
+[ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="5_ph3vn"]
+[ext_resource type="PackedScene" uid="uid://dhsqjt8f0e6dj" path="res://scenes/modules/LabeledCheckButton.tscn" id="6_xs6yk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dw7qm"]
+atlas = ExtResource("1_timqo")
+region = Rect2(1056, 12, 6, 10)
+margin = Rect2(4, 4, 10, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qie5n"]
+atlas = ExtResource("1_timqo")
+region = Rect2(1056, 0, 6, 10)
+margin = Rect2(6, 4, 10, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ckklh"]
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Shader" id="Shader_xs6yk"]
+code = "shader_type canvas_item;
+
+uniform float out_bound_opacity = 0.2;
+uniform vec4 frame_rect = vec4(0.0,0.0,0.0,0.0);
+varying vec2 local_pos;
+
+void vertex() {
+	local_pos = VERTEX;
+}
+
+void fragment() {
+    if (local_pos.x >= frame_rect.x && local_pos.x <= (frame_rect.x + frame_rect.z) &&
+        local_pos.y >= frame_rect.y && local_pos.y <= (frame_rect.y + frame_rect.w)) {}
+	else {
+		COLOR = COLOR * vec4(1,1,1,out_bound_opacity);
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7bbgc"]
+shader = SubResource("Shader_xs6yk")
+shader_parameter/out_bound_opacity = 0.2
+shader_parameter/frame_rect = Vector4(0, 0, 0, 0)
+
+[node name="AdvancedCroppingWindow" type="Window" unique_id=554773751]
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+title = "Advanced Cropping"
+position = Vector2i(0, 26)
+size = Vector2i(1000, 600)
+transient = true
+exclusive = true
+minimize_disabled = true
+maximize_disabled = true
+script = ExtResource("1_l3h74")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1743582319]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DarkPanelContainer"
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1124625607]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=334886491]
+layout_mode = 2
+
+[node name="SubAssetsNavigationPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=868148385]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel" unique_id=857850611]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer" unique_id=1491467011]
+layout_mode = 2
+
+[node name="PreviousSubAssetButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer/HBoxContainer" unique_id=1444694088]
+unique_name_in_owner = true
+layout_mode = 2
+icon = SubResource("AtlasTexture_dw7qm")
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer/HBoxContainer" unique_id=1015188000]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer/HBoxContainer/CenterContainer" unique_id=1768135760]
+layout_mode = 2
+
+[node name="SubAssetSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer/HBoxContainer/CenterContainer/HBoxContainer" unique_id=1930336959 instance=ExtResource("2_l3h74")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Sub Assset:"
+show_arrows = false
+suffix = "/0"
+spinbox_width = 100
+
+[node name="SelectedAssetLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer/HBoxContainer/CenterContainer/HBoxContainer" unique_id=67553588]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "(bruh.png)"
+horizontal_alignment = 1
+
+[node name="NextSubAssetButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/SubAssetsNavigationPanel/MarginContainer/HBoxContainer" unique_id=1261385645]
+unique_name_in_owner = true
+layout_mode = 2
+icon = SubResource("AtlasTexture_qie5n")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=735924824]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1374949655]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PhotoItemPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1135866374]
+unique_name_in_owner = true
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_type_variation = &"EmptyPanelContainer"
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel" unique_id=1796451704]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer" unique_id=133639453]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PhotoItemBackground" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=113378431]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ckklh")
+
+[node name="PhotoItemImage" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control/PhotoItemBackground" unique_id=224972869]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_7bbgc")
+layout_mode = 1
+offset_right = 16.0
+offset_bottom = 16.0
+offset_transform_enabled = true
+offset_transform_visual_only = false
+mouse_filter = 2
+texture = ExtResource("3_7bbgc")
+
+[node name="PhotoItemFrame" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=786696901]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -30.0
+offset_right = 20.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"BorderPanel"
+
+[node name="PhotoItemNav" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1810011307]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav" unique_id=1570914723]
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer" unique_id=1077695965]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer" unique_id=1264013693]
+layout_mode = 2
+
+[node name="ZoomScaleSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer/HBoxContainer" unique_id=1790585463 instance=ExtResource("2_l3h74")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+label = ""
+show_arrows = false
+suffix = "%"
+min_value = 20.0
+spinbox_width = 80
+
+[node name="ZoomScaleSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer/HBoxContainer" unique_id=1167467585]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+min_value = 20.0
+value = 100.0
+tick_count = 5
+ticks_on_borders = true
+
+[node name="AdvancedCroppingToolBar" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2059269526]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar" unique_id=1190552175]
+layout_mode = 2
+theme_override_constants/margin_left = -2
+theme_override_constants/margin_top = -2
+theme_override_constants/margin_right = -2
+theme_override_constants/margin_bottom = -2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer" unique_id=912824053]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer" unique_id=1922135575]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"EmptyPanelContainer"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer" unique_id=552492531]
+custom_minimum_size = Vector2(290.31, 0)
+layout_mode = 2
+scroll_hint_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer" unique_id=283553689]
+layout_mode = 2
+theme_override_constants/margin_top = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer" unique_id=774849448]
+layout_mode = 2
+
+[node name="GroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=25486442 instance=ExtResource("5_ph3vn")]
+layout_mode = 2
+title = "Summary"
+margin_left = 12
+margin_top = 12
+margin_right = 12
+margin_bottom = 12
+
+[node name="SummaryLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/GroupBox" unique_id=2145841376]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+text = "Size: 30mm x 40mm"
+
+[node name="TransformsGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=811817738 instance=ExtResource("5_ph3vn")]
+layout_mode = 2
+size_flags_vertical = 1
+title = "Transforms"
+margin_left = 12
+margin_top = 12
+margin_right = 12
+margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox" unique_id=236420567]
+layout_mode = 2
+
+[node name="FittingModeOptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1895196629 instance=ExtResource("5_7bbgc")]
+layout_mode = 2
+label = "Fitting Mode:"
+items = Array[String](["Fill", "Fit", "Stretch", "Distort"])
+
+[node name="ZoomSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1947149490 instance=ExtResource("2_l3h74")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Zoom:"
+suffix = "%"
+reset_button = true
+default_value = 100.0
+value = 100.0
+min_value = 100.0
+max_value = 10000.0
+step = 0.1
+spinbox_width = 120
+
+[node name="OffsetXSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=152563835 instance=ExtResource("2_l3h74")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Offset X:"
+suffix = "%"
+reset_button = true
+min_value = -100.0
+step = 0.1
+spinbox_width = 120
+
+[node name="OffsetYSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1582960412 instance=ExtResource("2_l3h74")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Offset Y:"
+suffix = "%"
+reset_button = true
+min_value = -100.0
+step = 0.1
+spinbox_width = 120
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1919278747]
+layout_mode = 2
+
+[node name="Rotate90Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=2053385117]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Rotate 90°"
+
+[node name="FlipHButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=1776647123]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Flip H"
+
+[node name="FlipVButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=784225402]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Flip V"
+
+[node name="MoreGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1491107546 instance=ExtResource("5_ph3vn")]
+layout_mode = 2
+title = "Actions"
+margin_left = 12
+margin_top = 12
+margin_right = 12
+margin_bottom = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/MoreGroupBox" unique_id=1637289811]
+layout_mode = 2
+
+[node name="UnifiedTransformButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/MoreGroupBox/VBoxContainer" unique_id=1967269163 instance=ExtResource("6_xs6yk")]
+layout_mode = 2
+label = "Unique Transform:"
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer" unique_id=654501718]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/MarginContainer" unique_id=1992910378]
+layout_mode = 2
+
+[node name="CancelButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer2" unique_id=263810169]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Cancel"
+
+[node name="DoneButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer2" unique_id=1005517370]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Done"

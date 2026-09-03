@@ -54,6 +54,15 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 		if item == null or item.asset == null:
 			continue
 
+		var framings: Dictionary = {}
+
+		for index in item.framings.keys():
+			framings[index] = {
+				"scale": item.framings[index].scale,
+				"offset": [item.framings[index].offset.x, item.framings[index].offset.y],
+				"fitting_mode": item.framings[index].fitting_mode,
+			}
+
 		item_manifest_list.append({
 			"asset_id": item.asset.id,
 			"size_mm": [item.size_mm.x, item.size_mm.y],
@@ -61,9 +70,7 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 			"flipped_h": item.flipped_h,
 			"flipped_v": item.flipped_v,
 			"quantity": item.quantity,
-			"fitting_mode": item.fitting_mode,
-			"scale": item.scale,
-			"offset": [item.offset.x, item.offset.y],
+			"framings": framings,
 			"border_enabled": item.border_enabled,
 			"border_width": item.border_width,
 			"border_color": [item.border_color.r, item.border_color.g, item.border_color.b, item.border_color.a]
@@ -211,11 +218,10 @@ static func open_document(file_path: String) -> DocumentData:
 		item.flipped_v = bool(item_dict.get("flipped_v", false))
 
 		item.quantity = int(item_dict.get("quantity", 1))
-		item.fitting_mode = int(item_dict.get("fitting_mode", 0)) as PhotoItemData.FittingMode
-		item.scale = float(item_dict.get("scale", 1.0))
 
-		var offset_arr: Array = item_dict.get("offset", [0.0, 0.0])
-		item.offset = Vector2(offset_arr[0], offset_arr[1])
+		for index in item_dict.get("framings", {}).keys():
+			var framings = item_dict.get("framings")[index]
+			item.set_framing(index, framings.scale, Vector2(framings.offset[0], framings.offset[1]), framings.fitting_mode as PhotoItemData.FittingMode)
 
 		item.border_enabled = bool(item_dict.get("border_enabled", false))
 		item.border_width = float(item_dict.get("border_width", 1.0))

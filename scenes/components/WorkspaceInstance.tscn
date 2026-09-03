@@ -17,34 +17,10 @@
 [ext_resource type="Script" uid="uid://dwsdjgm1o2vcp" path="res://scripts/ui/PropertiesPanel.gd" id="14_cx2ea"]
 [ext_resource type="PackedScene" uid="uid://cwdi1o6rensku" path="res://scenes/modules/PopupMenuSimplified.tscn" id="14_k0bj0"]
 [ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="16_qie5n"]
+[ext_resource type="PackedScene" uid="uid://bup7vqarswn2u" path="res://scenes/components/AdvanceCroppingWindow.tscn" id="18_qie5n"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhgcu"]
 bg_color = Color(1, 1, 1, 1)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_txjnv"]
-atlas = ExtResource("1_k0bj0")
-region = Rect2(2112, 8, 14, 4)
-margin = Rect2(2, 8, 4, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1o0ea"]
-atlas = ExtResource("1_k0bj0")
-region = Rect2(2128, 2, 14, 16)
-margin = Rect2(2, 0, 4, 0)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ckklh"]
-atlas = ExtResource("1_k0bj0")
-region = Rect2(2070, 0, 18, 20)
-margin = Rect2(0, 2, 0, 4)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_l501n"]
-atlas = ExtResource("1_k0bj0")
-region = Rect2(2144, 0, 14, 18)
-margin = Rect2(2, 0, 4, 0)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qie5n"]
-atlas = ExtResource("1_k0bj0")
-region = Rect2(2090, 0, 18, 20)
-margin = Rect2(0, 2, 0, 4)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cx2ea"]
 atlas = ExtResource("1_k0bj0")
@@ -75,6 +51,14 @@ margin = Rect2(0, 4, 0, 6)
 atlas = ExtResource("1_k0bj0")
 region = Rect2(1424, 0, 14, 12)
 margin = Rect2(0, 2, 0, 6)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mhgcu"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2112, 8, 14, 4)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ckklh"]
+atlas = ExtResource("1_k0bj0")
+region = Rect2(2128, 2, 14, 16)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ckklh"]
 
@@ -420,10 +404,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -76.0
-offset_top = -107.0
-offset_right = 76.0
-offset_bottom = 107.0
+offset_left = -183.6
+offset_top = -258.0
+offset_right = 183.6
+offset_bottom = 258.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -492,50 +476,6 @@ size_flags_vertical = 8
 layout_mode = 2
 mouse_filter = 2
 
-[node name="MiniBar" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer" unique_id=133394000]
-layout_mode = 0
-offset_right = 127.0
-offset_bottom = 28.0
-theme_type_variation = &"OutlinePanelContainer"
-
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar" unique_id=834114060]
-layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer" unique_id=1775020015]
-layout_mode = 2
-
-[node name="QuickDecrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=1059264248]
-layout_mode = 2
-icon = SubResource("AtlasTexture_txjnv")
-
-[node name="QuickQuantitySpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=1989702960]
-layout_mode = 2
-theme_type_variation = &"SpinBoxNoArrow"
-select_all_on_focus = true
-
-[node name="QuickIncrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=134122467]
-layout_mode = 2
-icon = SubResource("AtlasTexture_1o0ea")
-
-[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=1405355897]
-layout_mode = 2
-
-[node name="QuickCropButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=252547415]
-layout_mode = 2
-icon = SubResource("AtlasTexture_ckklh")
-
-[node name="QuickDuplicateButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=2015274065]
-layout_mode = 2
-icon = SubResource("AtlasTexture_l501n")
-
-[node name="QuickRemoveButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/MiniBar/MarginContainer/HBoxContainer" unique_id=782029220]
-layout_mode = 2
-icon = SubResource("AtlasTexture_qie5n")
-
 [node name="CanvasToolbar" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=2098321803]
 layout_mode = 2
 
@@ -557,7 +497,10 @@ icon = SubResource("AtlasTexture_jyqy3")
 
 [node name="PageSpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasToolbar/MarginContainer/HBoxContainer" unique_id=206367067]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+min_value = 1.0
+value = 1.0
 alignment = 1
 suffix = "/0"
 
@@ -601,6 +544,7 @@ layout_mode = 2
 size_flags_vertical = 4
 min_value = 50.0
 max_value = 500.0
+step = 10.0
 value = 100.0
 tick_count = 9
 ticks_on_borders = true
@@ -626,7 +570,7 @@ layout_mode = 2
 script = ExtResource("14_cx2ea")
 
 [node name="PanelContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel" unique_id=2122437675]
-custom_minimum_size = Vector2(342, 0)
+custom_minimum_size = Vector2(352, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -736,48 +680,6 @@ layout_mode = 2
 label = "Presets:"
 items = Array[String](["3x4", "4x6", "-", "Custom"])
 
-[node name="Orientation" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer" unique_id=287126757]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/Orientation" unique_id=1951267318]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"DimLabel"
-text = "Orientation:"
-
-[node name="Rotate90Button" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/Orientation" unique_id=1639080322]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_type_variation = &"OutlineButton"
-text = "Rotate 90"
-
-[node name="Orientation2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer" unique_id=985779562]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/Orientation2" unique_id=2088261208]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"DimLabel"
-text = "Flip:"
-
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/Orientation2" unique_id=1661479620]
-layout_mode = 2
-
-[node name="FlipHButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/Orientation2/HBoxContainer" unique_id=88876132]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_type_variation = &"OutlineButton"
-text = "Horizontal"
-
-[node name="FlipVButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/Orientation2/HBoxContainer" unique_id=1798642195]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-theme_type_variation = &"OutlineButton"
-text = "Vertical"
-
 [node name="ImagesFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer" unique_id=112446594]
 layout_mode = 2
 title = "Image(s)"
@@ -792,12 +694,33 @@ theme_override_constants/margin_bottom = 12
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer" unique_id=453362763]
 layout_mode = 2
 
-[node name="QuantitySpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=1491021295 instance=ExtResource("2_gdvak")]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=1126343976]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1254249251]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"EmphasisLabel"
+text = "Copies:"
+
+[node name="DecrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=571875172]
 unique_name_in_owner = true
 layout_mode = 2
-label = "Quantity"
+icon = SubResource("AtlasTexture_mhgcu")
+
+[node name="QuantitySpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1491021295 instance=ExtResource("2_gdvak")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+label = ""
+show_arrows = false
 min_value = 1.0
-spinbox_width = 120
+spinbox_width = 90
+
+[node name="IncrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1194596764]
+unique_name_in_owner = true
+layout_mode = 2
+icon = SubResource("AtlasTexture_ckklh")
 
 [node name="FilterModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=1350035097 instance=ExtResource("1_n10jr")]
 unique_name_in_owner = true
@@ -807,61 +730,42 @@ items = Array[String](["Nearest", "Bilinear", "Cubic", "Trilinear", "Lanzcos"])
 selected = 5
 button_width = 120
 
-[node name="FittingModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=677269162 instance=ExtResource("1_n10jr")]
+[node name="SubAssetGroupBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=25486442 instance=ExtResource("16_qie5n")]
+layout_mode = 2
+title = "Cropping"
+padding = 0
+show_border = false
+emphasized = true
+collapse_enabled = true
+collapse_button_spacing = 14
+margin_left = 24
+margin_top = 12
+margin_right = 0
+margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox" unique_id=157947668]
+layout_mode = 2
+
+[node name="SubAssetSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox/VBoxContainer" unique_id=1545669483 instance=ExtResource("2_gdvak")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Sub Asset:"
+suffix = "/1"
+min_value = 1.0
+spinbox_width = 120
+
+[node name="FittingModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox/VBoxContainer" unique_id=677269162 instance=ExtResource("1_n10jr")]
 unique_name_in_owner = true
 layout_mode = 2
 label = "Fitting Mode:"
 items = Array[String](["Fill", "Fit", "Stretch", "Distortion"])
 button_width = 120
 
-[node name="ImageZoomSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=1650426856 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
-layout_mode = 2
-label = "Zoom"
-suffix = "%"
-reset_button = true
-default_value = 100.0
-value = 100.0
-min_value = 100.0
-max_value = 10000.0
-step = 0.1
-spinbox_width = 120
-
-[node name="HBoxContainer" type="HFlowContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=1900369478]
-layout_mode = 2
-
-[node name="ImageOffsetXSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=651863088 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-label = "Offset X:"
-suffix = "mm"
-reset_button = true
-min_value = -10000.0
-max_value = 10000.0
-step = 0.1
-allow_greater = true
-allow_lesser = true
-spinbox_width = 120
-
-[node name="ImageOffsetYSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=635748503 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-label = "Offset Y:"
-suffix = "mm"
-reset_button = true
-max_value = 0.0
-step = 0.1
-allow_greater = true
-allow_lesser = true
-spinbox_width = 120
-
-[node name="ConfigureDistortionButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=188502424]
+[node name="AdvancedCroppingButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox/VBoxContainer" unique_id=188502424]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"OutlineButton"
-text = "Configure distortion..."
+text = "Advanced Cropping..."
 
 [node name="EffecstFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer" unique_id=80165359]
 layout_mode = 2
@@ -884,11 +788,10 @@ padding = 0
 show_border = false
 emphasized = true
 collapse_enabled = true
-collapse_folded = false
 collapse_button_spacing = 14
 margin_left = 24
 margin_top = 12
-margin_right = 12
+margin_right = 0
 margin_bottom = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/EffecstFoldable/MarginContainer/VBoxContainer/BordersGroupBox" unique_id=616592443]
@@ -978,3 +881,7 @@ font_hover_color = Color(0, 0, 0, 1)
 font_pressed_color = Color(0, 0, 0, 1)
 font_hover_pressed_color = Color(0, 0, 0, 1)
 custom_font = SubResource("FontVariation_qie5n")
+
+[node name="AdvancedCroppingWindow" parent="." unique_id=554773751 instance=ExtResource("18_qie5n")]
+unique_name_in_owner = true
+visible = false

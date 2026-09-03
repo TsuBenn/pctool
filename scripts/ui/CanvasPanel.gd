@@ -11,6 +11,7 @@ enum ZoomPreset {
 	CUSTOM,
 }
 
+var selected_tile_view: PhotoTileView = null
 var selected_photo_item: PhotoItemData = null
 var selected_sub_asset_index: int = 0
 
@@ -140,29 +141,11 @@ func _ready() -> void:
 	zoom_slider.value_changed.connect(
 		func(new):
 			view_scale = new / 100
-			match int(new):
-				50:
-					zoom_presets_option_button.selected = zoom_presets_option_button.get_item_index(
-						ZoomPreset.PERCENT_50
-					)
-				100:
-					zoom_presets_option_button.selected = zoom_presets_option_button.get_item_index(
-						ZoomPreset.PERCENT_100
-					)
-				150:
-					zoom_presets_option_button.selected = zoom_presets_option_button.get_item_index(
-						ZoomPreset.PERCENT_150
-					)
-				200:
-					zoom_presets_option_button.selected = zoom_presets_option_button.get_item_index(
-						ZoomPreset.PERCENT_200
-					)
-				_:
-					var custom_index = zoom_presets_option_button.get_item_index(ZoomPreset.CUSTOM)
-					zoom_presets_option_button.selected = custom_index
-					zoom_presets_option_button.set_item_text(
-						custom_index, "Custom (%d%%)" % (view_scale * 100)
-					)
+			var custom_index = zoom_presets_option_button.get_item_index(ZoomPreset.CUSTOM)
+			zoom_presets_option_button.selected = custom_index
+			zoom_presets_option_button.set_item_text(
+				custom_index, "Custom (%d%%)" % (view_scale * 100)
+			)
 	)
 
 	duplicate_assets_confirmation_dialog.ok_button_text = "Increment Quantity"
@@ -255,6 +238,14 @@ func _on_paper_container_gui_input(event: InputEvent):
 				_is_panning = false
 				paper_container.mouse_default_cursor_shape = CursorShape.CURSOR_ARROW
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		if (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE) and event.is_pressed():
+			if selected_photo_item:
+				var to_remove = selected_photo_item
+				_deselect_all_photo_items()
+				document_data.remove_photo_item(to_remove)
+
 enum {
 		CANVAS_FIT_TO_WINDOW,
 		CANVAS_CENTER_TO_WINDOW,
@@ -310,10 +301,9 @@ func _on_photo_tile_context_menu_pressed(id: int):
 				to_duplicate.assign([item.asset])
 				add_asset_to_sheet(to_duplicate, CanvasPanel.AddAssetAction.FORCE_ADD, true)
 			TILE_REMOVE:
-				selected_photo_item = null
-				on_photo_item_selected.emit(null, 0)
-				document_data.remove_photo_item(item)
-				pass
+				var to_remove = selected_photo_item
+				_deselect_all_photo_items()
+				document_data.remove_photo_item(to_remove)
 
 func _copy_properties():
 	if selected_photo_item:
@@ -323,6 +313,7 @@ func _copy_properties():
 func _paste_properties():
 	if photo_item_clipboard == null:
 		Global.notice("Cannot Paste Properties", "Photo Item Data clipboard is empty, copy something first!")
+		return
 
 	selected_photo_item.size_mm = photo_item_clipboard.size_mm
 	selected_photo_item.rotation = photo_item_clipboard.rotation
@@ -344,6 +335,7 @@ func _open_photo_tile_context_menu(tile: PhotoTileView):
 		if tile_view.photo_item == tile.photo_item:
 			tile_view.is_selected = true
 	selected_photo_item = tile.photo_item
+	selected_tile_view = tile
 	selected_sub_asset_index = tile.photo_tile.sub_asset_index
 	on_photo_item_selected.emit(tile.photo_item, tile.photo_tile.sub_asset_index)
 	photo_tile_context_menu.set_item_disabled(photo_tile_context_menu.get_item_index(TILE_PASTE_PROPERTIES), photo_item_clipboard == null)
@@ -441,34 +433,39 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 
 		photo_tiles_container.add_child(new_tile_view)
 		new_tile_view.setup(new_tile, scale_px_per_mm, new_tile.photo_item == selected_photo_item, new_tile.sub_asset_index == selected_sub_asset_index, document_data.spacing_mm)
+		if new_tile.photo_item == selected_photo_item and new_tile.sub_asset_index == selected_sub_asset_index:
+			selected_tile_view = new_tile_view
 		new_tile_view.on_tile_view_clicked.connect(_on_tile_view_clicked)
 		new_tile_view.on_tile_view_right_clicked.connect(_open_photo_tile_context_menu)
 
 
 func _deselect_all_photo_items(update_properties: bool = true):
 	selected_photo_item = null
+	selected_tile_view = null
 	for tile_view: PhotoTileView in photo_tiles_container.get_children():
 		tile_view.is_selected = false
 	if update_properties:
 		on_photo_item_selected.emit(null, 0)
 
-
 func _on_tile_view_clicked(tile: PhotoTileView):
-	if tile.photo_item == selected_photo_item:
+	if tile.photo_item == selected_photo_item and tile.photo_tile.sub_asset_index == selected_sub_asset_index:
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = false
 		selected_photo_item = null
+		selected_tile_view = null
 		on_photo_item_selected.emit(null, 0)
+
 	else:
 		_deselect_all_photo_items(false)
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = true
 		selected_photo_item = tile.photo_item
+		selected_tile_view = tile
 		selected_sub_asset_index = tile.photo_tile.sub_asset_index
 		on_photo_item_selected.emit(tile.photo_item, tile.photo_tile.sub_asset_index)
-	pass
+
 
 func _sync_ui():
 	if not is_node_ready() or not document_data:

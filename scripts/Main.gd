@@ -25,6 +25,13 @@ class_name Main
 
 @onready var about_window: Window = %AboutWindow
 
+@onready var new_button: Button = %NewButton
+@onready var open_button: Button = %OpenButton
+@onready var import_button: Button = %ImportButton
+@onready var save_button: Button = %SaveButton
+@onready var export_button: Button = %ExportButton
+@onready var print_button: Button = %PrintButton
+
 @onready var workspace_tab_container: TabContainer = %WorkspaceTabContainer
 @onready var document_panel: DocumentPanel = %DocumentPanel
 
@@ -69,7 +76,30 @@ var export_mode: int = ExportEngine.EXPORT_PNG
 
 func _ready() -> void:
 
-
+	new_button.pressed.connect(
+		func():
+			document_panel.open_document(null)
+	)
+	open_button.pressed.connect(
+		func():
+			open_document_dialog.popup_centered(Vector2i(600,400))
+	)
+	import_button.pressed.connect(
+		func():
+			image_import_dialog.popup_centered(Vector2i(600,400))
+	)
+	save_button.pressed.connect(
+		func():
+			_on_file_menu_pressed(FILE_SAVE)
+	)
+	export_button.pressed.connect(
+		func():
+			_on_file_menu_pressed(FILE_EXPORT_PDF)
+	)
+	print_button.pressed.connect(
+		func():
+			pass
+	)
 	update_checker.check_for_updates()
 
 	get_window().min_size = Vector2i(800, 600)
@@ -89,6 +119,13 @@ func _ready() -> void:
 
 	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(600,400)))
 	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(600,400)))
+	workspace_tab_container.tab_changed.connect(
+		func(new):
+			var yes = new == -1
+			save_button.disabled = yes
+			export_button.disabled = yes
+			print_button.disabled = yes
+	)
 
 	export_dialog.file_selected.connect(_export_file)
 	open_document_dialog.files_selected.connect(_open_documents)
@@ -215,7 +252,7 @@ func _show_notice_dialog(title: String, message: String, ok_button_text: String)
 	notice_dialog.title = title
 	notice_dialog.dialog_text = message
 	notice_dialog.ok_button_text = ok_button_text
-	notice_dialog.popup_centered(Vector2i(360, 180))
+	notice_dialog.popup_centered(Vector2i(340, 100))
 
 
 func _on_node_added(node: Node) -> void:
