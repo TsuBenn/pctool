@@ -108,6 +108,23 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 			layout.unplaced_items.append(photo_item)
 			continue
 
+		if photo_item.isolate_row and not photo_item.isolate_page and current_x != start_x:
+			current_x = start_x
+			current_y += row_height + spacing
+			row_height = 0.0
+
+			if current_y + tile_size.y > max_y:
+				current_x = start_x
+				current_y = start_y
+				row_height = 0
+				current_page += 1
+
+		if photo_item.isolate_page and (current_x != start_x or current_y != start_y):
+			current_x = start_x
+			current_y = start_y
+			row_height = 0
+			current_page += 1
+
 		for copy in photo_item.quantity:
 			if current_x > start_x and (current_x + tile_size.x > max_x):
 				current_x = start_x
