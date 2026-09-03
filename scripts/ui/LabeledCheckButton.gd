@@ -23,6 +23,7 @@ signal toggled(toggled_on: bool)
 		button_pressed = new_val
 		if is_node_ready():
 			%CheckButton.button_pressed = new_val
+			%Button.button_pressed = new_val
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
