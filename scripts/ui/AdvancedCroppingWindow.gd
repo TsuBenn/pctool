@@ -28,6 +28,9 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 
 @onready var summary_label: Label = %SummaryLabel
 
+@onready var clip_check_button: LabeledCheckButton = %ClipCheckButton
+@onready var preview_distortion_check_button: LabeledCheckButton = %PreviewDistortionCheckButton
+
 @onready var previous_sub_asset_button: Button = %PreviousSubAssetButton
 @onready var sub_asset_spin_box: LabeledSpinBox = %SubAssetSpinBox
 @onready var selected_asset_label: Label = %SelectedAssetLabel
@@ -38,9 +41,20 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 @onready var photo_item_image: TextureRect = %PhotoItemImage
 @onready var photo_item_frame: Panel = %PhotoItemFrame
 
+@onready var fitting_mode_option_button: LabeledOptionButton = %FittingModeOptionButton
 @onready var zoom_spin_box: LabeledSpinBox = %ZoomSpinBox
 @onready var offset_x_spin_box: LabeledSpinBox = %OffsetXSpinBox
 @onready var offset_y_spin_box: LabeledSpinBox = %OffsetYSpinBox
+
+@onready var tl_position_group_box: GroupBox = %TLPositionGroupBox
+@onready var tr_position_group_box: GroupBox = %TRPositionGroupBox
+@onready var br_position_group_box: GroupBox = %BRPositionGroupBox
+@onready var bl_position_group_box: GroupBox = %BLPositionGroupBox
+
+@onready var tl_position_spin_box: Vector2SpinBox = %TLPositionSpinBox
+@onready var tr_position_spin_box: Vector2SpinBox = %TRPositionSpinBox
+@onready var br_position_spin_box: Vector2SpinBox = %BRPositionSpinBox
+@onready var bl_position_spin_box: Vector2SpinBox = %BLPositionSpinBox
 
 @onready var cancel_button: Button = %CancelButton
 @onready var done_button: Button = %DoneButton
@@ -49,6 +63,14 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 @onready var zoom_scale_slider: HSlider = %ZoomScaleSlider
 
 func _ready() -> void:
+	clip_check_button.toggled.connect(
+		func(_new):
+			_sync_ui()
+	)
+	fitting_mode_option_button.item_selected.connect(
+		func(new):
+			photo_item.set_framing_fitting_mode(sub_asset_index, new)
+	)
 	zoom_spin_box.value_changed.connect(
 		func(new):
 			photo_item.set_framing_scale(sub_asset_index, new/100, true)
@@ -106,28 +128,30 @@ func panel_gui_input(event: InputEvent):
 		if event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				_is_panning = true
+				photo_item_panel.mouse_default_cursor_shape = Control.CURSOR_DRAG
 			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
 				if event.ctrl_pressed:
-					zoom_scale *= 1.1
+					zoom_scale = int(zoom_scale * 1.1)
 				else:
 					zoom_spin_box.value *= 1.05 if event.shift_pressed else 1.2
 					zoom_spin_box.value = max(zoom_spin_box.value, 100)
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				if event.ctrl_pressed:
-					zoom_scale /= 1.1
+					zoom_scale = int(zoom_scale / 1.1)
 				else:
 					zoom_spin_box.value /= 1.05 if event.shift_pressed else 1.2
 					zoom_spin_box.value = max(zoom_spin_box.value, 100)
 		elif event.is_released():
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				_is_panning = false
+				photo_item_panel.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	if event is InputEventMouseMotion:
 		if _is_panning:
 			var image_rect = photo_item.get_image_rect_mm(sub_asset_index)
 			var px = ((image_rect.size - photo_item.size_mm)*_get_scale()*(zoom_scale/100.0)/2)
 			var framing = photo_item.get_framing(sub_asset_index)
-			framing.offset.x -= (event.relative.x/px.x) if px.x > 0 else 0
-			framing.offset.y += (event.relative.y/px.y) if px.y > 0 else 0
+			framing.offset.x -= (event.relative.x/px.x)*(0.5 if event.shift_pressed else 1.0) if px.x != 0 else 0
+			framing.offset.y += (event.relative.y/px.y)*(0.5 if event.shift_pressed else 1.0) if px.y != 0 else 0
 
 			photo_item.set_framing_offset(sub_asset_index, framing.offset)
 
@@ -142,6 +166,7 @@ func request_open(item: PhotoItemData, index: int = 0):
 		sub_asset_index = index
 		photo_item_image.texture = photo_item.asset.get_preview_texture(index)
 		old_framing = photo_item.framings
+		clip_check_button.button_pressed = false
 		popup_centered(get_parent().get_window().size*0.8)
 		_sync_ui()
 
@@ -155,16 +180,61 @@ func _sync_ui():
 	if not photo_item:
 		return
 
+	var image_rect: Rect2 = photo_item.get_image_rect_mm(sub_asset_index)
+
 	sub_asset_index = clamp(sub_asset_index, 0, photo_item.asset.get_count() - 1)
-	summary_label.text = "Size: %dmm x %dmm" % [photo_item.size_mm.x, photo_item.size_mm.y]
+
+	summary_label.text = "Size: %dmm x %dmm\nImage size: %dmm x %dmm" % [photo_item.size_mm.x, photo_item.size_mm.y, image_rect.size.x, image_rect.size.y]
 
 	var framing = photo_item.get_framing(sub_asset_index)
 
 	var scale = _get_scale()
-	var image_rect = photo_item.get_image_rect_mm(sub_asset_index)
+
+	fitting_mode_option_button.selected = framing.fitting_mode
+
+
+	match framing.fitting_mode:
+		PhotoItemData.FittingMode.FILL:
+			zoom_spin_box.visible = true
+			offset_x_spin_box.visible = true
+			offset_y_spin_box.visible = true
+			tl_position_group_box.visible = false
+			tr_position_group_box.visible = false
+			br_position_group_box.visible = false
+			bl_position_group_box.visible = false
+			preview_distortion_check_button.visible = false
+		PhotoItemData.FittingMode.FIT:
+			zoom_spin_box.visible = false
+			offset_x_spin_box.visible = true
+			offset_y_spin_box.visible = true
+			tl_position_group_box.visible = false
+			tr_position_group_box.visible = false
+			br_position_group_box.visible = false
+			bl_position_group_box.visible = false
+			preview_distortion_check_button.visible = false
+		PhotoItemData.FittingMode.STRETCH:
+			zoom_spin_box.visible = false
+			offset_x_spin_box.visible = false
+			offset_y_spin_box.visible = false
+			tl_position_group_box.visible = false
+			tr_position_group_box.visible = false
+			br_position_group_box.visible = false
+			bl_position_group_box.visible = false
+			preview_distortion_check_button.visible = false
+		PhotoItemData.FittingMode.DISTORT:
+			zoom_spin_box.visible = true
+			offset_x_spin_box.visible = true
+			offset_y_spin_box.visible = true
+			preview_distortion_check_button.visible = true
+			tl_position_group_box.visible = true
+			tr_position_group_box.visible = true
+			br_position_group_box.visible = true
+			bl_position_group_box.visible = true
 
 	zoom_scale_slider.set_value_no_signal(zoom_scale)
 	zoom_scale_spin_box.set_value_no_signal(zoom_scale)
+
+	photo_item_image.texture = photo_item.asset.get_preview_texture(sub_asset_index)
 
 	photo_item_background.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale/100.0)
 	photo_item_frame.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale/100.0)
@@ -178,6 +248,7 @@ func _sync_ui():
 		var pos = photo_item_image.offset_transform_position
 
 		mat.set_shader_parameter("frame_rect", Vector4(max(-pos.x,0), max(-pos.y,0), f_size.x, f_size.y))
+		mat.set_shader_parameter("out_bound_opacity", 0.0 if clip_check_button.button_pressed else 0.1)
 
 
 	selected_asset_label.text = photo_item.asset.display_name

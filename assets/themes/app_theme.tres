@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://jp1ptt4y8b3g" path="res://assets/texture/new/unchecked.tres" id="11_kpbew"]
 [ext_resource type="Texture2D" uid="uid://iyewhwmg7l05" path="res://assets/texture/new/unchecked_disabled.tres" id="12_oeia0"]
 [ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="13_d5hwj"]
+[ext_resource type="StyleBox" uid="uid://clojuc7nmdk4o" path="res://assets/style/new/checker_box_panel.tres" id="14_fjjhj"]
 [ext_resource type="StyleBox" uid="uid://bs3injaq4qu4q" path="res://assets/style/new/dark_panel.tres" id="14_xprs8"]
 [ext_resource type="FontVariation" uid="uid://clmmhydjeiwtm" path="res://assets/fonts/theme_font_bold.tres" id="15_57pp5"]
 [ext_resource type="StyleBox" uid="uid://jp0hxgmr5d5d" path="res://assets/style/new/empty_panel.tres" id="16_sm37i"]
@@ -108,10 +109,10 @@ atlas = ExtResource("13_d5hwj")
 region = Rect2(1166, 0, 2, 32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjspk"]
-bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
+bg_color = Color(0.85490197, 0.13333334, 0.22745098, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dds1x"]
-bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
+bg_color = Color(0.85490197, 0.13333334, 0.22745098, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_umjuq"]
 
@@ -281,10 +282,10 @@ texture_margin_bottom = 2.0
 region_rect = Rect2(896, 0, 32, 32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdpo6"]
-bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0quv3"]
-bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ccmpb"]
 atlas = ExtResource("13_d5hwj")
@@ -398,11 +399,15 @@ CheckBox/icons/radio_unchecked = ExtResource("11_kpbew")
 CheckBox/icons/radio_unchecked_disabled = ExtResource("12_oeia0")
 CheckBox/icons/unchecked = ExtResource("11_kpbew")
 CheckBox/icons/unchecked_disabled = ExtResource("12_oeia0")
+CheckBoxPanelContainer/base_type = &"PanelContainer"
+CheckBoxPanelContainer/styles/panel = ExtResource("14_fjjhj")
 CheckButton/constants/icon_max_width = 0
 CheckButton/icons/checked = SubResource("AtlasTexture_t3xdf")
 CheckButton/icons/checked_disabled = SubResource("AtlasTexture_liy42")
 CheckButton/icons/unchecked = SubResource("AtlasTexture_3ggsw")
 CheckButton/icons/unchecked_disabled = SubResource("AtlasTexture_rrfep")
+CheckerBoxPanel/base_type = &"Panel"
+CheckerBoxPanel/styles/panel = ExtResource("14_fjjhj")
 DarkPanel/base_type = &"Panel"
 DarkPanel/styles/panel = ExtResource("14_xprs8")
 DarkPanelContainer/base_type = &"PanelContainer"
@@ -494,6 +499,10 @@ MenuButton/styles/hover = SubResource("StyleBoxFlat_liy42")
 MenuButton/styles/hover_pressed = SubResource("StyleBoxFlat_t3xdf")
 MenuButton/styles/normal = SubResource("StyleBoxEmpty_cbxg3")
 MenuButton/styles/pressed = SubResource("StyleBoxFlat_t3xdf")
+MiniEmphasisLabel/base_type = &"Label"
+MiniEmphasisLabel/colors/font_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
+MiniEmphasisLabel/font_sizes/font_size = 14
+MiniEmphasisLabel/fonts/font = ExtResource("15_57pp5")
 MiniLabel/base_type = &"Label"
 MiniLabel/font_sizes/font_size = 14
 OptionButton/constants/arrow_margin = 4

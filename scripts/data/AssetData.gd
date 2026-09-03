@@ -8,3 +8,7 @@ extends Resource
 @abstract func get_count() -> int
 @abstract func get_preview_texture(index: int) -> Texture2D
 @abstract func get_image(index: int) -> Image
+
+static func get_id() -> String:
+	return Marshalls.raw_to_base64(Crypto.new().generate_random_bytes(8))
+

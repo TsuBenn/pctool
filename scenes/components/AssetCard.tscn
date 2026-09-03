@@ -98,3 +98,22 @@ theme_type_variation = &"MiniLabel"
 text = "4.png"
 horizontal_alignment = 1
 text_overrun_behavior = 5
+
+[node name="GroupIndicator" type="Control" parent="PanelContainer" unique_id=426914939]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/GroupIndicator" unique_id=2055270310]
+layout_mode = 1
+anchors_preset = -1
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 4.0
+offset_bottom = 4.0
+
+[node name="ChildCount" type="Label" parent="PanelContainer/GroupIndicator/PanelContainer" unique_id=1226779041]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MiniLabel"
+text = " 1 "

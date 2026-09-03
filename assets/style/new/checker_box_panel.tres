@@ -1,0 +1,9 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://clojuc7nmdk4o"]
+
+[ext_resource type="Texture2D" uid="uid://cfaxa6qlh1nww" path="res://assets/texture_sheet_atlas.tres" id="1_o2ccu"]
+
+[resource]
+texture = ExtResource("1_o2ccu")
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+region_rect = Rect2(2304, 0, 32, 32)

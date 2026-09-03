@@ -37,7 +37,7 @@ theme_override_constants/separation = 0
 custom_minimum_size = Vector2(236, 64)
 layout_mode = 2
 texture = ExtResource("2_2k3ry")
-stretch_mode = 4
+stretch_mode = 6
 
 [node name="VersionLabel" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer" unique_id=213124566]
 unique_name_in_owner = true
@@ -70,7 +70,6 @@ text = "Import Assets"
 [node name="GroupBox" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2" unique_id=25486442 instance=ExtResource("4_75ha7")]
 layout_mode = 2
 title = "Presets"
-collapse_enabled = false
 
 [node name="Panel" type="Panel" parent="MarginContainer/HBoxContainer/VBoxContainer/VBoxContainer2/GroupBox" unique_id=1990328240]
 layout_mode = 2
@@ -83,4 +82,3 @@ size_flags_vertical = 3
 [node name="RecentsGroupBox" parent="MarginContainer/HBoxContainer/HBoxContainer" unique_id=1471613207 instance=ExtResource("4_75ha7")]
 layout_mode = 2
 title = "Recents"
-collapse_enabled = false

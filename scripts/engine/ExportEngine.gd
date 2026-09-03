@@ -101,8 +101,10 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 	var row_height: float = 0.0
 	var current_page: int = 0
 
+
 	for photo_item: PhotoItemData in document_data.photo_items:
 		var tile_size = photo_item.size_mm
+		var sub_asset_count = photo_item.asset.get_count()
 
 		if tile_size.x > max_x - start_x or tile_size.y > max_y - start_y:
 			layout.unplaced_items.append(photo_item)
@@ -126,31 +128,67 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 			current_page += 1
 
 		for copy in photo_item.quantity:
-			if current_x > start_x and (current_x + tile_size.x > max_x):
+
+			if photo_item.isolate_row and not photo_item.isolate_page and current_x != start_x:
 				current_x = start_x
 				current_y += row_height + spacing
 				row_height = 0.0
 
-			if current_y + tile_size.y > max_y:
+				if current_y + tile_size.y > max_y:
+					current_x = start_x
+					current_y = start_y
+					row_height = 0
+					current_page += 1
+
+			if photo_item.isolate_page and (current_x != start_x or current_y != start_y):
 				current_x = start_x
 				current_y = start_y
 				row_height = 0
 				current_page += 1
 
-			var new_tile = PhotoTile.new(
-				photo_item,
-				current_page,
-				Rect2(Vector2(current_x, current_y), Vector2(tile_size.x, tile_size.y)),
-				copy,
-				0
-			)
-			layout.add_tile(new_tile)
+			for sub_asset_index in sub_asset_count:
+				if current_x > start_x and (current_x + tile_size.x > max_x):
+					current_x = start_x
+					current_y += row_height + spacing
+					row_height = 0.0
 
-			current_x += tile_size.x + spacing
+				if current_y + tile_size.y > max_y:
+					current_x = start_x
+					current_y = start_y
+					row_height = 0
+					current_page += 1
 
-			row_height = max(row_height, tile_size.y)
+				var new_tile = PhotoTile.new(
+					photo_item,
+					current_page,
+					Rect2(Vector2(current_x, current_y), Vector2(tile_size.x, tile_size.y)),
+					copy,
+					sub_asset_index
+				)
+				layout.add_tile(new_tile)
 
-		if photo_item.isolate_row and not photo_item.isolate_page:
+				current_x += tile_size.x + spacing
+
+				row_height = max(row_height, tile_size.y)
+
+			if photo_item.isolate_row and not photo_item.isolate_page and current_x != start_x:
+				current_x = start_x
+				current_y += row_height + spacing
+				row_height = 0.0
+
+				if current_y + tile_size.y > max_y:
+					current_x = start_x
+					current_y = start_y
+					row_height = 0
+					current_page += 1
+
+			if photo_item.isolate_page and (current_x != start_x or current_y != start_y):
+				current_x = start_x
+				current_y = start_y
+				row_height = 0
+				current_page += 1
+
+		if photo_item.isolate_row and not photo_item.isolate_page and current_x != start_x:
 			current_x = start_x
 			current_y += row_height + spacing
 			row_height = 0.0
@@ -161,7 +199,7 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 				row_height = 0
 				current_page += 1
 
-		if photo_item.isolate_page:
+		if photo_item.isolate_page and (current_x != start_x or current_y != start_y):
 			current_x = start_x
 			current_y = start_y
 			row_height = 0

@@ -2,7 +2,13 @@ class_name PhotoItemData
 extends Resource
 
 # DATA
-@export var asset: AssetData
+@export var asset: AssetData:
+	set(new):
+		if asset and asset.changed.is_connected(emit_changed):
+			asset.changed.disconnect(emit_changed)
+		asset = new
+		asset.changed.connect(emit_changed)
+		emit_changed()
 
 enum Rotation {
 	ROTATE_0,
@@ -14,6 +20,12 @@ enum Rotation {
 class Framing extends Resource:
 	var scale: float = 1
 	var offset: Vector2 = Vector2.ZERO
+
+	var top_left_corner: Vector2 = Vector2.ZERO
+	var top_right_corner: Vector2 = Vector2.ZERO
+	var bottom_left_corner: Vector2 = Vector2.ZERO
+	var bottom_right_corner: Vector2 = Vector2.ZERO
+
 	var fitting_mode: FittingMode = FittingMode.FILL
 
 # TRANSFORMS
@@ -114,15 +126,20 @@ func set_framing_scale(index: int, new: float, ratio: bool = false):
 
 func set_framing_offset(index: int, new: Vector2):
 	var f = get_framing(index)
-	set_framing(index, f.scale, new, f.fitting_mode)
+	var image_rect = get_image_rect_mm(index)
+
+	var zero_x = image_rect.size.x - size_mm.x == 0
+	var zero_y = image_rect.size.y - size_mm.y == 0
+
+	set_framing(index, f.scale, Vector2(0.0 if zero_x else new.x, 0.0 if zero_y else new.y), f.fitting_mode)
 
 func set_framing_offset_x(index: int, new: float):
 	var f = get_framing(index)
-	set_framing(index, f.scale, Vector2(new, f.offset.y), f.fitting_mode)
+	set_framing_offset(index, Vector2(new, f.offset.y))
 
 func set_framing_offset_y(index: int, new: float):
 	var f = get_framing(index)
-	set_framing(index, f.scale, Vector2(f.offset.x, new), f.fitting_mode)
+	set_framing_offset(index, Vector2(f.offset.x, new))
 
 func set_framing_fitting_mode(index: int, new: int):
 	var f = get_framing(index)
@@ -133,6 +150,53 @@ func get_framing(index: int) -> Framing:
 		return framings[index]
 	return Framing.new()
 
+func get_distort_matrix(index: int):
+	var framing: Framing = get_framing(index)
+
+	var p0: Vector2 = framing.top_left_corner
+	var p1: Vector2 = framing.top_right_corner
+	var p2: Vector2 = framing.bottom_right_corner
+	var p3: Vector2 = framing.bottom_left_corner
+
+	# p0: Top-Left, p1: Top-Right, p2: Bottom-Right, p3: Bottom-Left
+	var dx1: float = p1.x - p2.x
+	var dx2: float = p3.x - p2.x
+	var dx3: float = p0.x - p1.x + p2.x - p3.x
+
+	var dy1: float = p1.y - p2.y
+	var dy2: float = p3.y - p2.y
+	var dy3: float = p0.y - p1.y + p2.y - p3.y
+
+	# Affine check (parallelogram)
+	if abs(dx3) < 0.0001 and abs(dy3) < 0.0001:
+		return Basis(
+			Vector3(p1.x - p0.x, p1.y - p0.y, 0.0), # Column 0
+			Vector3(p2.x - p1.x, p2.y - p1.y, 0.0), # Column 1
+			Vector3(p0.x,        p0.y,        1.0)  # Column 2
+		)
+
+	# Projective Homography calculation
+	var det: float = (dx1 * dy2) - (dx2 * dy1)
+	if abs(det) < 0.00001:
+		return Basis() # Degenerate quad fallback
+
+	var g: float = ((dx3 * dy2) - (dx2 * dy3)) / det
+	var h: float = ((dx1 * dy3) - (dx3 * dy1)) / det
+
+	var a: float = p1.x - p0.x + (g * p1.x)
+	var b: float = p3.x - p0.x + (h * p3.x)
+	var c: float = p0.x
+
+	var d: float = p1.y - p0.y + (g * p1.y)
+	var e: float = p3.y - p0.y + (h * p3.y)
+	var f: float = p0.y
+
+	# Return as a 3x3 Basis (columns X, Y, Z)
+	return Basis(
+		Vector3(a, d, g), # Column 0
+		Vector3(b, e, h), # Column 1
+		Vector3(c, f, 1.0) # Column 2
+	)
 func get_image_rect_mm(index: int) -> Rect2:
 	if asset == null:
 		return Rect2(Vector2.ZERO, size_mm)
@@ -161,11 +225,11 @@ func get_image_rect_mm(index: int) -> Rect2:
 			if size_mm.aspect() > image_aspect:
 				h = size_mm.y
 				w = size_mm.y * image_aspect
-				x = (size_mm.x - w) * 0.5
+				x = (size_mm.x - w) * (0.5 + 0.5*offset.x)
 			else:
 				w = size_mm.x
 				h = size_mm.x / image_aspect
-				y = (size_mm.y - h) * 0.5
+				y = (size_mm.y - h) * (0.5 - 0.5*offset.y)
 		FittingMode.FILL:
 			if size_mm.aspect() > image_aspect:
 				w = size_mm.x * scale
@@ -175,10 +239,8 @@ func get_image_rect_mm(index: int) -> Rect2:
 				w = size_mm.y * image_aspect * scale
 			y = (size_mm.y - h) * (1 - offset.y) * 0.5
 			x = (size_mm.x - w) * (1 + offset.x) * 0.5
-		FittingMode.STRETCH:
+		FittingMode.STRETCH, FittingMode.DISTORT:
 			w = size_mm.x
 			h = size_mm.y
-		FittingMode.DISTORT:
-			pass
 
 	return Rect2(x, y, w, h)

@@ -38,7 +38,7 @@ func setup(tile: PhotoTile, scale_px_per_mm: float, selected: bool = false, sele
 	photo_tile = tile
 	is_selected = selected
 	is_selected_tile = selected_tile
-	selection_padding = padding + 1
+	selection_padding = padding
 	if is_node_ready():
 		_update_tile_rect()
 

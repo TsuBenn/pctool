@@ -48,6 +48,11 @@ var current_page_index: int = 0
 @onready var canvas_context_menu: PopupMenuSimplified = %CanvasContextMenu
 @onready var photo_tile_context_menu: PopupMenuSimplified = %PhotoTileContextMenu
 
+@onready var page_popup: PanelContainer = %PagePopup
+@onready var page_popup_label: Label = %PagePopupLabel
+
+var _page_popup_tween: Tween = null
+
 @onready
 var duplicate_assets_confirmation_dialog: ConfirmationDialog = %DuplicateAssetsConfirmationDialog
 
@@ -71,12 +76,22 @@ var offset_padding: Vector2:
 			return Vector2.ZERO
 
 
-@export var paper_padding: int = 16
+@export var paper_padding: int = 32
+
+func animate_page_popup():
+	if _page_popup_tween and _page_popup_tween.is_running():
+		_page_popup_tween.kill()
+
+	page_popup_label.text = ("PAGE: %d" % (current_page_index + 1)) + (" (MAX)" if current_page_index == print_layout.total_pages - 1 else "")
+	_page_popup_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_page_popup_tween.tween_property(page_popup, "modulate:a", 1, 0.05)
+	_page_popup_tween.tween_property(page_popup, "modulate:a", 0, 0.8).set_delay(0.2)
 
 func advance_page(delta: int) -> bool:
 	var new = clamp(current_page_index + delta, 0, print_layout.total_pages - 1)
 	if current_page_index != new:
 		current_page_index = new
+		animate_page_popup()
 		_sync_ui()
 		return true
 	return false
@@ -84,6 +99,7 @@ func advance_page(delta: int) -> bool:
 func _ready() -> void:
 	canvas_context_menu.id_pressed.connect(_on_canvas_context_menu_pressed)
 	photo_tile_context_menu.id_pressed.connect(_on_photo_tile_context_menu_pressed)
+	page_popup.modulate.a = 0
 	paper_container.resized.connect(
 	func():
 		_sync_ui()
@@ -260,7 +276,8 @@ enum {
 		TILE_COPY_PROPERTIES,
 		TILE_PASTE_PROPERTIES,
 		TILE_DUPLICATE,
-		TILE_REMOVE,
+		TILE_REMOVE_ITEM,
+		TILE_REMOVE_ALL,
 	}
 
 var photo_item_clipboard: PhotoItemData = null
@@ -299,7 +316,14 @@ func _on_photo_tile_context_menu_pressed(id: int):
 			TILE_DUPLICATE:
 				_select_photo_item(document_data.duplicate_photo_item(item))
 				_sync_ui()
-			TILE_REMOVE:
+			TILE_REMOVE_ITEM:
+				if selected_photo_item.asset.get_count() > 1:
+					selected_photo_item.asset.remove_child(selected_sub_asset_index)
+				else:
+					var to_remove = selected_photo_item
+					_deselect_all_photo_items()
+					document_data.remove_photo_item(to_remove)
+			TILE_REMOVE_ALL:
 				var to_remove = selected_photo_item
 				_deselect_all_photo_items()
 				document_data.remove_photo_item(to_remove)
@@ -333,6 +357,8 @@ func _open_photo_tile_context_menu(tile: PhotoTileView):
 	for tile_view: PhotoTileView in photo_tiles_container.get_children():
 		if tile_view.photo_item == tile.photo_item:
 			tile_view.is_selected = true
+			tile_view.is_selected_tile = tile_view.photo_tile.sub_asset_index == tile.photo_tile.sub_asset_index
+			tile_view._update_tile_rect()
 	selected_photo_item = tile.photo_item
 	selected_tile_view = tile
 	selected_sub_asset_index = tile.photo_tile.sub_asset_index
@@ -466,6 +492,8 @@ func _on_tile_view_clicked(tile: PhotoTileView):
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = true
+				tile_view.is_selected_tile = tile_view.photo_tile.sub_asset_index == tile.photo_tile.sub_asset_index
+				tile_view._update_tile_rect()
 		selected_tile_view = tile
 		selected_photo_item = tile.photo_item
 		selected_sub_asset_index = tile.photo_tile.sub_asset_index

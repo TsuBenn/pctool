@@ -44,6 +44,8 @@ var show_file_name: bool = true:
 @onready var box_container: BoxContainer = %BoxContainer
 @onready var margin_container: MarginContainer = %MarginContainer
 @onready var texture_rect: TextureRect = %TextureRect
+@onready var group_indicator: Control = %GroupIndicator
+@onready var child_count: Control = %ChildCount
 @onready var label: Label = %Label
 @onready var panel_container: PanelContainer = %PanelContainer
 
@@ -127,6 +129,13 @@ func update_view_mode(mode: ViewMode):
 			box_container.vertical = true
 			if asset_data:
 				texture_rect.texture = asset_data.get_preview_texture(0)
+				if asset_data is GroupAssetData:
+					group_indicator.visible = true
+					label.theme_type_variation = "MiniEmphasisLabel"
+					child_count.text = " %d " % asset_data.get_count()
+				else:
+					label.theme_type_variation = "MiniLabel"
+					group_indicator.visible = false
 			texture_rect.custom_minimum_size = Vector2i(thumbnail_size, thumbnail_size)
 			texture_rect.custom_maximum_size = Vector2i(thumbnail_size, thumbnail_size)
 			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

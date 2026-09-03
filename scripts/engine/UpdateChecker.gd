@@ -14,8 +14,11 @@ func _ready() -> void:
 	# 1. Setup internal HTTPRequest node
 	_http_request = HTTPRequest.new()
 	add_child(_http_request)
-	_http_request.request_completed.connect(_on_request_completed)
 
+	# Bypass strict local CA bundle checks on Windows for public GitHub GET requests
+	_http_request.set_tls_options(TLSOptions.client_unsafe())
+
+	_http_request.request_completed.connect(_on_request_completed)
 	# 2. Setup ConfirmationDialog for update prompt
 	_update_dialog = ConfirmationDialog.new()
 	_update_dialog.title = "Update Available"
@@ -45,6 +48,7 @@ func check_for_updates() -> void:
 func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 		# Fail silently on network errors so it never interrupts the user
+		# Global.notice("Update Checker", "Failed to request HTTP! " + str(result))
 		return
 
 	var json: JSON = JSON.new()

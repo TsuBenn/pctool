@@ -21,13 +21,15 @@ func _update_items() -> void:
 	clear()
 	var next_id: int = 0
 
-	for item in items:
-		if item == "-" or item == "---":
+	for i in items.size():
+		if items[i] == "-" or items[i] == "---":
 			add_separator()
-		elif item.begins_with("-") and item.ends_with("-"):
-			var header_text: String = item.trim_prefix("-").trim_suffix("-").strip_edges()
+		elif items[i].begins_with("-") and items[i].ends_with("-"):
+			var header_text: String = items[i].trim_prefix("-").trim_suffix("-").strip_edges()
 			add_separator(header_text)
 		else:
 			# Assigns sequential IDs strictly to selectable items
-			add_item(item, next_id)
+			add_item(items[i].trim_prefix("~"), next_id)
+			if items[i].begins_with("~"):
+				set_item_disabled(i, true)
 			next_id += 1

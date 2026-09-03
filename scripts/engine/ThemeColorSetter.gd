@@ -99,6 +99,7 @@ func apply_texture():
 
 	target_theme.set_color("font_color", "Label", get_color(LABEL_COLOR))
 	target_theme.set_color("font_color", "EmphasisLabel", get_color(LABEL_EMPHASIS_COLOR))
+	target_theme.set_color("font_color", "MiniEmphasisLabel", get_color(LABEL_EMPHASIS_COLOR))
 	target_theme.set_color("font_color", "SubtleLabel", get_color(LABEL_SUBTLE_COLOR))
 	target_theme.set_color("font_color", "DimLabel", get_color(LABEL_DIM_COLOR))
 	target_theme.set_color("font_color", "AccentLabel", get_color(LABEL_ACCENT_COLOR))

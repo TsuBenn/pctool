@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bne58we6jues7"]
+
+[ext_resource type="PackedScene" uid="uid://doot08emp6rvu" path="res://scenes/modules/LabeledSpinBox.tscn" id="1_n5j2b"]
+[ext_resource type="Script" uid="uid://b1msdphd0xby5" path="res://scripts/ui/Vector2SpinBox.gd" id="1_wva4l"]
+
+[node name="HBoxContainer" type="HFlowContainer" unique_id=1573444205]
+offset_right = 208.0
+offset_bottom = 24.0
+script = ExtResource("1_wva4l")
+
+[node name="XSpinBox" parent="." unique_id=1930336959 instance=ExtResource("1_n5j2b")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+label = "X:"
+
+[node name="YSpinBox" parent="." unique_id=409396083 instance=ExtResource("1_n5j2b")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+label = "Y:"

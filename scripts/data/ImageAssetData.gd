@@ -84,7 +84,7 @@ static func create_from_file(path: String) -> ImageAssetData:
 	var tex: Texture2D = ImageTexture.create_from_image(img)
 	var dim = Vector2i(img.get_width(), img.get_height())
 	var file_name = path.get_file()
-	var new_id = Marshalls.raw_to_base64(Crypto.new().generate_random_bytes(8))
+	var new_id = AssetData.get_id()
 
 	var asset: ImageAssetData = ImageAssetData.new(new_id, file_name, path, tex, img, dim)
 	asset.raw_file_buffer = buffer # Cache the untouched original bytes!

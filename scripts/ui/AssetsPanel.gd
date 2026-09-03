@@ -286,8 +286,11 @@ func _on_card_context_menu_pressed(id: int):
 			asset_datas.assign(selected_asset_cards.map(func(asset_card): return asset_card.asset_data))
 			add_asset_to_sheet.emit(asset_datas)
 		CardContextMenuAction.GROUP_SELECTED:
-			Global.notice("Feature Not Implemented", "Assets grouping has not been implemented!")
-			pass
+			var asset_datas: Array[AssetData] = []
+			asset_datas.assign(selected_asset_cards.map(func(asset_card): return asset_card.asset_data))
+			var new_group: GroupAssetData = GroupAssetData.create_from_assets(asset_datas, "GROUP")
+			if new_group:
+				instantiate_asset_card(new_group)
 		CardContextMenuAction.DUPLICATE:
 			Global.notice("Feature Not Implemented", "Assets Duplication has not been implemented!")
 			pass

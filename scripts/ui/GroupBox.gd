@@ -64,7 +64,7 @@ class_name GroupBox
 		if is_node_ready():
 			_update_position()
 
-@export_group("Content_margin", "margin_")
+@export_group("Content Margins", "margin_")
 @export var margin_left: int = 6:
 	set(new):
 		margin_left = max(new,0)

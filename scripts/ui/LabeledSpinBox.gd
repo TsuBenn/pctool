@@ -57,7 +57,7 @@ signal value_changed(new_value: float)
 	set(new_val):
 		value = new_val
 		if is_node_ready():
-			if new_val == default_value:
+			if snapped($SpinBox.value, step) == snapped(default_value, step):
 				$Button.disabled = true
 			else:
 				$Button.disabled = false
@@ -137,7 +137,7 @@ func _ready() -> void:
 
 
 func set_value_no_signal(new_value: float):
-	if new_value == default_value:
+	if snapped($SpinBox.value, step) == snapped(default_value, step):
 		$Button.disabled = true
 	else:
 		$Button.disabled = false
