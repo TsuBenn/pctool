@@ -66,9 +66,8 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 		item_manifest_list.append({
 			"asset_id": item.asset.id,
 			"size_mm": [item.size_mm.x, item.size_mm.y],
-			"rotation": item.rotation,
-			"flipped_h": item.flipped_h,
-			"flipped_v": item.flipped_v,
+			"isolate_row": item.rotation,
+			"isolate_page": item.isolate_page,
 			"quantity": item.quantity,
 			"framings": framings,
 			"border_enabled": item.border_enabled,
@@ -213,9 +212,8 @@ static func open_document(file_path: String) -> DocumentData:
 		var size_arr: Array = item_dict.get("size_mm", [30.0, 40.0])
 		item.size_mm = Vector2(size_arr[0], size_arr[1])
 
-		item.rotation = int(item_dict.get("rotation", 0)) as PhotoItemData.Rotation
-		item.flipped_h = bool(item_dict.get("flipped_h", false))
-		item.flipped_v = bool(item_dict.get("flipped_v", false))
+		item.isolate_row = bool(item_dict.get("isolate_row", false))
+		item.isolate_page = bool(item_dict.get("isolate_page", false))
 
 		item.quantity = int(item_dict.get("quantity", 1))
 

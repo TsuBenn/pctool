@@ -22,19 +22,29 @@ class Framing extends Resource:
 		size_mm = new
 		emit_changed()
 
-@export var rotation: Rotation = Rotation.ROTATE_0:
+# @export var rotation: Rotation = Rotation.ROTATE_0:
+# 	set(new):
+# 		rotation = new
+# 		emit_changed()
+
+# @export var flipped_h: bool = false:
+# 	set(new):
+# 		flipped_h = new
+# 		emit_changed()
+
+# @export var flipped_v: bool = false:
+# 	set(new):
+# 		flipped_v = new
+# 		emit_changed()
+
+@export var isolate_row: bool = false:
 	set(new):
-		rotation = new
+		isolate_row = new
 		emit_changed()
 
-@export var flipped_h: bool = false:
+@export var isolate_page: bool = false:
 	set(new):
-		flipped_h = new
-		emit_changed()
-
-@export var flipped_v: bool = false:
-	set(new):
-		flipped_v = new
+		isolate_page = new
 		emit_changed()
 
 enum FittingMode { FILL, FIT, STRETCH, DISTORT }
@@ -145,9 +155,6 @@ func get_image_rect_mm(index: int) -> Rect2:
 	var w: float = 0
 	var x: float = 0
 	var y: float = 0
-
-	if rotation == Rotation.ROTATE_90 or rotation == Rotation.ROTATE_270:
-		image_aspect = 1 / image_aspect
 
 	match fitting_mode:
 		FittingMode.FIT:

@@ -134,8 +134,8 @@ func update_view_mode(mode: ViewMode):
 			label.visible = show_file_name
 			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
-			# label.autowrap_mode = TextServer.AUTOWRAP_OFF
-			# label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
+			label.autowrap_mode = TextServer.AUTOWRAP_OFF
+			label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS_FORCE
 			size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			panel_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			panel_container.size_flags_vertical = Control.SIZE_SHRINK_BEGIN

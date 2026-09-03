@@ -133,4 +133,21 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 
 			row_height = max(row_height, tile_size.y)
 
+		if photo_item.isolate_row and not photo_item.isolate_page:
+			current_x = start_x
+			current_y += row_height + spacing
+			row_height = 0.0
+
+			if current_y + tile_size.y > max_y:
+				current_x = start_x
+				current_y = start_y
+				row_height = 0
+				current_page += 1
+
+		if photo_item.isolate_page:
+			current_x = start_x
+			current_y = start_y
+			row_height = 0
+			current_page += 1
+
 	return layout

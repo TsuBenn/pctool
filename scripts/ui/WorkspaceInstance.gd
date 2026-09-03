@@ -22,7 +22,19 @@ func _ready() -> void:
 	save_document_dialog.file_selected.connect(func(file): request_save_document(file))
 
 	canvas_panel.on_photo_item_selected.connect(_on_photo_item_selected)
-	properties_panel.add_asset_to_sheet.connect(_on_add_asset_to_sheet)
+
+	properties_panel.request_duplicate.connect(
+		func():
+			canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_DUPLICATE)
+	)
+	properties_panel.request_copy.connect(
+		func():
+			canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_COPY_PROPERTIES)
+	)
+	properties_panel.request_paste.connect(
+		func():
+			canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_PASTE_PROPERTIES)
+	)
 
 	properties_panel.request_advanced_cropping.connect(_open_advanced_cropping_window)
 

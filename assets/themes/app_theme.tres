@@ -309,6 +309,16 @@ margin = Rect2(2, 2, 4, 4)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rrfep"]
 bg_color = Color(0.99215686, 0.9411765, 0.9411765, 0.21568628)
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fjjhj"]
+content_margin_left = 6.0
+content_margin_right = 6.0
+texture = ExtResource("13_d5hwj")
+texture_margin_left = 2.0
+texture_margin_top = 2.0
+texture_margin_right = 2.0
+texture_margin_bottom = 2.0
+region_rect = Rect2(1632, 0, 32, 32)
+
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_liy42"]
 color = Color(0.99215686, 0.9411765, 0.9411765, 0.13333334)
 grow_begin = 0.0
@@ -641,6 +651,7 @@ TextEdit/constants/line_spacing = 0
 TextEdit/styles/focus = ExtResource("3_dds1x")
 TextEdit/styles/normal = ExtResource("21_vcrxs")
 TextEdit/styles/read_only = ExtResource("22_liobg")
+TooltipPanel/styles/panel = SubResource("StyleBoxTexture_fjjhj")
 TopBottomOutlinePanel/base_type = &"Panel"
 TopBottomOutlinePanel/styles/panel = ExtResource("34_skgs8")
 TopBottomOutlinePanelContainer/base_type = &"PanelContainer"

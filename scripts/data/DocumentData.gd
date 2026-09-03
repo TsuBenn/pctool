@@ -78,6 +78,15 @@ func add_photo_item(photo_item: PhotoItemData, signal_changed: bool = true):
 	if signal_changed:
 		emit_changed()
 
+func duplicate_photo_item(photo_item: PhotoItemData, signal_changed: bool = true) -> PhotoItemData:
+	var copy: PhotoItemData = photo_item.duplicate()
+	photo_items.append(copy)
+	copy.changed.connect(emit_changed)
+	if signal_changed:
+		emit_changed()
+
+	return copy
+
 func remove_photo_item(photo_item: PhotoItemData, signal_changed: bool = true):
 	photo_items.erase(photo_item)
 	if photo_item.changed.is_connected(emit_changed):

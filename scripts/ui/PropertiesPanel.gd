@@ -1,7 +1,9 @@
 extends VBoxContainer
 class_name PropertiesPanel
 
-signal add_asset_to_sheet(asset_datas: Array[AssetData])
+signal request_duplicate()
+signal request_copy()
+signal request_paste()
 signal request_advanced_cropping()
 
 var document_data: DocumentData
@@ -37,6 +39,9 @@ enum {
 
 @onready var properties_presets_option_button: LabeledOptionButton = %PropertiesPresetsOptionButton
 
+@onready var isolate_row_check_button: LabeledCheckButton = %IsolateRowCheckButton
+@onready var isolate_page_check_button: LabeledCheckButton = %IsolatePageCheckButton
+
 @onready var decrement_quantity_button: Button = %DecrementQuantityButton
 @onready var quantity_spin_box: LabeledSpinBox = %QuantitySpinBox
 @onready var increment_quantity_button: Button = %IncrementQuantityButton
@@ -51,6 +56,8 @@ enum {
 @onready var border_enabled_check_button: LabeledCheckButton = %BorderEnabledCheckButton
 @onready var border_thickness_spin_box: LabeledSpinBox = %BorderThicknessSpinBox
 
+@onready var properties_copy_button: Button = %PropertiesCopyButton
+@onready var properties_paste_button: Button = %PropertiesPasteButton
 @onready var properties_remove_button: Button = %PropertiesRemoveButton
 @onready var properties_duplicate_button: Button = %PropertiesDuplicateButton
 
@@ -65,6 +72,18 @@ var lock_ratio: bool:
 func _ready() -> void:
 	lock_ratio_check_button.toggled.connect(func(_new): _on_document_changed())
 	advanced_cropping_button.pressed.connect(request_advanced_cropping.emit)
+	isolate_row_check_button.toggled.connect(
+		func(new):
+			photo_item.isolate_row = new
+			if new:
+				photo_item.isolate_page = false
+	)
+	isolate_page_check_button.toggled.connect(
+		func(new):
+			photo_item.isolate_page = new
+			if new:
+				photo_item.isolate_row = false
+	)
 	properties_remove_button.pressed.connect(
 		func():
 			var to_remove: PhotoItemData = photo_item
@@ -73,9 +92,15 @@ func _ready() -> void:
 	)
 	properties_duplicate_button.pressed.connect(
 		func():
-			var to_duplicate: Array[AssetData] = []
-			to_duplicate.assign([photo_item.asset])
-			add_asset_to_sheet.emit(to_duplicate, CanvasPanel.AddAssetAction.FORCE_ADD, true)
+			request_duplicate.emit()
+	)
+	properties_copy_button.pressed.connect(
+		func():
+			request_copy.emit()
+	)
+	properties_paste_button.pressed.connect(
+		func():
+			request_paste.emit()
 	)
 	border_enabled_check_button.toggled.connect(
 		func(new):
@@ -184,6 +209,9 @@ func _sync_ui():
 		sub_asset_spin_box.value = sub_asset_index + 1
 		sub_asset_spin_box.suffix = "/%d" % photo_item.asset.get_count()
 		fitting_mode_option_button.selected = framing.fitting_mode
+
+		isolate_row_check_button.button_pressed = photo_item.isolate_row
+		isolate_page_check_button.button_pressed = photo_item.isolate_page
 
 		border_enabled_check_button.button_pressed = photo_item.border_enabled
 		border_thickness_spin_box.set_value_no_signal(photo_item.border_width)

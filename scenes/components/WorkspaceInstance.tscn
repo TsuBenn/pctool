@@ -680,6 +680,32 @@ layout_mode = 2
 label = "Presets:"
 items = Array[String](["3x4", "4x6", "-", "Custom"])
 
+[node name="GroupBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer" unique_id=25486442 instance=ExtResource("16_qie5n")]
+layout_mode = 2
+title = "Arrangements"
+padding = 0
+show_border = false
+emphasized = true
+collapse_enabled = true
+collapse_button_spacing = 14
+margin_left = 24
+margin_top = 12
+margin_right = 0
+margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/GroupBox" unique_id=944289843]
+layout_mode = 2
+
+[node name="IsolateRowCheckButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/GroupBox/VBoxContainer" unique_id=1967269163 instance=ExtResource("10_r6nxy")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Isolate Row:"
+
+[node name="IsolatePageCheckButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/GroupBox/VBoxContainer" unique_id=2031294932 instance=ExtResource("10_r6nxy")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Isolate Page:"
+
 [node name="ImagesFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer" unique_id=112446594]
 layout_mode = 2
 title = "Image(s)"
@@ -730,7 +756,7 @@ items = Array[String](["Nearest", "Bilinear", "Cubic", "Trilinear", "Lanzcos"])
 selected = 5
 button_width = 120
 
-[node name="SubAssetGroupBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=25486442 instance=ExtResource("16_qie5n")]
+[node name="SubAssetGroupBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=242077353 instance=ExtResource("16_qie5n")]
 layout_mode = 2
 title = "Cropping"
 padding = 0
@@ -824,16 +850,29 @@ theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer" unique_id=606776576]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer" unique_id=2131110980]
 layout_mode = 2
 
-[node name="PropertiesRemoveButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/HBoxContainer" unique_id=239659773]
+[node name="PropertiesCopyButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/VBoxContainer" unique_id=1316003559]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Copy Properties"
+
+[node name="PropertiesPasteButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/VBoxContainer" unique_id=977350431]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Paste Properties"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/VBoxContainer" unique_id=606776576]
+layout_mode = 2
+
+[node name="PropertiesRemoveButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=239659773]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Remove"
 
-[node name="PropertiesDuplicateButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/HBoxContainer" unique_id=1239481606]
+[node name="PropertiesDuplicateButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ActionsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1239481606]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3

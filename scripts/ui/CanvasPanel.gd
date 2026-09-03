@@ -297,9 +297,8 @@ func _on_photo_tile_context_menu_pressed(id: int):
 			TILE_PASTE_PROPERTIES:
 				_paste_properties()
 			TILE_DUPLICATE:
-				var to_duplicate: Array[AssetData] = []
-				to_duplicate.assign([item.asset])
-				add_asset_to_sheet(to_duplicate, CanvasPanel.AddAssetAction.FORCE_ADD, true)
+				_select_photo_item(document_data.duplicate_photo_item(item))
+				_sync_ui()
 			TILE_REMOVE:
 				var to_remove = selected_photo_item
 				_deselect_all_photo_items()
@@ -447,6 +446,12 @@ func _deselect_all_photo_items(update_properties: bool = true):
 	if update_properties:
 		on_photo_item_selected.emit(null, 0)
 
+func _select_photo_item(item: PhotoItemData):
+	_deselect_all_photo_items(false)
+	selected_photo_item = item
+	selected_sub_asset_index = 0
+	on_photo_item_selected.emit(item, 0)
+
 func _on_tile_view_clicked(tile: PhotoTileView):
 	if tile.photo_item == selected_photo_item and tile.photo_tile.sub_asset_index == selected_sub_asset_index:
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
@@ -461,8 +466,8 @@ func _on_tile_view_clicked(tile: PhotoTileView):
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = true
-		selected_photo_item = tile.photo_item
 		selected_tile_view = tile
+		selected_photo_item = tile.photo_item
 		selected_sub_asset_index = tile.photo_tile.sub_asset_index
 		on_photo_item_selected.emit(tile.photo_item, tile.photo_tile.sub_asset_index)
 
