@@ -63,7 +63,7 @@ var lock_ratio: bool:
 		return lock_ratio_check_button.button_pressed
 
 func _ready() -> void:
-	lock_ratio_check_button.toggled.connect(_on_document_changed)
+	lock_ratio_check_button.toggled.connect(func(_new): _on_document_changed())
 	advanced_cropping_button.pressed.connect(request_advanced_cropping.emit)
 	properties_remove_button.pressed.connect(
 		func():

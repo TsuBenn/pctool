@@ -167,6 +167,7 @@ offset_transform_enabled = true
 offset_transform_visual_only = false
 mouse_filter = 2
 texture = ExtResource("3_7bbgc")
+expand_mode = 1
 
 [node name="PhotoItemFrame" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=786696901]
 unique_name_in_owner = true
