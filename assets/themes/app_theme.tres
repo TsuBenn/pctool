@@ -141,7 +141,7 @@ region = Rect2(1078, 14, 10, 6)
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_liy42"]
 content_margin_left = 6.0
 content_margin_top = 2.0
-content_margin_right = 6.0
+content_margin_right = 12.0
 content_margin_bottom = 1.0
 texture = ExtResource("13_d5hwj")
 texture_margin_left = 4.0
@@ -153,7 +153,7 @@ region_rect = Rect2(448, 4, 32, 24)
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_t3xdf"]
 content_margin_left = 6.0
 content_margin_top = 0.0
-content_margin_right = 6.0
+content_margin_right = 12.0
 content_margin_bottom = 3.0
 texture = ExtResource("13_d5hwj")
 texture_margin_left = 4.0
@@ -165,7 +165,7 @@ region_rect = Rect2(416, 4, 32, 24)
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tmsm4"]
 content_margin_left = 6.0
 content_margin_top = 2.0
-content_margin_right = 6.0
+content_margin_right = 12.0
 content_margin_bottom = 1.0
 texture = ExtResource("13_d5hwj")
 texture_margin_left = 4.0
@@ -177,7 +177,7 @@ region_rect = Rect2(480, 4, 32, 24)
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3ggsw"]
 content_margin_left = 6.0
 content_margin_top = 0.0
-content_margin_right = 6.0
+content_margin_right = 12.0
 content_margin_bottom = 3.0
 texture = ExtResource("13_d5hwj")
 texture_margin_left = 4.0
@@ -369,6 +369,8 @@ default_font_size = 16
 AccentLabel/base_type = &"Label"
 AccentLabel/colors/font_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
 AcceptDialog/styles/panel = ExtResource("1_8ehde")
+BigLabel/base_type = &"Label"
+BigLabel/font_sizes/font_size = 20
 BorderPanel/base_type = &"Panel"
 BorderPanel/styles/panel = ExtResource("2_0quv3")
 BorderPanelContainer/base_type = &"PanelContainer"

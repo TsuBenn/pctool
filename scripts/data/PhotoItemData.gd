@@ -21,10 +21,10 @@ class Framing extends Resource:
 	var scale: float = 1
 	var offset: Vector2 = Vector2.ZERO
 
-	var top_left_corner: Vector2 = Vector2.ZERO
-	var top_right_corner: Vector2 = Vector2.ZERO
-	var bottom_left_corner: Vector2 = Vector2.ZERO
-	var bottom_right_corner: Vector2 = Vector2.ZERO
+	var top_left_corner: Vector2 = Vector2(0,0)
+	var top_right_corner: Vector2 = Vector2(1,0)
+	var bottom_left_corner: Vector2 = Vector2(0,1)
+	var bottom_right_corner: Vector2 = Vector2(1,1)
 
 	var fitting_mode: FittingMode = FittingMode.FILL
 
@@ -61,17 +61,10 @@ class Framing extends Resource:
 
 enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 
-enum FilterMode { NEAREST, BILINEAR, CUBIC, TRILINEAR, LANCZOS }
-
 # IMAGE
 @export var quantity: int = 1:
 	set(new):
 		quantity = max(new,1)
-		emit_changed()
-
-@export var filter_mode: FilterMode = FilterMode.LANCZOS:
-	set(new):
-		filter_mode = new
 		emit_changed()
 
 # FRAMINGS INCLUDES SCALE, OFFSETS AND FITTING MODE AS DICTS
@@ -105,18 +98,22 @@ func apply_framing_to_all(base_index: int):
 		framings[f] = framings[base_index].duplicate()
 	emit_changed()
 
-func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode):
+func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode, top_left: Vector2, top_right: Vector2, bottom_right: Vector2, bottom_left: Vector2):
 	var new_framing = Framing.new()
 	new_framing.scale = max(new_scale,1)
 	new_framing.offset = new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1))
 	new_framing.fitting_mode = new_fitting_mode
+	new_framing.top_left_corner = top_left.clamp(Vector2(0,0),Vector2(1,1))
+	new_framing.top_right_corner = top_right.clamp(Vector2(new_framing.top_left_corner.x, 0), Vector2(1, new_framing.bottom_right_corner.y))
+	new_framing.bottom_right_corner = bottom_right.clamp(Vector2(new_framing.bottom_left_corner.x, new_framing.top_right_corner.y), Vector2(1, 1))
+	new_framing.bottom_left_corner = bottom_left.clamp(Vector2(0, new_framing.top_left_corner.y), Vector2(1, 1))
 	framings[index] = new_framing
 	emit_changed()
 
 func set_framing_scale(index: int, new: float, ratio: bool = false):
 	var f = get_framing(index)
 	var old_scale = f.scale
-	set_framing(index, new, f.offset, f.fitting_mode)
+	set_framing(index, new, f.offset, f.fitting_mode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
 	if ratio:
 		var new_rect = get_image_rect_mm(index)
 		var max_offset = (new_rect.size - size_mm)
@@ -131,7 +128,7 @@ func set_framing_offset(index: int, new: Vector2):
 	var zero_x = image_rect.size.x - size_mm.x == 0
 	var zero_y = image_rect.size.y - size_mm.y == 0
 
-	set_framing(index, f.scale, Vector2(0.0 if zero_x else new.x, 0.0 if zero_y else new.y), f.fitting_mode)
+	set_framing(index, f.scale, Vector2(0.0 if zero_x else new.x, 0.0 if zero_y else new.y), f.fitting_mode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
 
 func set_framing_offset_x(index: int, new: float):
 	var f = get_framing(index)
@@ -143,14 +140,30 @@ func set_framing_offset_y(index: int, new: float):
 
 func set_framing_fitting_mode(index: int, new: int):
 	var f = get_framing(index)
-	set_framing(index, f.scale, f.offset, new as FittingMode)
+	set_framing(index, f.scale, f.offset, new as FittingMode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+
+func set_framing_top_left(index: int, new: Vector2):
+	var f = get_framing(index)
+	set_framing(index, f.scale, f.offset, f.fitting_mode, new, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+
+func set_framing_top_right(index: int, new: Vector2):
+	var f = get_framing(index)
+	set_framing(index, f.scale, f.offset, f.fitting_mode, f.top_left_corner, new, f.bottom_right_corner, f.bottom_left_corner)
+
+func set_framing_bottom_right(index: int, new: Vector2):
+	var f = get_framing(index)
+	set_framing(index, f.scale, f.offset, f.fitting_mode, f.top_left_corner, f.top_right_corner, new, f.bottom_left_corner)
+
+func set_framing_bottom_left(index: int, new: Vector2):
+	var f = get_framing(index)
+	set_framing(index, f.scale, f.offset, f.fitting_mode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, new)
 
 func get_framing(index: int) -> Framing:
 	if framings.has(index):
 		return framings[index]
 	return Framing.new()
 
-func get_distort_matrix(index: int):
+func get_distort_matrix(index: int) -> Basis:
 	var framing: Framing = get_framing(index)
 
 	var p0: Vector2 = framing.top_left_corner
@@ -158,45 +171,18 @@ func get_distort_matrix(index: int):
 	var p2: Vector2 = framing.bottom_right_corner
 	var p3: Vector2 = framing.bottom_left_corner
 
-	# p0: Top-Left, p1: Top-Right, p2: Bottom-Right, p3: Bottom-Left
-	var dx1: float = p1.x - p2.x
-	var dx2: float = p3.x - p2.x
-	var dx3: float = p0.x - p1.x + p2.x - p3.x
+	return PerspectiveMath.get_homogenous_matrix(p0,p1,p2,p3)
 
-	var dy1: float = p1.y - p2.y
-	var dy2: float = p3.y - p2.y
-	var dy3: float = p0.y - p1.y + p2.y - p3.y
+func get_distort_ratio(index: int, image_aspect: float) -> float:
+	var framing: Framing = get_framing(index)
 
-	# Affine check (parallelogram)
-	if abs(dx3) < 0.0001 and abs(dy3) < 0.0001:
-		return Basis(
-			Vector3(p1.x - p0.x, p1.y - p0.y, 0.0), # Column 0
-			Vector3(p2.x - p1.x, p2.y - p1.y, 0.0), # Column 1
-			Vector3(p0.x,        p0.y,        1.0)  # Column 2
-		)
+	var p0: Vector2 = framing.top_left_corner
+	var p1: Vector2 = framing.top_right_corner
+	var p2: Vector2 = framing.bottom_right_corner
+	var p3: Vector2 = framing.bottom_left_corner
 
-	# Projective Homography calculation
-	var det: float = (dx1 * dy2) - (dx2 * dy1)
-	if abs(det) < 0.00001:
-		return Basis() # Degenerate quad fallback
+	return PerspectiveMath.calculate_aspect_ratio(p0,p1,p2,p3, image_aspect)
 
-	var g: float = ((dx3 * dy2) - (dx2 * dy3)) / det
-	var h: float = ((dx1 * dy3) - (dx3 * dy1)) / det
-
-	var a: float = p1.x - p0.x + (g * p1.x)
-	var b: float = p3.x - p0.x + (h * p3.x)
-	var c: float = p0.x
-
-	var d: float = p1.y - p0.y + (g * p1.y)
-	var e: float = p3.y - p0.y + (h * p3.y)
-	var f: float = p0.y
-
-	# Return as a 3x3 Basis (columns X, Y, Z)
-	return Basis(
-		Vector3(a, d, g), # Column 0
-		Vector3(b, e, h), # Column 1
-		Vector3(c, f, 1.0) # Column 2
-	)
 func get_image_rect_mm(index: int) -> Rect2:
 	if asset == null:
 		return Rect2(Vector2.ZERO, size_mm)
@@ -239,8 +225,18 @@ func get_image_rect_mm(index: int) -> Rect2:
 				w = size_mm.y * image_aspect * scale
 			y = (size_mm.y - h) * (1 - offset.y) * 0.5
 			x = (size_mm.x - w) * (1 + offset.x) * 0.5
-		FittingMode.STRETCH, FittingMode.DISTORT:
+		FittingMode.STRETCH:
 			w = size_mm.x
 			h = size_mm.y
+		FittingMode.DISTORT:
+			var distorted_aspect = get_distort_ratio(index, image_aspect)
+			if size_mm.aspect() > distorted_aspect:
+				w = size_mm.x * scale
+				h = size_mm.x * scale / distorted_aspect
+			else:
+				h = size_mm.y * scale
+				w = size_mm.y * distorted_aspect * scale
+			y = (size_mm.y - h) * (1 - offset.y) * 0.5
+			x = (size_mm.x - w) * (1 + offset.x) * 0.5
 
 	return Rect2(x, y, w, h)

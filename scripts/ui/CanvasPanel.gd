@@ -339,14 +339,7 @@ func _paste_properties():
 		return
 
 	selected_photo_item.size_mm = photo_item_clipboard.size_mm
-	selected_photo_item.rotation = photo_item_clipboard.rotation
-	selected_photo_item.flipped_h = photo_item_clipboard.flipped_h
-	selected_photo_item.flipped_v = photo_item_clipboard.flipped_v
 	selected_photo_item.quantity = photo_item_clipboard.quantity
-	selected_photo_item.filter_mode = photo_item_clipboard.filter_mode
-	#selected_photo_item.fitting_mode = photo_item_clipboard.fitting_mode
-	#selected_photo_item.scale = photo_item_clipboard.scale
-	#selected_photo_item.offset = photo_item_clipboard.offset
 	selected_photo_item.border_enabled = photo_item_clipboard.border_enabled
 	selected_photo_item.border_width = photo_item_clipboard.border_width
 	selected_photo_item.border_color = photo_item_clipboard.border_color
@@ -430,8 +423,8 @@ func add_asset_to_sheet(
 
 		var item: PhotoItemData = PhotoItemData.new()
 		item.asset = asset
-		item.size_mm = Vector2(30.0, 40.0)
-		item.quantity = 1
+		# item.size_mm = Vector2(30.0, 40.0)
+		# item.quantity = 1
 		document_data.add_photo_item_no_signal(item)
 		if select_on_add:
 			_deselect_all_photo_items()

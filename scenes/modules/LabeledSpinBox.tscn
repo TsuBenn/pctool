@@ -8,6 +8,7 @@ atlas = ExtResource("2_7b05i")
 region = Rect2(1318, 8, 16, 18)
 
 [node name="LabeledSpinBox" type="HBoxContainer" unique_id=1930336959]
+focus_mode = 2
 script = ExtResource("1_1t8ie")
 
 [node name="Label" type="Label" parent="." unique_id=1227593897]

@@ -35,6 +35,12 @@ extends Resource
 			spacing_mm = new
 			emit_changed()
 
+@export var gpu_render: bool = true:
+	set(new):
+		if gpu_render != new:
+			gpu_render = new
+			emit_changed()
+
 @export var assets: Array[AssetData] = []:
 	set(new):
 		if assets != new:
@@ -80,6 +86,8 @@ func add_photo_item(photo_item: PhotoItemData, signal_changed: bool = true):
 
 func duplicate_photo_item(photo_item: PhotoItemData, signal_changed: bool = true) -> PhotoItemData:
 	var copy: PhotoItemData = photo_item.duplicate()
+	var copy_framings: Dictionary[int, PhotoItemData.Framing] = photo_item.framings.duplicate(true)
+	copy.framings = copy_framings
 	photo_items.append(copy)
 	copy.changed.connect(emit_changed)
 	if signal_changed:

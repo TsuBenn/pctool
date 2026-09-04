@@ -2,9 +2,17 @@
 
 [ext_resource type="Script" uid="uid://bjx7dff1qytir" path="res://scripts/ui/PhotoTileView.gd" id="1_cdpo6"]
 [ext_resource type="Texture2D" uid="uid://tw4e3ylqee76" path="res://assets/icon_128.png" id="1_w5csh"]
+[ext_resource type="Shader" uid="uid://cmr4fftv8whqs" path="res://assets/shaders/DistortionShader.gdshader" id="2_cdpo6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjspk"]
 bg_color = Color(1.353, 1.353, 1.353, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qie5n"]
+resource_local_to_scene = true
+shader = ExtResource("2_cdpo6")
+shader_parameter/u_homography_matrix = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
+shader_parameter/out_bound_opacity = 0.0
+shader_parameter/out_bound_color = Color(0, 0, 0, 0.2)
 
 [node name="PhotoTileView" type="Control" unique_id=572035731]
 layout_mode = 3
@@ -51,6 +59,7 @@ mouse_filter = 2
 
 [node name="ImageTexture" type="TextureRect" parent="ImageContainer" unique_id=397472010]
 unique_name_in_owner = true
+material = SubResource("ShaderMaterial_qie5n")
 layout_mode = 0
 offset_right = 64.0
 offset_bottom = 64.0

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dgkdfoixnoogu" path="res://scripts/ui/WorkspaceTabContainer.gd" id="2_0bbpv"]
 [ext_resource type="Script" uid="uid://bicy0fur7vwvd" path="res://scripts/Main.gd" id="2_c01mt"]
+[ext_resource type="Shader" uid="uid://cmr4fftv8whqs" path="res://assets/shaders/DistortionShader.gdshader" id="2_mwfav"]
 [ext_resource type="Script" uid="uid://lexvh7h7ivq3" path="res://scripts/ui/DocumentPanel.gd" id="2_rarhs"]
 [ext_resource type="PackedScene" uid="uid://bdtx4oepgf23f" path="res://scenes/components/WorkspaceInstance.tscn" id="2_rvslj"]
 [ext_resource type="Texture2D" uid="uid://bhkngrtlqx4yl" path="res://assets/cursor/cursor_sheet.png" id="3_nxtc6"]
@@ -13,6 +14,12 @@
 [ext_resource type="Script" uid="uid://dcgd53sullin3" path="res://scripts/engine/UpdateChecker.gd" id="12_bjd11"]
 [ext_resource type="Script" uid="uid://cyorikepkbyw4" path="res://scripts/engine/ThemeColorSetter.gd" id="12_mwfav"]
 [ext_resource type="PackedScene" uid="uid://cn3eh3w2vkmk" path="res://scenes/components/AboutWindow.tscn" id="13_qmy6f"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3p2gp"]
+shader = ExtResource("2_mwfav")
+shader_parameter/u_homography_matrix = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
+shader_parameter/out_bound_opacity = 0.0
+shader_parameter/out_bound_color = Color(0, 0, 0, 0.2)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_k4rpm"]
 atlas = ExtResource("3_nxtc6")
@@ -176,6 +183,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("2_c01mt")
+distort_shader_material = SubResource("ShaderMaterial_3p2gp")
 pointer = SubResource("AtlasTexture_k4rpm")
 hand_point = SubResource("AtlasTexture_jlsqs")
 hand_grab = SubResource("AtlasTexture_q8u5g")

@@ -61,12 +61,16 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 				"scale": item.framings[index].scale,
 				"offset": [item.framings[index].offset.x, item.framings[index].offset.y],
 				"fitting_mode": item.framings[index].fitting_mode,
+				"top_left_corner": [item.framings[index].top_left_corner.x, item.framings[index].top_left_corner.y],
+				"top_right_corner": [item.framings[index].top_right_corner.x, item.framings[index].top_right_corner.y],
+				"bottom_right_corner": [item.framings[index].bottom_right_corner.x, item.framings[index].bottom_right_corner.y],
+				"bottom_left_corner": [item.framings[index].bottom_left_corner.x, item.framings[index].bottom_left_corner.y],
 			}
 
 		item_manifest_list.append({
 			"asset_id": item.asset.id,
 			"size_mm": [item.size_mm.x, item.size_mm.y],
-			"isolate_row": item.rotation,
+			"isolate_row": item.isolate_row,
 			"isolate_page": item.isolate_page,
 			"quantity": item.quantity,
 			"framings": framings,
@@ -219,7 +223,17 @@ static func open_document(file_path: String) -> DocumentData:
 
 		for index in item_dict.get("framings", {}).keys():
 			var framings = item_dict.get("framings")[index]
-			item.set_framing(index, framings.scale, Vector2(framings.offset[0], framings.offset[1]), framings.fitting_mode as PhotoItemData.FittingMode)
+			item.set_framing(
+				int(index),
+				framings.scale,
+				Vector2(framings.offset[0],
+				framings.offset[1]),
+				framings.fitting_mode as PhotoItemData.FittingMode,
+				Vector2(framings.top_left_corner[0],framings.top_left_corner[1]),
+				Vector2(framings.top_right_corner[0],framings.top_right_corner[1]),
+				Vector2(framings.bottom_right_corner[0],framings.bottom_right_corner[1]),
+				Vector2(framings.bottom_left_corner[0],framings.bottom_left_corner[1]),
+			)
 
 		item.border_enabled = bool(item_dict.get("border_enabled", false))
 		item.border_width = float(item_dict.get("border_width", 1.0))

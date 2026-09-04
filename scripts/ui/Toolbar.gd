@@ -26,6 +26,7 @@ var document_data: DocumentData
 @onready var orientation_option_button: LabeledOptionButton = %OrientationOptionButton
 @onready var paper_margins_spin_box: LabeledSpinBox = %PaperMarginsSpinBox
 @onready var spacing_spin_box: LabeledSpinBox = %SpacingSpinBox
+@onready var render_mode_option_button: LabeledOptionButton = %RenderModeOptionButton
 
 
 func setup(data: DocumentData):
@@ -35,6 +36,13 @@ func setup(data: DocumentData):
 
 
 func _ready() -> void:
+	render_mode_option_button.item_selected.connect(
+		func(new):
+			if new == 1:
+				document_data.gpu_render = true
+			else:
+				document_data.gpu_render = false
+	)
 	paper_option_button.item_selected.connect(
 		func(new):
 			match new:
@@ -123,4 +131,4 @@ func _sync_ui():
 	orientation_option_button.selected = int(document_data.is_landscape)
 	paper_margins_spin_box.set_value_no_signal(document_data.margins_mm)
 	spacing_spin_box.set_value_no_signal(document_data.spacing_mm)
-	pass
+	render_mode_option_button.selected = 1 if document_data.gpu_render else 0

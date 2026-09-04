@@ -166,4 +166,5 @@ static func save_pdf_to_file(
 
 	file.close()
 	Global.notice("Export Complete", "PDF document successfully exported to:\n%s" % output_path.get_file())
+	ExportEngine.end_timer()
 	return OK

@@ -63,8 +63,14 @@ func _update_image_rect():
 	var image_rect_mm: Rect2 = photo_item.get_image_rect_mm(photo_tile.sub_asset_index)
 	image_texture.size = image_rect_mm.size * view_scale
 	image_texture.position = image_rect_mm.position * view_scale
-	image_texture.texture_filter = photo_item.filter_mode as TextureFilter
-	pass
+	image_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+
+	var framing: PhotoItemData.Framing = photo_item.get_framing(photo_tile.sub_asset_index)
+
+	var mat: ShaderMaterial = image_texture.material
+	if mat:
+		mat.set_shader_parameter("u_homography_matrix", photo_item.get_distort_matrix(photo_tile.sub_asset_index) if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
+
 
 
 func _update_tile_rect():

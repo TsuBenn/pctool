@@ -24,7 +24,7 @@ signal value_changed(new_value: Vector2)
 
 @export var min_value: Vector2 = Vector2(-100,-100):
 	set(new):
-		max_value = new
+		min_value = new
 		if is_node_ready():
 			_update()
 
@@ -86,16 +86,18 @@ func _ready() -> void:
 		func(new):
 			var new_value = value
 			new_value.x = new
-			value_changed.emit(new_value)
+			_on_spin_box_value_changed(new_value)
 	)
 	y_spin_box.value_changed.connect(
 		func(new):
 			var new_value = value
 			new_value.y = new
-			value_changed.emit(new_value)
+			_on_spin_box_value_changed(new_value)
 	)
 	_update()
 
+func set_value_no_signal(new_value: Vector2):
+	value = new_value
 
 func _on_spin_box_value_changed(new_value: Vector2):
 	value = new_value

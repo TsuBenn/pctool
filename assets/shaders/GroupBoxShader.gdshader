@@ -2,6 +2,7 @@ shader_type canvas_item;
 
 uniform vec4 cutout_rect = vec4(0.0,0.0,0.0,0.0);
 varying vec2 local_pos;
+uniform sampler2D source_texture: filter_nearest, repeat_disable;
 
 void vertex() {
 	local_pos = VERTEX;

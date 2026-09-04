@@ -189,6 +189,13 @@ label = "Spacing:"
 suffix = "mm"
 spinbox_width = 100
 
+[node name="RenderModeOptionButton" parent="MarginContainer/VBoxContainer/ToolBarPanel/Toolbar/HFlowContainer" unique_id=1401457204 instance=ExtResource("1_n10jr")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Render mode:"
+items = Array[String](["Software", "Hardware"])
+button_width = 120
+
 [node name="Workspace" type="HSplitContainer" parent="MarginContainer/VBoxContainer" unique_id=390090371]
 layout_mode = 2
 size_flags_vertical = 3
@@ -454,6 +461,7 @@ theme_override_constants/margin_bottom = 0
 [node name="PagePopupLabel" type="Label" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer/PaperAnchor/PagePopup/MarginContainer" unique_id=1771814496]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"BigLabel"
 text = "PAGE: 1"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasViewport/PaperContainer" unique_id=208223628]
@@ -587,7 +595,7 @@ items = Array[String](["Add A Copy", "Remove A Copy", "-", "Copy Properties", "P
 
 [node name="PropertiesPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=562294387]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(354, 0)
 layout_mode = 2
 script = ExtResource("14_cx2ea")
 
@@ -770,46 +778,15 @@ unique_name_in_owner = true
 layout_mode = 2
 icon = SubResource("AtlasTexture_ckklh")
 
-[node name="FilterModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=1350035097 instance=ExtResource("1_n10jr")]
-unique_name_in_owner = true
-layout_mode = 2
-label = "Filter mode:"
-items = Array[String](["Nearest", "Bilinear", "Cubic", "Trilinear", "Lanzcos"])
-selected = 5
-button_width = 120
-
-[node name="SubAssetGroupBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=242077353 instance=ExtResource("16_qie5n")]
-layout_mode = 2
-title = "Cropping"
-padding = 0
-show_border = false
-emphasized = true
-collapse_enabled = true
-collapse_button_spacing = 14
-margin_left = 24
-margin_top = 12
-margin_right = 0
-margin_bottom = 0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox" unique_id=157947668]
-layout_mode = 2
-
-[node name="SubAssetSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox/VBoxContainer" unique_id=1545669483 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
-layout_mode = 2
-label = "Sub Asset:"
-suffix = "/1"
-min_value = 1.0
-spinbox_width = 120
-
-[node name="FittingModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox/VBoxContainer" unique_id=677269162 instance=ExtResource("1_n10jr")]
+[node name="FittingModeOptionButton" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=677269162 instance=ExtResource("1_n10jr")]
 unique_name_in_owner = true
 layout_mode = 2
 label = "Fitting Mode:"
 items = Array[String](["Fill", "Fit", "Stretch", "Distortion"])
+selected = 3
 button_width = 120
 
-[node name="AdvancedCroppingButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer/SubAssetGroupBox/VBoxContainer" unique_id=188502424]
+[node name="AdvancedCroppingButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/ImagesFoldable/MarginContainer/VBoxContainer" unique_id=188502424]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"OutlineButton"

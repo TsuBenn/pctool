@@ -2,6 +2,8 @@ extends Control
 class_name Main
 
 # MOUSE POINTERS
+@export var distort_shader_material: ShaderMaterial
+
 @export var pointer: Texture2D
 @export var hand_point: Texture2D
 @export var hand_grab: Texture2D

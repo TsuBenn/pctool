@@ -46,9 +46,6 @@ enum {
 @onready var quantity_spin_box: LabeledSpinBox = %QuantitySpinBox
 @onready var increment_quantity_button: Button = %IncrementQuantityButton
 
-@onready var filter_mode_option_button: LabeledOptionButton = %FilterModeOptionButton
-
-@onready var sub_asset_spin_box: LabeledSpinBox = %SubAssetSpinBox
 @onready var fitting_mode_option_button: LabeledOptionButton = %FittingModeOptionButton
 
 @onready var advanced_cropping_button: Button = %AdvancedCroppingButton
@@ -110,13 +107,9 @@ func _ready() -> void:
 		func(new):
 			photo_item.border_width = new
 	)
-	filter_mode_option_button.item_selected.connect(
-		func(new):
-			photo_item.filter_mode = new
-	)
 	fitting_mode_option_button.item_selected.connect(
 		func(new):
-			photo_item.set_framing(sub_asset_index, photo_item.get_framing(sub_asset_index).scale, photo_item.get_framing(sub_asset_index).offset, new)
+			photo_item.set_framing_fitting_mode(sub_asset_index, new)
 	)
 	decrement_quantity_button.pressed.connect(
 		func():
@@ -204,10 +197,6 @@ func _sync_ui():
 		properties_width_spin_box.set_value_no_signal(photo_item.size_mm.x)
 		properties_height_spin_box.set_value_no_signal(photo_item.size_mm.y)
 		quantity_spin_box.set_value_no_signal(photo_item.quantity)
-		filter_mode_option_button.selected = photo_item.filter_mode
-		sub_asset_spin_box.max_value = photo_item.asset.get_count()
-		sub_asset_spin_box.value = sub_asset_index + 1
-		sub_asset_spin_box.suffix = "/%d" % photo_item.asset.get_count()
 		fitting_mode_option_button.selected = framing.fitting_mode
 
 		isolate_row_check_button.button_pressed = photo_item.isolate_row
