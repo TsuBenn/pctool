@@ -127,10 +127,7 @@ func _ready() -> void:
 	else:
 		$Button.disabled = false
 
-	$Button.pressed.connect(
-		func():
-			value = default_value
-	)
+	$Button.pressed.connect(reset)
 
 	focus_entered.connect(
 		func():
@@ -140,6 +137,9 @@ func _ready() -> void:
 	# Forward the inner SpinBox signal to our custom outer signal
 	if not Engine.is_editor_hint():
 		$SpinBox.value_changed.connect(_on_spin_box_value_changed)
+
+func reset():
+	value = default_value
 
 func set_value_no_signal(new_value: float):
 	if snapped($SpinBox.value, step) == snapped(default_value, step):

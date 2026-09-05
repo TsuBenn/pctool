@@ -18,6 +18,7 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_3p2gp"]
 shader = ExtResource("2_mwfav")
 shader_parameter/u_homography_matrix = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
+shader_parameter/frame_rect = Vector4(0, 0, 0, 0)
 shader_parameter/out_bound_opacity = 0.0
 shader_parameter/out_bound_color = Color(0, 0, 0, 0.2)
 

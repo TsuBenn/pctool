@@ -35,12 +35,6 @@ extends Resource
 			spacing_mm = new
 			emit_changed()
 
-@export var gpu_render: bool = true:
-	set(new):
-		if gpu_render != new:
-			gpu_render = new
-			emit_changed()
-
 @export var assets: Array[AssetData] = []:
 	set(new):
 		if assets != new:

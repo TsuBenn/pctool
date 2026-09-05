@@ -63,7 +63,7 @@ func _update_image_rect():
 	var image_rect_mm: Rect2 = photo_item.get_image_rect_mm(photo_tile.sub_asset_index)
 	image_texture.size = image_rect_mm.size * view_scale
 	image_texture.position = image_rect_mm.position * view_scale
-	image_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	image_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
 	var framing: PhotoItemData.Framing = photo_item.get_framing(photo_tile.sub_asset_index)
 

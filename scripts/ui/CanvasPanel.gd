@@ -228,9 +228,9 @@ func _on_paper_container_gui_input(event: InputEvent):
 		elif event.is_pressed():
 			if event.ctrl_pressed:
 				if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-					zoom_slider.value += 10
+					zoom_slider.value *= 1.1
 				elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-					zoom_slider.value -= 10
+					zoom_slider.value /= 1.1
 				accept_event()
 			else:
 				if event.button_index == MOUSE_BUTTON_WHEEL_UP:
@@ -255,12 +255,13 @@ func _on_paper_container_gui_input(event: InputEvent):
 				paper_container.mouse_default_cursor_shape = CursorShape.CURSOR_ARROW
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		if (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE) and event.is_pressed():
-			if selected_photo_item:
-				var to_remove = selected_photo_item
-				_deselect_all_photo_items()
-				document_data.remove_photo_item(to_remove)
+	if event is InputEventKey and event.is_pressed():
+		if (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE):
+			_on_photo_tile_context_menu_pressed(TILE_REMOVE_ITEM)
+		elif event.keycode == KEY_D and event.ctrl_pressed and not event.shift_pressed:
+			_on_photo_tile_context_menu_pressed(TILE_INCREMENT)
+		elif event.keycode == KEY_D and event.ctrl_pressed and event.shift_pressed:
+			_on_photo_tile_context_menu_pressed(TILE_DUPLICATE)
 
 enum {
 		CANVAS_FIT_TO_WINDOW,

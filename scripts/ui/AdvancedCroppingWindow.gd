@@ -29,6 +29,7 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 @onready var summary_label: Label = %SummaryLabel
 
 @onready var clip_check_button: LabeledCheckButton = %ClipCheckButton
+@onready var distortion_editor_check_button: LabeledCheckButton = %DistortionPanelCheckButton
 
 @onready var previous_sub_asset_button: Button = %PreviousSubAssetButton
 @onready var sub_asset_spin_box: LabeledSpinBox = %SubAssetSpinBox
@@ -62,6 +63,9 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 @onready var offset_x_spin_box: LabeledSpinBox = %OffsetXSpinBox
 @onready var offset_y_spin_box: LabeledSpinBox = %OffsetYSpinBox
 
+@onready var reset_offsets_button: Button = %ResetOffsetsButton
+@onready var reset_corners_button: Button = %ResetCornersButton
+
 @onready var tl_position_group_box: GroupBox = %TLPositionGroupBox
 @onready var tr_position_group_box: GroupBox = %TRPositionGroupBox
 @onready var br_position_group_box: GroupBox = %BRPositionGroupBox
@@ -82,6 +86,23 @@ func _ready() -> void:
 	clip_check_button.toggled.connect(
 		func(_new):
 			_sync_ui()
+	)
+	reset_offsets_button.pressed.connect(
+		func():
+			zoom_spin_box.reset()
+			offset_x_spin_box.reset()
+			offset_y_spin_box.reset()
+	)
+	reset_corners_button.pressed.connect(
+		func():
+			tl_position_spin_box.reset()
+			tr_position_spin_box.reset()
+			br_position_spin_box.reset()
+			bl_position_spin_box.reset()
+	)
+	distortion_editor_check_button.toggled.connect(
+		func(new):
+			distortion_editor_panel.visible = new
 	)
 	tl_handle.gui_input.connect(func(event): _distort_handle_input(event, "tl"))
 	tr_handle.gui_input.connect(func(event): _distort_handle_input(event, "tr"))
@@ -105,6 +126,8 @@ func _ready() -> void:
 	)
 	fitting_mode_option_button.item_selected.connect(
 		func(new):
+			if new == PhotoItemData.FittingMode.DISTORT:
+				distortion_editor_check_button.button_pressed = true
 			photo_item.set_framing_fitting_mode(sub_asset_index, new)
 	)
 	zoom_spin_box.value_changed.connect(
@@ -154,9 +177,16 @@ func _ready() -> void:
 			cancel()
 			hide()
 	)
+	get_parent().get_window().size_changed.connect(
+		func():
+			if visible:
+				popup_centered(get_parent().get_window().size*0.8)
+	)
 	photo_item_panel.gui_input.connect(panel_gui_input)
+	photo_item_image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	distortion_image_preview.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	distort_handle_magnifier_image_preview.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_sync_ui()
-
 
 var _handle_grabbed: bool = false
 
@@ -409,38 +439,46 @@ func _sync_ui():
 			zoom_spin_box.visible = true
 			offset_x_spin_box.visible = true
 			offset_y_spin_box.visible = true
+			reset_corners_button.visible = false
 			tl_position_group_box.visible = false
 			tr_position_group_box.visible = false
 			br_position_group_box.visible = false
 			bl_position_group_box.visible = false
+			distortion_editor_check_button.visible = false
 			distortion_editor_panel.visible = false
 		PhotoItemData.FittingMode.FIT:
 			zoom_spin_box.visible = false
 			offset_x_spin_box.visible = true
 			offset_y_spin_box.visible = true
+			reset_corners_button.visible = false
 			tl_position_group_box.visible = false
 			tr_position_group_box.visible = false
 			br_position_group_box.visible = false
 			bl_position_group_box.visible = false
+			distortion_editor_check_button.visible = false
 			distortion_editor_panel.visible = false
 		PhotoItemData.FittingMode.STRETCH:
 			zoom_spin_box.visible = false
 			offset_x_spin_box.visible = false
 			offset_y_spin_box.visible = false
+			reset_corners_button.visible = false
 			tl_position_group_box.visible = false
 			tr_position_group_box.visible = false
 			br_position_group_box.visible = false
 			bl_position_group_box.visible = false
+			distortion_editor_check_button.visible = false
 			distortion_editor_panel.visible = false
 		PhotoItemData.FittingMode.DISTORT:
 			zoom_spin_box.visible = true
 			offset_x_spin_box.visible = true
 			offset_y_spin_box.visible = true
+			reset_corners_button.visible = true
 			tl_position_group_box.visible = true
 			tr_position_group_box.visible = true
 			br_position_group_box.visible = true
 			bl_position_group_box.visible = true
-			distortion_editor_panel.visible = true
+			distortion_editor_check_button.visible = true
+			distortion_editor_panel.visible = distortion_editor_check_button.button_pressed
 			_sync_ui_distortion_panel.call_deferred(framing)
 
 

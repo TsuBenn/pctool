@@ -189,13 +189,6 @@ label = "Spacing:"
 suffix = "mm"
 spinbox_width = 100
 
-[node name="RenderModeOptionButton" parent="MarginContainer/VBoxContainer/ToolBarPanel/Toolbar/HFlowContainer" unique_id=1401457204 instance=ExtResource("1_n10jr")]
-unique_name_in_owner = true
-layout_mode = 2
-label = "Render mode:"
-items = Array[String](["Software", "Hardware"])
-button_width = 120
-
 [node name="Workspace" type="HSplitContainer" parent="MarginContainer/VBoxContainer" unique_id=390090371]
 layout_mode = 2
 size_flags_vertical = 3
@@ -573,8 +566,7 @@ custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 size_flags_vertical = 4
 min_value = 50.0
-max_value = 500.0
-step = 10.0
+max_value = 1000.0
 value = 100.0
 tick_count = 9
 ticks_on_borders = true
@@ -923,3 +915,5 @@ custom_font = SubResource("FontVariation_qie5n")
 [node name="AdvancedCroppingWindow" parent="." unique_id=554773751 instance=ExtResource("18_qie5n")]
 unique_name_in_owner = true
 visible = false
+frame_margin = 60
+zoom_scale = 100

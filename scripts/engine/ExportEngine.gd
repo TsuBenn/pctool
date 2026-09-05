@@ -9,8 +9,6 @@ enum ExportMode {
 const EXPORT_PNG = ExportMode.EXPORT_PNG
 const EXPORT_PDF = ExportMode.EXPORT_PDF
 
-static var gpu_render: bool = false
-
 static var start_time: float
 
 static func start_timer():
@@ -30,8 +28,6 @@ static func export_document(document_data: DocumentData, output_path: String, ex
 		Global.notice("Export Failed", "Document has no content to be exported!")
 		push_error("ExportEngine: Document has no content to be exported!")
 		return ERR_CANT_CREATE
-
-	gpu_render = document_data.gpu_render
 
 	start_timer()
 
@@ -62,7 +58,7 @@ static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , ou
 static func _export_as_png(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
 	return await PngWriter.save_png_to_files(document_data,layout,output_path)
 
-static func bake_tile_image_gpu(tile: PhotoTile, dpi: int) -> Image:
+static func bake_tile_image(tile: PhotoTile, dpi: int) -> Image:
 	var item: PhotoItemData = tile.photo_item
 	if item == null or item.asset == null:
 		return null
@@ -103,12 +99,12 @@ static func bake_tile_image_gpu(tile: PhotoTile, dpi: int) -> Image:
 	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.size = image_rect.size * px_per_mm
 	tex_rect.position = image_rect.position * px_per_mm
+	tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	tex_rect.material = shader_mat
-	tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 
 	var homography_mat: Basis = item.get_distort_matrix(tile.sub_asset_index)
 	shader_mat.set_shader_parameter("u_homography_matrix", homography_mat if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
-	shader_mat.set_shader_parameter("out_bound_opacity", 0.0)
+	shader_mat.set_shader_parameter("out_bound_opacity", 1)
 
 	viewport.add_child(tex_rect)
 
@@ -130,52 +126,52 @@ static func bake_tile_image_gpu(tile: PhotoTile, dpi: int) -> Image:
 
 	return rendered_img
 
-static func bake_tile_image(tile: PhotoTile, dpi: int) -> Image:
-	if gpu_render:
-		return await bake_tile_image_gpu(tile, dpi)
+# static func bake_tile_image_old(tile: PhotoTile, dpi: int) -> Image:
+# 	if gpu_render:
+# 		return await bake_tile_image(tile, dpi)
 
-	var item: PhotoItemData = tile.photo_item
-	if item == null or item.asset == null:
-		return null
+# 	var item: PhotoItemData = tile.photo_item
+# 	if item == null or item.asset == null:
+# 		return null
 
-	if item.get_framing(tile.sub_asset_index).fitting_mode == PhotoItemData.FittingMode.DISTORT:
-		return await bake_tile_image_gpu(tile, dpi)
+# 	if item.get_framing(tile.sub_asset_index).fitting_mode == PhotoItemData.FittingMode.DISTORT:
+# 		return await bake_tile_image(tile, dpi)
 
-	var px_per_mm: float = dpi/25.4
+# 	var px_per_mm: float = dpi/25.4
 
-	var tile_w: int = int(tile.rect_mm.size.x * px_per_mm)
-	var tile_h: int = int(tile.rect_mm.size.y * px_per_mm)
+# 	var tile_w: int = int(tile.rect_mm.size.x * px_per_mm)
+# 	var tile_h: int = int(tile.rect_mm.size.y * px_per_mm)
 
-	var tile_image: Image = Image.create_empty(tile_w, tile_h, false, Image.FORMAT_RGBA8)
-	tile_image.fill(Color(1,1,1,1))
+# 	var tile_image: Image = Image.create_empty(tile_w, tile_h, false, Image.FORMAT_RGBA8)
+# 	tile_image.fill(Color(1,1,1,1))
 
-	var image_rect_mm: Rect2 = tile.photo_item.get_image_rect_mm(tile.sub_asset_index)
+# 	var image_rect_mm: Rect2 = tile.photo_item.get_image_rect_mm(tile.sub_asset_index)
 
-	var source_image: Image = item.asset.get_image(tile.sub_asset_index)
-	if source_image.is_empty() or source_image == null:
-		return tile_image
+# 	var source_image: Image = item.asset.get_image(tile.sub_asset_index)
+# 	if source_image.is_empty() or source_image == null:
+# 		return tile_image
 
-	var asset_image: Image = source_image.duplicate()
-	if asset_image.get_format() != Image.FORMAT_RGBA8:
-		asset_image.convert(Image.FORMAT_RGBA8)
+# 	var asset_image: Image = source_image.duplicate()
+# 	if asset_image.get_format() != Image.FORMAT_RGBA8:
+# 		asset_image.convert(Image.FORMAT_RGBA8)
 
-	var crop_size_px: Vector2i = image_rect_mm.size * px_per_mm
-	var crop_pos_px: Vector2i = image_rect_mm.position * px_per_mm
+# 	var crop_size_px: Vector2i = image_rect_mm.size * px_per_mm
+# 	var crop_pos_px: Vector2i = image_rect_mm.position * px_per_mm
 
-	asset_image.resize(crop_size_px.x, crop_size_px.y, Image.INTERPOLATE_LANCZOS)
+# 	asset_image.resize(crop_size_px.x, crop_size_px.y, Image.INTERPOLATE_LANCZOS)
 
-	var src_x : int = max(-crop_pos_px.x,0)
-	var src_y : int = max(-crop_pos_px.y,0)
+# 	var src_x : int = max(-crop_pos_px.x,0)
+# 	var src_y : int = max(-crop_pos_px.y,0)
 
-	var src_w : int = tile_w
-	var src_h : int = tile_h
+# 	var src_w : int = tile_w
+# 	var src_h : int = tile_h
 
-	var dst_x : int = max(crop_pos_px.x, 0)
-	var dst_y : int = max(crop_pos_px.y, 0)
+# 	var dst_x : int = max(crop_pos_px.x, 0)
+# 	var dst_y : int = max(crop_pos_px.y, 0)
 
-	tile_image.blend_rect(asset_image, Rect2i(src_x,src_y,src_w,src_h), Vector2i(dst_x,dst_y))
+# 	tile_image.blend_rect(asset_image, Rect2i(src_x,src_y,src_w,src_h), Vector2i(dst_x,dst_y))
 
-	return tile_image
+# 	return tile_image
 
 static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 	var layout: PrintLayout = PrintLayout.new()

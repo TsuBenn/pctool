@@ -1,0 +1,21 @@
+# .github/workflows/build.yml
+name: Build Binaries
+on: push
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyinstaller opencv-python numpy
+      - run: pyinstaller --onefile --name auto_distort auto_distort.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: auto_distort-${{ matrix.os }}
+          path: dist/*

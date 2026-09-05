@@ -1,17 +1,21 @@
 @tool
 extends Control
+class_name ThemeColor
 
 @export var target_theme: Theme = ThemeDB.get_project_theme()
 @export var theme_texture: Texture2D:
 	set(new):
 		theme_texture = new
 		theme_texture_img = theme_texture.get_image()
+		static_image = theme_texture.get_image()
 		apply_texture()
 
 @export var bake_colors: bool:
 	set(new):
 		theme_texture_img = theme_texture.get_image()
 		apply_texture()
+
+static var static_image: Image
 
 var theme_texture_img: Image
 
@@ -101,7 +105,9 @@ func apply_texture():
 	target_theme.set_color("font_color", "EmphasisLabel", get_color(LABEL_EMPHASIS_COLOR))
 	target_theme.set_color("font_color", "MiniEmphasisLabel", get_color(LABEL_EMPHASIS_COLOR))
 	target_theme.set_color("font_color", "SubtleLabel", get_color(LABEL_SUBTLE_COLOR))
+	target_theme.set_color("font_color", "MiniSubtleLabel", get_color(LABEL_SUBTLE_COLOR))
 	target_theme.set_color("font_color", "DimLabel", get_color(LABEL_DIM_COLOR))
+	target_theme.set_color("font_color", "MiniDimLabel", get_color(LABEL_DIM_COLOR))
 	target_theme.set_color("font_color", "AccentLabel", get_color(LABEL_ACCENT_COLOR))
 
 
@@ -217,3 +223,6 @@ func apply_texture():
 
 func get_color(index: int):
 	return theme_texture_img.get_pixel((index%16)*2, floor(index/16.0)*2)
+
+static func get_color_static(index: int):
+	return static_image.get_pixel((index%16)*2, floor(index/16.0)*2)

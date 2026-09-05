@@ -23,6 +23,7 @@ margin = Rect2(6, 4, 10, 8)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7bbgc"]
 shader = ExtResource("4_ep2vu")
 shader_parameter/u_homography_matrix = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
+shader_parameter/frame_rect = Vector4(0, 0, 0, 0)
 shader_parameter/out_bound_opacity = 0.2
 shader_parameter/out_bound_color = Color(0, 0, 0, 0.2)
 
@@ -111,11 +112,23 @@ size_flags_vertical = 3
 
 [node name="PhotoItemPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer" unique_id=1135866374]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_type_variation = &"EmptyPanelContainer"
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel" unique_id=1763950566]
+layout_mode = 2
+theme_override_constants/margin_top = 0
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel/MarginContainer" unique_id=294389417]
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"MiniDimLabel"
+text = "Preview"
+horizontal_alignment = 1
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel" unique_id=1796451704]
 layout_mode = 2
@@ -174,15 +187,29 @@ theme_type_variation = &"BorderPanel"
 
 [node name="DistortionEditorPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer" unique_id=121740982]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 1
 theme_type_variation = &"EmptyPanelContainer"
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel" unique_id=672764110]
+layout_mode = 2
+theme_override_constants/margin_top = 0
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/MarginContainer" unique_id=425389642]
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"MiniDimLabel"
+text = "Distortion Editor"
+horizontal_alignment = 1
 
 [node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel" unique_id=1298143072]
 layout_mode = 2
 
 [node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer" unique_id=10720070]
 layout_mode = 2
+mouse_filter = 1
 
 [node name="DistortionImagePreview" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control" unique_id=292548011]
 unique_name_in_owner = true
@@ -201,6 +228,38 @@ grow_vertical = 2
 texture = ExtResource("4_mls5o")
 expand_mode = 1
 
+[node name="TopLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1860452453]
+unique_name_in_owner = true
+points = PackedVector2Array(0, 0, 32, 0)
+width = 2.0
+default_color = Color(1, 0, 0, 1)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="RightLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1353475695]
+unique_name_in_owner = true
+points = PackedVector2Array(32, 0, 32, 32)
+width = 2.0
+default_color = Color(1, 0, 0, 1)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="BottomLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=561791471]
+unique_name_in_owner = true
+points = PackedVector2Array(0, 32, 32, 32)
+width = 2.0
+default_color = Color(1, 0, 0, 1)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="LeftLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=908788868]
+unique_name_in_owner = true
+points = PackedVector2Array(0, 0, 0, 32)
+width = 2.0
+default_color = Color(1, 0, 0, 1)
+begin_cap_mode = 1
+end_cap_mode = 1
+
 [node name="TLHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=626856789]
 unique_name_in_owner = true
 layout_mode = 1
@@ -209,6 +268,7 @@ offset_left = -6.0
 offset_top = -6.0
 offset_right = 6.0
 offset_bottom = 6.0
+mouse_filter = 1
 
 [node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TLHandle" unique_id=351135698]
 layout_mode = 1
@@ -220,7 +280,7 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-border_width = 2.0
+border_width = 4.0
 editor_only = false
 
 [node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TLHandle" unique_id=637762871]
@@ -244,6 +304,8 @@ offset_left = -6.0
 offset_top = -6.0
 offset_right = 6.0
 offset_bottom = 6.0
+grow_horizontal = 0
+mouse_filter = 1
 
 [node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TRHandle" unique_id=2070111402]
 layout_mode = 1
@@ -255,7 +317,7 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-border_width = 2.0
+border_width = 4.0
 editor_only = false
 
 [node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TRHandle" unique_id=1457601300]
@@ -281,6 +343,9 @@ offset_left = -6.0
 offset_top = -6.0
 offset_right = 6.0
 offset_bottom = 6.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 1
 
 [node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BRHandle" unique_id=1310492379]
 layout_mode = 1
@@ -292,7 +357,7 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-border_width = 2.0
+border_width = 4.0
 editor_only = false
 
 [node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BRHandle" unique_id=1172771239]
@@ -316,6 +381,8 @@ offset_left = -6.0
 offset_top = -6.0
 offset_right = 6.0
 offset_bottom = 6.0
+grow_vertical = 0
+mouse_filter = 1
 
 [node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BLHandle" unique_id=1867107644]
 layout_mode = 1
@@ -327,7 +394,7 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-border_width = 2.0
+border_width = 4.0
 editor_only = false
 
 [node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BLHandle" unique_id=1752802170]
@@ -389,38 +456,6 @@ grow_vertical = 2
 mouse_filter = 2
 border_width = 2.0
 editor_only = false
-
-[node name="TopLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1860452453]
-unique_name_in_owner = true
-points = PackedVector2Array(0, 0, 32, 0)
-width = 2.0
-default_color = Color(1, 0, 0, 1)
-begin_cap_mode = 1
-end_cap_mode = 1
-
-[node name="RightLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1353475695]
-unique_name_in_owner = true
-points = PackedVector2Array(32, 0, 32, 32)
-width = 2.0
-default_color = Color(1, 0, 0, 1)
-begin_cap_mode = 1
-end_cap_mode = 1
-
-[node name="BottomLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=561791471]
-unique_name_in_owner = true
-points = PackedVector2Array(0, 32, 32, 32)
-width = 2.0
-default_color = Color(1, 0, 0, 1)
-begin_cap_mode = 1
-end_cap_mode = 1
-
-[node name="LeftLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=908788868]
-unique_name_in_owner = true
-points = PackedVector2Array(0, 0, 0, 32)
-width = 2.0
-default_color = Color(1, 0, 0, 1)
-begin_cap_mode = 1
-end_cap_mode = 1
 
 [node name="PhotoItemNav" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer" unique_id=1810011307]
 layout_mode = 2
@@ -513,7 +548,12 @@ layout_mode = 2
 [node name="ClipCheckButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/PreviewGroupBox/VBoxContainer" unique_id=1967269163 instance=ExtResource("6_xs6yk")]
 unique_name_in_owner = true
 layout_mode = 2
-label = "Clip"
+label = "Clip:"
+
+[node name="DistortionPanelCheckButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/PreviewGroupBox/VBoxContainer" unique_id=633922613 instance=ExtResource("6_xs6yk")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Distortion Editor:"
 
 [node name="TransformsGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=811817738 instance=ExtResource("5_ph3vn")]
 layout_mode = 2
@@ -566,6 +606,36 @@ min_value = -100.0
 step = 0.1
 spinbox_width = 120
 
+[node name="ResetOffsetsButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=2078024464]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"OutlineButton"
+text = "Reset Offsets"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1919278747]
+layout_mode = 2
+
+[node name="Rotate90Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=2053385117]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Rotate 90°"
+
+[node name="FlipHButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=1776647123]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Flip H"
+
+[node name="FlipVButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=784225402]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Flip V"
+
 [node name="TLPositionGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=93233210 instance=ExtResource("5_ph3vn")]
 unique_name_in_owner = true
 layout_mode = 2
@@ -574,6 +644,7 @@ padding = 0
 show_border = false
 emphasized = true
 collapse_enabled = true
+collapse_folded = true
 collapse_button_spacing = 14
 margin_left = 24
 margin_top = 12
@@ -582,6 +653,7 @@ margin_bottom = 0
 
 [node name="TLPositionSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/TLPositionGroupBox" unique_id=1548631923 instance=ExtResource("8_mls5o")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 min_value = Vector2(0, 0)
 reset_button = true
@@ -597,6 +669,7 @@ padding = 0
 show_border = false
 emphasized = true
 collapse_enabled = true
+collapse_folded = true
 collapse_button_spacing = 14
 margin_left = 24
 margin_top = 12
@@ -605,6 +678,7 @@ margin_bottom = 0
 
 [node name="TRPositionSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/TRPositionGroupBox" unique_id=1573444205 instance=ExtResource("8_mls5o")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 value = Vector2(100, 0)
 default_value = Vector2(100, 0)
@@ -622,6 +696,7 @@ padding = 0
 show_border = false
 emphasized = true
 collapse_enabled = true
+collapse_folded = true
 collapse_button_spacing = 14
 margin_left = 24
 margin_top = 12
@@ -630,6 +705,7 @@ margin_bottom = 0
 
 [node name="BRPositionSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/BRPositionGroupBox" unique_id=752619574 instance=ExtResource("8_mls5o")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 value = Vector2(100, 100)
 default_value = Vector2(100, 100)
@@ -647,6 +723,7 @@ padding = 0
 show_border = false
 emphasized = true
 collapse_enabled = true
+collapse_folded = true
 collapse_button_spacing = 14
 margin_left = 24
 margin_top = 12
@@ -655,6 +732,7 @@ margin_bottom = 0
 
 [node name="BLPositionSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/BLPositionGroupBox" unique_id=438379723 instance=ExtResource("8_mls5o")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 value = Vector2(0, 100)
 default_value = Vector2(0, 100)
@@ -664,26 +742,12 @@ unit = "%"
 show_arrows = true
 spinbox_width = 104
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1919278747]
-layout_mode = 2
-
-[node name="Rotate90Button" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=2053385117]
+[node name="ResetCornersButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1340263541]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-disabled = true
-text = "Rotate 90°"
-
-[node name="FlipHButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=1776647123]
-unique_name_in_owner = true
-layout_mode = 2
-disabled = true
-text = "Flip H"
-
-[node name="FlipVButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer/HBoxContainer" unique_id=784225402]
-unique_name_in_owner = true
-layout_mode = 2
-disabled = true
-text = "Flip V"
+theme_type_variation = &"OutlineButton"
+text = "Reset Corners"
 
 [node name="MoreGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=1491107546 instance=ExtResource("5_ph3vn")]
 layout_mode = 2
@@ -696,7 +760,7 @@ margin_bottom = 12
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/MoreGroupBox" unique_id=1637289811]
 layout_mode = 2
 
-[node name="UnifiedTransformButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/MoreGroupBox/VBoxContainer" unique_id=593396417 instance=ExtResource("6_xs6yk")]
+[node name="UniqueTransformCheckButton" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/MoreGroupBox/VBoxContainer" unique_id=593396417 instance=ExtResource("6_xs6yk")]
 layout_mode = 2
 label = "Unique Transform:"
 

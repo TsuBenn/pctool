@@ -11,7 +11,8 @@ bg_color = Color(1.353, 1.353, 1.353, 1)
 resource_local_to_scene = true
 shader = ExtResource("2_cdpo6")
 shader_parameter/u_homography_matrix = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
-shader_parameter/out_bound_opacity = 0.0
+shader_parameter/frame_rect = Vector4(0, 0, 0, 0)
+shader_parameter/out_bound_opacity = 1.0
 shader_parameter/out_bound_color = Color(0, 0, 0, 0.2)
 
 [node name="PhotoTileView" type="Control" unique_id=572035731]

@@ -96,6 +96,10 @@ func _ready() -> void:
 	)
 	_update()
 
+func reset():
+	value = default_value
+	value_changed.emit(default_value)
+
 func set_value_no_signal(new_value: Vector2):
 	value = new_value
 
