@@ -6,6 +6,7 @@
 offset_right = 30.0
 offset_bottom = 10.0
 script = ExtResource("1_fv7sw")
+slider_width = 100
 
 [node name="Label" type="Label" parent="." unique_id=1625109470]
 layout_mode = 2
@@ -13,5 +14,6 @@ theme_type_variation = &"DimLabel"
 text = "Label"
 
 [node name="HSlider" type="HSlider" parent="." unique_id=967082289]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_horizontal = 3

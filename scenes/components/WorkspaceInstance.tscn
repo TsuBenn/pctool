@@ -915,5 +915,3 @@ custom_font = SubResource("FontVariation_qie5n")
 [node name="AdvancedCroppingWindow" parent="." unique_id=554773751 instance=ExtResource("18_qie5n")]
 unique_name_in_owner = true
 visible = false
-frame_margin = 60
-zoom_scale = 100

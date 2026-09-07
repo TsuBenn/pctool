@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="5_ph3vn"]
 [ext_resource type="PackedScene" uid="uid://dhsqjt8f0e6dj" path="res://scenes/modules/LabeledCheckButton.tscn" id="6_xs6yk"]
 [ext_resource type="PackedScene" uid="uid://bne58we6jues7" path="res://scenes/modules/Vector2SpinBox.tscn" id="8_mls5o"]
+[ext_resource type="PackedScene" uid="uid://31aadlpm5smb" path="res://scenes/modules/LabeledSlider.tscn" id="8_rfrir"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dw7qm"]
 atlas = ExtResource("1_timqo")
@@ -110,35 +111,39 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="PhotoItemPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer" unique_id=1135866374]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer" unique_id=317728099]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PhotoItemPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1135866374]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(128, 0)
+custom_minimum_size = Vector2(168, 0)
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_type_variation = &"EmptyPanelContainer"
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel" unique_id=1763950566]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel" unique_id=1763950566]
 layout_mode = 2
 theme_override_constants/margin_top = 0
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel/MarginContainer" unique_id=294389417]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/MarginContainer" unique_id=294389417]
 layout_mode = 2
 size_flags_vertical = 0
 theme_type_variation = &"MiniDimLabel"
 text = "Preview"
 horizontal_alignment = 1
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel" unique_id=1796451704]
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel" unique_id=1796451704]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel/CenterContainer" unique_id=133639453]
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer" unique_id=133639453]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="PhotoItemBackground" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=113378431]
+[node name="PhotoItemBackground" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=113378431]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -155,7 +160,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_type_variation = &"CheckerBoxPanel"
 
-[node name="PhotoItemImage" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel/CenterContainer/Control/PhotoItemBackground" unique_id=224972869]
+[node name="PhotoItemImage" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control/PhotoItemBackground" unique_id=224972869]
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_7bbgc")
 layout_mode = 1
@@ -168,7 +173,7 @@ mouse_filter = 2
 texture = ExtResource("4_mls5o")
 expand_mode = 1
 
-[node name="PhotoItemFrame" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=786696901]
+[node name="PhotoItemFrame" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemPanel/CenterContainer/Control" unique_id=786696901]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -185,33 +190,85 @@ grow_vertical = 2
 mouse_filter = 2
 theme_type_variation = &"BorderPanel"
 
-[node name="DistortionEditorPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer" unique_id=121740982]
+[node name="PhotoItemNav" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1810011307]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav" unique_id=1570914723]
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer" unique_id=1077695965]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer" unique_id=1264013693]
+layout_mode = 2
+
+[node name="ZoomScaleSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer/HBoxContainer" unique_id=1790585463 instance=ExtResource("2_l3h74")]
 unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
+label = ""
+show_arrows = false
+suffix = "%"
+min_value = 20.0
+spinbox_width = 80
+
+[node name="ZoomScaleSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer/HBoxContainer" unique_id=1167467585]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+min_value = 20.0
+value = 20.0
+tick_count = 5
+ticks_on_borders = true
+
+[node name="DistortionEditorPanel" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer" unique_id=1060612011]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel" unique_id=121740982]
 custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 mouse_filter = 1
 theme_type_variation = &"EmptyPanelContainer"
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel" unique_id=672764110]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer" unique_id=672764110]
 layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 0
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/MarginContainer" unique_id=425389642]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/MarginContainer" unique_id=1663710569]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/MarginContainer/VBoxContainer" unique_id=425389642]
 layout_mode = 2
 size_flags_vertical = 0
 theme_type_variation = &"MiniDimLabel"
 text = "Distortion Editor"
 horizontal_alignment = 1
 
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel" unique_id=1298143072]
+[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/MarginContainer/VBoxContainer" unique_id=759009956]
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"MiniSubtleLabel"
+text = "Shift + Drag for more precise movements"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer" unique_id=1298143072]
 layout_mode = 2
 
-[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer" unique_id=10720070]
+[node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer" unique_id=10720070]
 layout_mode = 2
+offset_transform_enabled = true
 mouse_filter = 1
 
-[node name="DistortionImagePreview" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control" unique_id=292548011]
+[node name="DistortionImagePreview" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control" unique_id=292548011]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -228,7 +285,7 @@ grow_vertical = 2
 texture = ExtResource("4_mls5o")
 expand_mode = 1
 
-[node name="TopLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1860452453]
+[node name="TopLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=1860452453]
 unique_name_in_owner = true
 points = PackedVector2Array(0, 0, 32, 0)
 width = 2.0
@@ -236,7 +293,7 @@ default_color = Color(1, 0, 0, 1)
 begin_cap_mode = 1
 end_cap_mode = 1
 
-[node name="RightLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1353475695]
+[node name="RightLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=1353475695]
 unique_name_in_owner = true
 points = PackedVector2Array(32, 0, 32, 32)
 width = 2.0
@@ -244,7 +301,7 @@ default_color = Color(1, 0, 0, 1)
 begin_cap_mode = 1
 end_cap_mode = 1
 
-[node name="BottomLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=561791471]
+[node name="BottomLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=561791471]
 unique_name_in_owner = true
 points = PackedVector2Array(0, 32, 32, 32)
 width = 2.0
@@ -252,7 +309,7 @@ default_color = Color(1, 0, 0, 1)
 begin_cap_mode = 1
 end_cap_mode = 1
 
-[node name="LeftLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=908788868]
+[node name="LeftLine" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=908788868]
 unique_name_in_owner = true
 points = PackedVector2Array(0, 0, 0, 32)
 width = 2.0
@@ -260,7 +317,7 @@ default_color = Color(1, 0, 0, 1)
 begin_cap_mode = 1
 end_cap_mode = 1
 
-[node name="TLHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=626856789]
+[node name="TLHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=626856789]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 0
@@ -270,7 +327,7 @@ offset_right = 6.0
 offset_bottom = 6.0
 mouse_filter = 1
 
-[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TLHandle" unique_id=351135698]
+[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/TLHandle" unique_id=351135698]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -283,7 +340,7 @@ mouse_filter = 2
 border_width = 4.0
 editor_only = false
 
-[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TLHandle" unique_id=637762871]
+[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/TLHandle" unique_id=637762871]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -294,7 +351,7 @@ mouse_filter = 2
 border_width = 2.0
 editor_only = false
 
-[node name="TRHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=934361284]
+[node name="TRHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=934361284]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -307,7 +364,7 @@ offset_bottom = 6.0
 grow_horizontal = 0
 mouse_filter = 1
 
-[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TRHandle" unique_id=2070111402]
+[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/TRHandle" unique_id=2070111402]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -320,7 +377,7 @@ mouse_filter = 2
 border_width = 4.0
 editor_only = false
 
-[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/TRHandle" unique_id=1457601300]
+[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/TRHandle" unique_id=1457601300]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -331,7 +388,7 @@ mouse_filter = 2
 border_width = 2.0
 editor_only = false
 
-[node name="BRHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1477377693]
+[node name="BRHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=1477377693]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
@@ -347,7 +404,7 @@ grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 1
 
-[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BRHandle" unique_id=1310492379]
+[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/BRHandle" unique_id=1310492379]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -360,7 +417,7 @@ mouse_filter = 2
 border_width = 4.0
 editor_only = false
 
-[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BRHandle" unique_id=1172771239]
+[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/BRHandle" unique_id=1172771239]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -371,7 +428,7 @@ mouse_filter = 2
 border_width = 2.0
 editor_only = false
 
-[node name="BLHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=756894366]
+[node name="BLHandle" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=756894366]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 2
@@ -384,7 +441,7 @@ offset_bottom = 6.0
 grow_vertical = 0
 mouse_filter = 1
 
-[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BLHandle" unique_id=1867107644]
+[node name="Midpoint" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/BLHandle" unique_id=1867107644]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -397,7 +454,7 @@ mouse_filter = 2
 border_width = 4.0
 editor_only = false
 
-[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/BLHandle" unique_id=1752802170]
+[node name="Margins" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/BLHandle" unique_id=1752802170]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -408,7 +465,7 @@ mouse_filter = 2
 border_width = 2.0
 editor_only = false
 
-[node name="DistortHandleMagnifier" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview" unique_id=1336146369]
+[node name="DistortHandleMagnifier" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview" unique_id=1336146369]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 0
@@ -416,7 +473,7 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 mouse_filter = 2
 
-[node name="DistortHandleMagnifierFrame" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier" unique_id=1270822628]
+[node name="DistortHandleMagnifierFrame" type="Panel" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier" unique_id=1270822628]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 0
@@ -424,7 +481,7 @@ offset_right = 42.0
 offset_bottom = 44.0
 mouse_filter = 2
 
-[node name="DistortHandleMagnifierImagePreview" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame" unique_id=377400626]
+[node name="DistortHandleMagnifierImagePreview" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame" unique_id=377400626]
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 40.0
@@ -433,7 +490,39 @@ mouse_filter = 2
 texture = ExtResource("4_mls5o")
 expand_mode = 1
 
-[node name="ReferenceRect2" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame" unique_id=1746077414]
+[node name="TopLineMagnify" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame/DistortHandleMagnifierImagePreview" unique_id=1796061261]
+unique_name_in_owner = true
+points = PackedVector2Array(0, 0, 32, 0)
+width = 1.0
+default_color = Color(1, 0, 0, 0.5019608)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="RightLineMagnify" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame/DistortHandleMagnifierImagePreview" unique_id=1922558933]
+unique_name_in_owner = true
+points = PackedVector2Array(32, 0, 32, 32)
+width = 1.0
+default_color = Color(1, 0, 0, 0.5019608)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="BottomLineMagnify" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame/DistortHandleMagnifierImagePreview" unique_id=1459979746]
+unique_name_in_owner = true
+points = PackedVector2Array(0, 32, 32, 32)
+width = 1.0
+default_color = Color(1, 0, 0, 0.5019608)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="LeftLineMagnify" type="Line2D" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame/DistortHandleMagnifierImagePreview" unique_id=2103052873]
+unique_name_in_owner = true
+points = PackedVector2Array(0, 0, 0, 32)
+width = 1.0
+default_color = Color(1, 0, 0, 0.5019608)
+begin_cap_mode = 1
+end_cap_mode = 1
+
+[node name="ReferenceRect2" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame" unique_id=1746077414]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -444,7 +533,7 @@ mouse_filter = 2
 border_width = 4.0
 editor_only = false
 
-[node name="ReferenceRect" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame" unique_id=2037349630]
+[node name="ReferenceRect" type="ReferenceRect" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/HBoxContainer/DistortionEditorPanel/PanelContainer/CenterContainer/Control/DistortionImagePreview/DistortHandleMagnifier/DistortHandleMagnifierFrame" unique_id=2037349630]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -456,37 +545,6 @@ grow_vertical = 2
 mouse_filter = 2
 border_width = 2.0
 editor_only = false
-
-[node name="PhotoItemNav" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer" unique_id=1810011307]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PhotoItemNav" unique_id=1570914723]
-layout_mode = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PhotoItemNav/MarginContainer" unique_id=1077695965]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer" unique_id=1264013693]
-layout_mode = 2
-
-[node name="ZoomScaleSpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer/HBoxContainer" unique_id=1790585463 instance=ExtResource("2_l3h74")]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 0
-label = ""
-show_arrows = false
-suffix = "%"
-min_value = 20.0
-spinbox_width = 80
-
-[node name="ZoomScaleSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PhotoItemNav/MarginContainer/CenterContainer/HBoxContainer" unique_id=1167467585]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-min_value = 20.0
-value = 100.0
-tick_count = 5
-ticks_on_borders = true
 
 [node name="AdvancedCroppingToolBar" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer" unique_id=2059269526]
 layout_mode = 2
@@ -555,6 +613,18 @@ unique_name_in_owner = true
 layout_mode = 2
 label = "Distortion Editor:"
 
+[node name="MagnifyScaleSlider" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/PreviewGroupBox/VBoxContainer" unique_id=1949435021 instance=ExtResource("8_rfrir")]
+unique_name_in_owner = true
+layout_mode = 2
+label = "Magnify Scale:"
+expand_mode = "Label"
+tick_count = 4
+ticks_on_borders = true
+value = 4.365
+min_value = 2.0
+max_value = 8.0
+step = 2.0
+
 [node name="TransformsGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=811817738 instance=ExtResource("5_ph3vn")]
 layout_mode = 2
 size_flags_vertical = 1
@@ -611,6 +681,11 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"OutlineButton"
 text = "Reset Offsets"
+
+[node name="AutoDistortButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1009124245]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Auto Distort"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/AdvancedCroppingToolBar/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer/VBoxContainer/TransformsGroupBox/VBoxContainer" unique_id=1919278747]
 layout_mode = 2

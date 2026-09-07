@@ -36,7 +36,7 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$HSlider.editable = value
 
-@export var tick_count: float = 0.0:
+@export var tick_count: int = 0:
 	set(new_val):
 		tick_count = new_val
 		if is_node_ready():
@@ -95,6 +95,8 @@ func _ready() -> void:
 	if not Engine.is_editor_hint():
 		$HSlider.value_changed.connect(_on_slider_value_changed)
 
+func set_value_no_signal(new: float):
+	$HSlider.set_value_no_signal(new)
 
 func _on_slider_value_changed(new_value: float) -> void:
 	value = new_value

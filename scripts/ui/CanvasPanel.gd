@@ -258,9 +258,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed():
 		if (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE):
 			_on_photo_tile_context_menu_pressed(TILE_REMOVE_ITEM)
-		elif event.keycode == KEY_D and event.ctrl_pressed and not event.shift_pressed:
-			_on_photo_tile_context_menu_pressed(TILE_INCREMENT)
-		elif event.keycode == KEY_D and event.ctrl_pressed and event.shift_pressed:
+		elif event.keycode == KEY_D and event.ctrl_pressed:
 			_on_photo_tile_context_menu_pressed(TILE_DUPLICATE)
 
 enum {
