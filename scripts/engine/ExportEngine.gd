@@ -63,14 +63,21 @@ static func bake_tile_image(tile: PhotoTile, dpi: int) -> Image:
 	if item == null or item.asset == null:
 		return null
 
-	var image_rect: Rect2 = item.get_image_rect_mm(tile.sub_asset_index)
-	var framing: PhotoItemData.Framing = item.get_framing(tile.sub_asset_index)
+	var px_per_mm: float = dpi/25.4
 
-	var raw_tex: Texture2D = item.asset.get_preview_texture(tile.sub_asset_index)
+	var index = tile.sub_asset_index
+
+	var image_rect: Rect2 = item.get_image_rect_mm(index)
+	var framing: PhotoItemData.Framing = item.get_framing(index)
+
+	var raw_img: Image = item.asset.get_image(index).duplicate()
+
+	raw_img.resize(round(image_rect.size.x*px_per_mm), round(image_rect.size.y*px_per_mm), Image.INTERPOLATE_LANCZOS)
+
+	var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
+	# var raw_tex: Texture2D = item.asset.get_preview_texture(index)
 	if raw_tex == null:
 		return null
-
-	var px_per_mm: float = dpi/25.4
 
 	var frame_size_px: Vector2i = Vector2i(round(item.size_mm * px_per_mm))
 

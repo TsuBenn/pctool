@@ -3,6 +3,7 @@ class_name CanvasPanel
 
 signal on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int)
 
+
 enum ZoomPreset {
 	PERCENT_50,
 	PERCENT_100,
