@@ -149,7 +149,7 @@ func _export_file(file_path: String):
 
 func _open_documents(files: PackedStringArray):
 	for file in files:
-		var doc : DocumentData = DocumentManager.open_document(file)
+		var doc : DocumentData = await DocumentManager.open_document(file)
 		if not doc == null:
 			doc.save_path = file
 			document_panel.open_document(doc)

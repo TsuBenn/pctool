@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://cdf3fkgv2o3gt"]
+
+[ext_resource type="Script" uid="uid://daitlcqc54spg" path="res://scripts/ui/ProgressDialog.gd" id="1_66jub"]
+
+[node name="ExportingProcessDialog" type="Window" unique_id=1523859082]
+canvas_item_default_texture_filter = 0
+oversampling_override = 1.0
+title = "Exporting"
+position = Vector2i(0, 26)
+size = Vector2i(420, 100)
+script = ExtResource("1_66jub")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=843476739]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1062484165]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=706312202]
+layout_mode = 2
+
+[node name="Message" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1527076510]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Exporting"
+horizontal_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1753309017]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+
+[node name="CancelButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1424725988]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Cancel"

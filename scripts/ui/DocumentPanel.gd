@@ -50,7 +50,6 @@ func _on_tab_close_pressed(tab_idx: int) -> void:
 
 
 func open_document(data: DocumentData = null, files: PackedStringArray = []) -> void:
-
 	if data:
 		for workspace in workspace_tab_container.get_children():
 			if workspace.document_data.save_path == data.save_path:

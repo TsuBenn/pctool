@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://dcgd53sullin3" path="res://scripts/engine/UpdateChecker.gd" id="12_bjd11"]
 [ext_resource type="Script" uid="uid://cyorikepkbyw4" path="res://scripts/engine/ThemeColorSetter.gd" id="12_mwfav"]
 [ext_resource type="PackedScene" uid="uid://cn3eh3w2vkmk" path="res://scenes/components/AboutWindow.tscn" id="13_qmy6f"]
+[ext_resource type="PackedScene" uid="uid://cdf3fkgv2o3gt" path="res://scenes/components/ExportingProgressDialog.tscn" id="14_3p2gp"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_3p2gp"]
 shader = ExtResource("2_mwfav")
@@ -243,7 +244,7 @@ popup/item_8/id = 6
 popup/item_9/text = "Export as Image(s)"
 popup/item_9/id = 7
 label = "File"
-items = Array[String](["New Document | Ctrl+N", "Open Document | Ctrl+O", "Open Recent", "-", "Save | Ctrl+S", "Save as | Ctrl+Shift+S", "Import Assets | Ctrl+I", "-", "Export as PDFs | Ctrl+Shift+E", "Export as Image(s) | Ctrl+E"])
+items = Array[String](["New Document | Ctrl+N", "Open Document | Ctrl+O", "Open Recent", "-", "Save | Ctrl+S", "Save as | Ctrl+Shift+S", "Import Assets | Ctrl+I", "-", "Export as PDFs | Ctrl+E", "Export as Image(s) | Ctrl+Shift+E"])
 
 [node name="EditMenu" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1015493921 instance=ExtResource("4_jlsqs")]
 unique_name_in_owner = true
@@ -450,6 +451,9 @@ theme_texture = ExtResource("3_qmy6f")
 [node name="UpdateChecker" type="Node" parent="." unique_id=313336559]
 unique_name_in_owner = true
 script = ExtResource("12_bjd11")
+
+[node name="ProgressDialog" parent="." unique_id=1523859082 instance=ExtResource("14_3p2gp")]
+visible = false
 
 [node name="AboutWindow" parent="." unique_id=263161894 instance=ExtResource("13_qmy6f")]
 unique_name_in_owner = true

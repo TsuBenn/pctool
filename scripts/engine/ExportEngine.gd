@@ -40,145 +40,138 @@ static func export_document(document_data: DocumentData, output_path: String, ex
 	return OK
 
 static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
-	var baked_map: Dictionary = {}
-
-	for item in document_data.photo_items:
-		if not baked_map.has(item):
-			var dummy_tile: PhotoTile = PhotoTile.new(item, 0, Rect2(Vector2.ZERO, item.size_mm), 0, 0)
-			var baked_img: Image = await bake_tile_image(dummy_tile, document_data.dpi)
-			if baked_img:
-				baked_map[item] = baked_img
-			else:
-				Global.notice("Export PDF failed", "Failed to render image")
-				push_error("ExportEngine: Failed to render image on page")
-				return FAILED
-
-	return PdfWriter.save_pdf_to_file(document_data,layout,output_path,baked_map)
+	Global.progress_started("Export to PDF")
+	var baked_map: Dictionary = await bake_tile_images(document_data)
+	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path,baked_map)
 
 static func _export_as_png(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
+	Global.progress_started("Export to PNG")
 	return await PngWriter.save_png_to_files(document_data,layout,output_path)
 
-static func bake_tile_image(tile: PhotoTile, dpi: int) -> Image:
-	var item: PhotoItemData = tile.photo_item
-	if item == null or item.asset == null:
-		return null
+static func bake_tile_images(document_data: DocumentData):
+	var baked_map: Dictionary = {}
+	var render_tasks: Array[Dictionary] = []
 
-	var px_per_mm: float = dpi/25.4
+	var px_per_mm: float = (document_data.dpi/25.4)
 
-	var index = tile.sub_asset_index
+	var tiles_to_bake: int = 0
 
-	var image_rect: Rect2 = item.get_image_rect_mm(index)
-	var framing: PhotoItemData.Framing = item.get_framing(index)
+	for item in document_data.photo_items:
+		tiles_to_bake += item.asset.get_count()
 
-	var raw_img: Image = item.asset.get_image(index).duplicate()
+	var milestone: float = Time.get_ticks_msec()
+	var tiles_baked: int = 0
 
-	raw_img.resize(round(image_rect.size.x*px_per_mm), round(image_rect.size.y*px_per_mm), Image.INTERPOLATE_LANCZOS)
+	Global.progress_update("Preparing Tiles (%d/%d)" % [tiles_baked, tiles_to_bake], 0)
+	await Engine.get_main_loop().process_frame
 
-	var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
-	# var raw_tex: Texture2D = item.asset.get_preview_texture(index)
-	if raw_tex == null:
-		return null
+	for item in document_data.photo_items:
+		for index in item.asset.get_count():
+			var framing = item.get_framing(index)
+			var image_rect = item.get_image_rect_mm(index)
 
-	var frame_size_px: Vector2i = Vector2i(round(item.size_mm * px_per_mm))
+			# var raw_img: Image = item.asset.get_image(index).duplicate()
+			# raw_img.resize(round(image_rect.size.x*px_per_mm), round(image_rect.size.y*px_per_mm), Image.INTERPOLATE_TRILINEAR)
+			# var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
 
-	var viewport: SubViewport = SubViewport.new()
-	viewport.size = frame_size_px
-	viewport.transparent_bg = false
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+			var raw_tex: Texture2D = item.asset.get_preview_texture(index)
 
-	var color_rect: ColorRect = ColorRect.new()
-	color_rect.color = Color.WHITE
-	color_rect.set_anchors_preset(Control.PRESET_FULL_RECT, false)
-	viewport.add_child(color_rect)
+			if raw_tex == null:
+				return null
 
-	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+			var tree: SceneTree = Engine.get_main_loop() as SceneTree
 
-	var shader_mat: ShaderMaterial = null
-	if tree and tree.current_scene and tree.current_scene.distort_shader_material:
-		shader_mat = tree.current_scene.distort_shader_material
-	else:
-		Global.notice("Tile Renderer Failed", "Missing Shader Material")
-		return null
+			var shader_mat: ShaderMaterial = null
+			if tree and tree.current_scene and tree.current_scene.distort_shader_material:
+				shader_mat = tree.current_scene.distort_shader_material
+			else:
+				Global.notice("Tile Renderer Failed", "Missing Shader Material")
+				return null
+
+			var homography_mat: Basis = item.get_distort_matrix(index)
+			shader_mat.set_shader_parameter("u_homography_matrix", homography_mat if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
+			shader_mat.set_shader_parameter("out_bound_opacity", 1)
+
+			var viewport_rid: RID = RenderingServer.viewport_create()
+			var canvas_rid: RID = RenderingServer.canvas_create()
+			var canvas_item_rid: RID = RenderingServer.canvas_item_create()
 
 
-	var tex_rect: TextureRect = TextureRect.new()
-	tex_rect.texture = raw_tex
-	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tex_rect.size = image_rect.size * px_per_mm
-	tex_rect.position = image_rect.position * px_per_mm
-	tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	tex_rect.material = shader_mat
+			RenderingServer.viewport_set_size(viewport_rid, round(item.size_mm.x * px_per_mm), round(item.size_mm.y * px_per_mm))
+			RenderingServer.viewport_set_transparent_background(viewport_rid, true)
+			RenderingServer.viewport_attach_canvas(viewport_rid, canvas_rid)
+			RenderingServer.viewport_set_active(viewport_rid, true)
+			RenderingServer.viewport_set_update_mode(viewport_rid, RenderingServer.VIEWPORT_UPDATE_ONCE)
 
-	var homography_mat: Basis = item.get_distort_matrix(tile.sub_asset_index)
-	shader_mat.set_shader_parameter("u_homography_matrix", homography_mat if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
-	shader_mat.set_shader_parameter("out_bound_opacity", 1)
+			RenderingServer.canvas_item_set_parent(canvas_item_rid, canvas_rid)
+			RenderingServer.canvas_item_set_material(canvas_item_rid, shader_mat.get_rid())
+			RenderingServer.canvas_item_set_default_texture_filter(canvas_item_rid, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR)
 
-	viewport.add_child(tex_rect)
+			var dest_rect: Rect2 = Rect2(image_rect.position*px_per_mm, image_rect.size*px_per_mm)
+			RenderingServer.canvas_item_add_rect(canvas_item_rid, dest_rect, Color.WHITE)
+			RenderingServer.canvas_item_add_texture_rect(canvas_item_rid, dest_rect, raw_tex.get_rid())
 
-	# 4. Attach to scene tree temporarily so the GPU can render it
-	tree.root.add_child(viewport)
+			render_tasks.append({
+				"item": item,
+				"index": index,
+				"viewport": viewport_rid,
+				"canvas": canvas_rid,
+				"canvas_item": canvas_item_rid,
+			})
 
-	# Wait for the GPU to complete the render pass
-	await RenderingServer.frame_post_draw
+			tiles_baked += 1
+			if Time.get_ticks_msec() - milestone > 100:
+				milestone = Time.get_ticks_msec()
+				Global.progress_update("Preparing Tiles (%d/%d)" % [tiles_baked, tiles_to_bake], float(tiles_baked)/tiles_to_bake)
+				await Engine.get_main_loop().process_frame
 
-	# 5. Extract the rendered high-res pixels
-	var rendered_img: Image = viewport.get_texture().get_image()
+	if render_tasks.is_empty():
+		return baked_map
 
-	# 6. Clean up temporary viewport from memory
-	tree.root.remove_child(viewport)
-	viewport.queue_free()
+	Global.progress_update("Rendering %d Tiles" % tiles_to_bake, 0)
+	await Engine.get_main_loop().process_frame
 
-	if rendered_img.get_format() != Image.FORMAT_RGBA8:
-		rendered_img.convert(Image.FORMAT_RGBA8)
+	# await RenderingServer.frame_post_draw
+	RenderingServer.force_draw()
 
-	return rendered_img
+	Global.progress_update("Rendering %d Tiles" % tiles_to_bake, 1)
+	await Engine.get_main_loop().process_frame
 
-# static func bake_tile_image_old(tile: PhotoTile, dpi: int) -> Image:
-# 	if gpu_render:
-# 		return await bake_tile_image(tile, dpi)
+	Global.progress_update("Baking %d Tiles" % tiles_to_bake, 0)
+	await Engine.get_main_loop().process_frame
 
-# 	var item: PhotoItemData = tile.photo_item
-# 	if item == null or item.asset == null:
-# 		return null
+	milestone = Time.get_ticks_msec()
+	tiles_baked = 0
 
-# 	if item.get_framing(tile.sub_asset_index).fitting_mode == PhotoItemData.FittingMode.DISTORT:
-# 		return await bake_tile_image(tile, dpi)
+	for task in render_tasks:
+		var viewport: RID = task["viewport"]
+		var canvas: RID = task["canvas"]
+		var canvas_item: RID = task["canvas_item"]
 
-# 	var px_per_mm: float = dpi/25.4
+		var item: PhotoItemData = task["item"]
+		var index: int = task["index"]
 
-# 	var tile_w: int = int(tile.rect_mm.size.x * px_per_mm)
-# 	var tile_h: int = int(tile.rect_mm.size.y * px_per_mm)
+		var rendered_tex_rid: RID = RenderingServer.viewport_get_texture(viewport)
+		var rendered_img: Image = RenderingServer.texture_2d_get(rendered_tex_rid)
 
-# 	var tile_image: Image = Image.create_empty(tile_w, tile_h, false, Image.FORMAT_RGBA8)
-# 	tile_image.fill(Color(1,1,1,1))
+		if rendered_img:
+			baked_map[[item, index]] = rendered_img
 
-# 	var image_rect_mm: Rect2 = tile.photo_item.get_image_rect_mm(tile.sub_asset_index)
+		RenderingServer.free_rid(viewport)
+		RenderingServer.free_rid(canvas)
+		RenderingServer.free_rid(canvas_item)
+		RenderingServer.free_rid(rendered_tex_rid)
 
-# 	var source_image: Image = item.asset.get_image(tile.sub_asset_index)
-# 	if source_image.is_empty() or source_image == null:
-# 		return tile_image
+		tiles_baked += 1
+		if Time.get_ticks_msec() - milestone > 100:
+			milestone = Time.get_ticks_msec()
+			Global.progress_update("Baking Tiles (%d/%d)" % [tiles_baked, render_tasks.size()], float(tiles_baked)/render_tasks.size())
+			await Engine.get_main_loop().process_frame
 
-# 	var asset_image: Image = source_image.duplicate()
-# 	if asset_image.get_format() != Image.FORMAT_RGBA8:
-# 		asset_image.convert(Image.FORMAT_RGBA8)
+	Global.progress_update("Baking %d Tiles" % tiles_to_bake, 1)
+	await Engine.get_main_loop().process_frame
 
-# 	var crop_size_px: Vector2i = image_rect_mm.size * px_per_mm
-# 	var crop_pos_px: Vector2i = image_rect_mm.position * px_per_mm
-
-# 	asset_image.resize(crop_size_px.x, crop_size_px.y, Image.INTERPOLATE_LANCZOS)
-
-# 	var src_x : int = max(-crop_pos_px.x,0)
-# 	var src_y : int = max(-crop_pos_px.y,0)
-
-# 	var src_w : int = tile_w
-# 	var src_h : int = tile_h
-
-# 	var dst_x : int = max(crop_pos_px.x, 0)
-# 	var dst_y : int = max(crop_pos_px.y, 0)
-
-# 	tile_image.blend_rect(asset_image, Rect2i(src_x,src_y,src_w,src_h), Vector2i(dst_x,dst_y))
-
-# 	return tile_image
+	return baked_map
 
 static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 	var layout: PrintLayout = PrintLayout.new()

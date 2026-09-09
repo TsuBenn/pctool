@@ -4,14 +4,16 @@ extends RefCounted
 ## Points per millimeter constant (72 pt per inch / 25.4 mm)
 const MM_TO_PT: float = 72.0 / 25.4
 
-
 ## Saves an object-based multi-page PDF where unique photo tiles are de-duplicated and stamped.
 static func save_pdf_to_file(
 	doc: DocumentData,
 	layout: PrintLayout,
 	output_path: String,
-	baked_images_map: Dictionary # PhotoItemData -> Image (Baked 300 DPI sticker)
+	baked_images_map: Dictionary # PhotoItemData, Index -> Image (Baked 300 DPI sticker)
 ) -> Error:
+
+	Global.progress_update("Preparing PDF", 0)
+	await Engine.get_main_loop().process_frame
 
 	var ext: String = output_path.get_extension()
 
@@ -42,15 +44,19 @@ static func save_pdf_to_file(
 	file.store_buffer(PackedByteArray([0x25, 0xE2, 0xE3, 0xCF, 0xD3, 0x0A]))
 
 	# 1. Map each unique PhotoItemData to an XObject image resource name and object ID
-	var item_to_resource_id: Dictionary = {} # PhotoItemData -> int (e.g. 0 for /Im0)
-	var image_items: Array[PhotoItemData] = []
+	var item_to_resource_id: Dictionary = {} # PhotoItemData, Index -> int (e.g. 0 for /Im0)
+	var image_items: Array[Array] = []
 	var res_counter: int = 0
 
+	Global.progress_update("Preparing Images", 0.1)
+	await Engine.get_main_loop().process_frame
+
 	for item in doc.photo_items:
-		if baked_images_map.has(item) and not item_to_resource_id.has(item):
-			item_to_resource_id[item] = res_counter
-			image_items.append(item)
-			res_counter += 1
+		for index in item.asset.get_count():
+			if baked_images_map.has([item, index]) and not item_to_resource_id.has([item, index]):
+				item_to_resource_id[[item, index]] = res_counter
+				image_items.append([item,index])
+				res_counter += 1
 
 	var first_img_obj_id: int = 3
 	var first_page_obj_id: int = first_img_obj_id + image_items.size()
@@ -73,25 +79,83 @@ static func save_pdf_to_file(
 
 	# --- IMAGE XOBJECTS (De-duplicated) ---
 	var xobject_resource_dict: String = "<< "
-	for i in range(image_items.size()):
-		var item: PhotoItemData = image_items[i]
-		var img: Image = baked_images_map[item]
+
+	var total_images: int = image_items.size()
+	var images_to_encode: Array[Image] = []
+	var jpg_buffers: Array[PackedByteArray] = []
+
+	images_to_encode.resize(total_images)
+	jpg_buffers.resize(total_images)
+
+	Global.progress_update("Encoding Images", 0.3)
+	await Engine.get_main_loop().process_frame
+
+	for i in range(total_images):
+		var item = image_items[i]
+		images_to_encode[i] = baked_images_map[[item[0], item[1]]]
+
+	var mutex: Mutex = Mutex.new()
+	var shared_counter: Dictionary = {
+		"current": 0,
+		"total": total_images
+	}
+
+	var encode_task = func(i: int):
+		var img = images_to_encode[i]
+		jpg_buffers[i] = img.save_jpg_to_buffer(0.90)
+		mutex.lock()
+		shared_counter["current"] += 1
+		mutex.unlock()
+
+	# var start_time: float = Time.get_ticks_usec()
+
+	var group_id: int = WorkerThreadPool.add_group_task(
+		encode_task,
+		total_images,
+		-1,
+		true,
+		"PDF_JPEG_ENCODING"
+	)
+
+	while shared_counter["current"] < shared_counter["total"]:
+		Global.progress_update("Encoding Images (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
+		await Engine.get_main_loop().process_frame
+
+	WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+	# print("Image -> JPEG: " + str((Time.get_ticks_usec() - start_time)/1000.0))
+
+	Global.progress_update("Writing Images to PDF", 0.3)
+	await Engine.get_main_loop().process_frame
+
+	var milestone: float = Time.get_ticks_msec()
+
+	for i in range(total_images):
+		var img: Image = images_to_encode[i]
 		var obj_id: int = first_img_obj_id + i
+		var jpg_buffer: PackedByteArray = jpg_buffers[i]
 
 		xobject_resource_dict += "/Im%d %d 0 R " % [i, obj_id]
-
-		# Encode sticker to high-res JPEG buffer
-		var jpeg_buffer: PackedByteArray = img.save_jpg_to_buffer(0.95)
 
 		offsets.append(file.get_position())
 		file.store_string(
 			"%d 0 obj\n<< /Type /XObject /Subtype /Image /Width %d /Height %d /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length %d >>\nstream\n"
-			% [obj_id, img.get_width(), img.get_height(), jpeg_buffer.size()]
+			% [obj_id, img.get_width(), img.get_height(), jpg_buffer.size()]
 		)
-		file.store_buffer(jpeg_buffer)
+		file.store_buffer(jpg_buffer)
 		file.store_string("\nendstream\nendobj\n")
 
+		if Time.get_ticks_msec() - milestone > 100:
+			milestone = Time.get_ticks_msec()
+			Global.progress_update("Writing Images to PDF", 0.3 + 0.5*(i/float(total_images)))
+			await Engine.get_main_loop().process_frame
+
 	xobject_resource_dict += ">>"
+
+	Global.progress_update("Arranging Images in PDF", 0.8)
+	await Engine.get_main_loop().process_frame
+
+	milestone = Time.get_ticks_msec()
 
 	# --- PAGES & DRAWING CONTENT STREAMS ---
 	for p in range(num_pages):
@@ -105,10 +169,10 @@ static func save_pdf_to_file(
 
 		for tile in tiles:
 			var item: PhotoItemData = tile.photo_item
-			if not item_to_resource_id.has(item):
+			if not item_to_resource_id.has([item, tile.sub_asset_index]):
 				continue
 
-			var res_id: int = item_to_resource_id[item]
+			var res_id: int = item_to_resource_id[[item, tile.sub_asset_index]]
 
 			# Convert mm to PDF points
 			var tile_w_pt: float = tile.rect_mm.size.x * MM_TO_PT
@@ -150,6 +214,11 @@ static func save_pdf_to_file(
 			% [content_obj_id, content_buffer.size(), content_str]
 		)
 
+		if Time.get_ticks_msec() - milestone > 100:
+			milestone = Time.get_ticks_msec()
+			Global.progress_update("Arranging Images in PDF", 0.8 + 0.2*(p/float(num_pages)))
+			await Engine.get_main_loop().process_frame
+
 	# --- WRITE CROSS-REFERENCE TABLE (XREF) ---
 	var xref_offset: int = file.get_position()
 	var total_objects: int = offsets.size() + 1
@@ -165,6 +234,7 @@ static func save_pdf_to_file(
 	file.store_string("startxref\n%d\n%%%%EOF\n" % xref_offset)
 
 	file.close()
-	Global.notice("Export Complete", "PDF document successfully exported to:\n%s" % output_path.get_file())
+	Global.notice.call_deferred("Export Complete", "PDF document successfully exported to:\n%s" % output_path.get_file())
+	Global.progress_finished()
 	ExportEngine.end_timer()
 	return OK

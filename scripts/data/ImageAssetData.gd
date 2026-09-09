@@ -37,44 +37,47 @@ func get_preview_texture(index: int) -> Texture2D:
 
 
 static func create_from_file(path: String) -> ImageAssetData:
-	var buffer: PackedByteArray = FileAccess.get_file_as_bytes(path)
-	if buffer.is_empty():
-		return null
-
-	if not FileAccess.file_exists(path):
-		Global.notice("File not found", 'File from path "%s" does not exists!' % path)
-		push_error('ImageAssetData: File from path "%s" does not exists!' % path)
-		return null
-
 	var img_buffer: PackedByteArray = FileAccess.get_file_as_bytes(path)
 	if img_buffer.is_empty():
 		Global.notice("Cannot load file", 'File from path "%s" is empty!' % path)
 		push_error('ImageAssetData: File from path "%s" is empty!' % path)
 		return null
 
+	var asset: ImageAssetData = create_from_buffer(img_buffer, path)
+
+	return asset
+
+
+static func create_from_buffer(buffer: PackedByteArray, path: String = "") -> ImageAssetData:
 	var img: Image = Image.new()
 	var err: Error = FAILED
 
 	var ext: String = path.get_extension().to_lower()
 
 	if ext in ["jpg", "jpeg"]:
-		err = img.load_jpg_from_buffer(img_buffer)
+		err = img.load_jpg_from_buffer(buffer)
 		if err != OK:
-			err = img.load_png_from_buffer(img_buffer)
+			err = img.load_png_from_buffer(buffer)
 		if err != OK:
-			err = img.load_webp_from_buffer(img_buffer)
+			err = img.load_webp_from_buffer(buffer)
 	if ext == "png":
-		err = img.load_png_from_buffer(img_buffer)
+		err = img.load_png_from_buffer(buffer)
 		if err != OK:
-			err = img.load_jpg_from_buffer(img_buffer)
+			err = img.load_jpg_from_buffer(buffer)
 		if err != OK:
-			err = img.load_webp_from_buffer(img_buffer)
+			err = img.load_webp_from_buffer(buffer)
 	if ext == "webp":
-		err = img.load_webp_from_buffer(img_buffer)
+		err = img.load_webp_from_buffer(buffer)
 		if err != OK:
-			err = img.load_jpg_from_buffer(img_buffer)
+			err = img.load_jpg_from_buffer(buffer)
 		if err != OK:
-			err = img.load_png_from_buffer(img_buffer)
+			err = img.load_png_from_buffer(buffer)
+	else:
+		err = img.load_jpg_from_buffer(buffer)
+		if err != OK:
+			err = img.load_png_from_buffer(buffer)
+		if err != OK:
+			err = img.load_webp_from_buffer(buffer)
 
 	if err != OK:
 		Global.notice("Cannot load file", 'File from path "%s" is unsupported or corrupted' % path)

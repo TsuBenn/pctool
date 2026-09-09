@@ -291,6 +291,7 @@ func _on_card_context_menu_pressed(id: int):
 			var new_group: GroupAssetData = GroupAssetData.create_from_assets(asset_datas, "GROUP")
 			if new_group:
 				instantiate_asset_card(new_group)
+			document_data.assets.append(new_group)
 		CardContextMenuAction.DUPLICATE:
 			Global.notice("Feature Not Implemented", "Assets Duplication has not been implemented!")
 			pass
