@@ -241,6 +241,7 @@ static func open_document(file_path: String) -> DocumentData:
 		match type:
 			"image":
 				var asset_obj: ImageAssetData = get_image_asset_data(asset_dict, asset_bytes_map[asset_dict.id])
+				asset_bytes_map.erase(asset_dict.id)
 				if asset_obj:
 					asset_map[asset_dict.id] = asset_obj
 					imported_assets[i] = asset_obj

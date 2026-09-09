@@ -9,7 +9,7 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 		ext = "png"
 
 	var baked_map: Dictionary = await ExportEngine.bake_tile_images(document_data)
-	var texture_map: Array[Texture2D] = []
+	var texture_map: Dictionary = {}
 
 	var page_images: Dictionary = {}
 	var render_tasks: Array[Dictionary] = []
@@ -39,9 +39,15 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 		RenderingServer.canvas_item_add_rect(canvas_item, Rect2(Vector2.ZERO, paper_size_px), Color.WHITE)
 
 		for tile in layout.get_page_tiles(page):
-			var tile_image: Image = baked_map[[tile.photo_item, tile.sub_asset_index]]
-			var tile_tex: Texture2D = ImageTexture.create_from_image(tile_image)
-			texture_map.append(tile_tex)
+			var tile_tex: Texture2D
+			if texture_map.has([tile.photo_item, tile.sub_asset_index]):
+				tile_tex = texture_map[[tile.photo_item, tile.sub_asset_index]]
+			else:
+				var tile_image: Image = baked_map[[tile.photo_item, tile.sub_asset_index]]
+				tile_tex = ImageTexture.create_from_image(tile_image)
+				baked_map.erase([tile.photo_item, tile.sub_asset_index])
+				texture_map[[tile.photo_item, tile.sub_asset_index]] = tile_tex
+
 			var tile_item: PhotoItemData = tile.photo_item
 			var position: Vector2i = tile.rect_mm.position*px_per_mm
 			var size: Vector2i = tile.rect_mm.size*px_per_mm
@@ -80,6 +86,8 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 	# await RenderingServer.frame_post_draw
 	RenderingServer.force_draw()
 
+	texture_map.clear()
+
 	Global.progress_update("Rendering %d Pages" % layout.total_pages, 1)
 	await Engine.get_main_loop().process_frame
 
@@ -117,8 +125,6 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 
 	Global.progress_update("Baking %d Pages" % layout.total_pages, 1)
 	await Engine.get_main_loop().process_frame
-
-	texture_map.clear()
 
 	# var start_time: float = Time.get_ticks_usec()
 
