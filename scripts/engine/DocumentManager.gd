@@ -190,6 +190,11 @@ static func open_document(file_path: String) -> DocumentData:
 	Global.progress_update("Loading Asset Datas (%d/%d)" % [float(opened), assets_arr.size()], float(opened)/assets_arr.size())
 	await Engine.get_main_loop().process_frame
 
+	var shared_counter: Dictionary = {
+		"current": 0,
+		"total": 0
+	}
+
 	for asset_dict in assets_arr:
 		var type: String = asset_dict.get("type", "")
 
@@ -204,12 +209,70 @@ static func open_document(file_path: String) -> DocumentData:
 					push_error("DocumentManager: Empty Asset %s" % asset_dict.id)
 					continue
 				asset_bytes_map[asset_dict.id] = img_bytes
+				shared_counter["total"] += 1
 			"group":
-				var img_bytes: Dictionary = get_group_asset_buffer(asset_dict, asset_bytes_map, reader)
-				if img_bytes.is_empty():
-					push_error("DocumentManager: Empty Asset %s" % asset_dict.id)
+				if asset_dict.children.size() <= 1:
+					push_error("DocumentManager: Invalid Group Asset %s" % asset_dict.id)
 					continue
+				var img_bytes: Dictionary = get_group_asset_buffers(asset_dict, asset_bytes_map, reader)
 				asset_bytes_map.merge(img_bytes,true)
+				shared_counter["total"] += 1
+
+		opened += 1
+		Global.progress_update("Loading Asset Datas (%d/%d)" % [float(opened), assets_arr.size()], float(opened)/assets_arr.size())
+		await Engine.get_main_loop().process_frame
+
+	var mutex: Mutex = Mutex.new()
+
+	Global.progress_update("Creating Asset Datas (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
+	await Engine.get_main_loop().process_frame
+
+	var imported_assets: Array[AssetData] = []
+	imported_assets.resize(shared_counter["total"])
+
+	var create_asset = func(i: int):
+		var asset_dict = assets_arr[i]
+
+		var type: String = asset_dict.get("type", "")
+
+		if asset_map.has(asset_dict.get("id", "")):
+			return
+
+		match type:
+			"image":
+				var asset_obj: ImageAssetData = get_image_asset_data(asset_dict, asset_bytes_map[asset_dict.id])
+				if asset_obj:
+					asset_map[asset_dict.id] = asset_obj
+					imported_assets[i] = asset_obj
+				mutex.lock()
+				shared_counter["current"] += 1
+				mutex.unlock()
+			"group":
+				var asset_obj: GroupAssetData = get_group_asset_data(asset_dict, asset_bytes_map, asset_map)
+				if asset_obj:
+					asset_map[asset_dict.id] = asset_obj
+					imported_assets[i] = asset_obj
+				mutex.lock()
+				shared_counter["current"] += 1
+				mutex.unlock()
+
+	var group_id: int = WorkerThreadPool.add_group_task(
+		create_asset,
+		shared_counter["total"],
+		-1,
+		true,
+		"CREATING_ASSETS"
+	)
+
+	while shared_counter["current"] < shared_counter["total"]:
+		Global.progress_update("Creating Asset Datas (%d/%d)" % [shared_counter["current"],shared_counter["total"]], float(shared_counter["current"])/shared_counter["total"])
+		await Engine.get_main_loop().process_frame
+
+	WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+	for asset in imported_assets:
+		if asset:
+			doc.assets.append(asset)
 
 	# for asset_dict in assets_arr:
 	# 	var type: String = asset_dict.get("type", "")
@@ -325,9 +388,7 @@ static func get_image_asset_manifest(asset: ImageAssetData, packer: ZIPPacker, w
 		}
 
 static func get_group_asset_buffers(asset_dict: Dictionary, asset_bytes_map: Dictionary, reader: ZIPReader) -> Dictionary:
-	var asset_id: String = asset_dict.get("id", "")
-	var display_name: String = asset_dict.get("display_name", "")
-	var children: Dictionary = {}
+	var children: Array[Dictionary] = []
 	var children_bytes: Dictionary = {}
 
 	children.assign(asset_dict.get("children", []))
@@ -341,7 +402,7 @@ static func get_group_asset_buffers(asset_dict: Dictionary, asset_bytes_map: Dic
 
 		match type:
 			"image":
-				if asset_map.has(child.id):
+				if asset_bytes_map.has(child.id):
 					continue
 				else:
 					var bytes = get_image_asset_buffer(child, reader)
@@ -350,7 +411,7 @@ static func get_group_asset_buffers(asset_dict: Dictionary, asset_bytes_map: Dic
 
 	return children_bytes
 
-static func get_group_asset_data(asset_dict: Dictionary, asset_bytes_map: Dictionary, reader: ZIPReader) -> GroupAssetData:
+static func get_group_asset_data(asset_dict: Dictionary, asset_bytes_map: Dictionary, asset_map: Dictionary) -> GroupAssetData:
 	var asset_id: String = asset_dict.get("id", "")
 	var display_name: String = asset_dict.get("display_name", "")
 	var children: Array[Dictionary] = []
@@ -370,7 +431,9 @@ static func get_group_asset_data(asset_dict: Dictionary, asset_bytes_map: Dictio
 			"image":
 				var byte: PackedByteArray
 				var asset_obj: ImageAssetData
-				if asset_bytes_map.has(child.id):
+				if asset_map.has(child.id):
+					asset_obj = asset_map[child.id]
+				elif asset_bytes_map.has(child.id):
 					byte = asset_bytes_map[child.id]
 					asset_obj = get_image_asset_data(child, byte)
 				else:
@@ -390,7 +453,6 @@ static func get_group_asset_data(asset_dict: Dictionary, asset_bytes_map: Dictio
 	return group_asset_obj
 
 static func get_image_asset_buffer(asset_dict: Dictionary, reader: ZIPReader) -> PackedByteArray:
-	var asset_id: String = asset_dict.get("id", "")
 	var internal_name: String = asset_dict.get("file_name", "")
 	var archive_img_path: String = "assets/%s" % internal_name
 
@@ -398,12 +460,12 @@ static func get_image_asset_buffer(asset_dict: Dictionary, reader: ZIPReader) ->
 		var img_bytes: PackedByteArray = reader.read_file(archive_img_path)
 		if img_bytes.is_empty():
 			push_error("DocumentManager: Asset file in archive is empty: %s" % archive_img_path)
-			return null
+			return []
 
 		return img_bytes
 
 	push_error("DocumentManager: Asset file in archive does not exists: %s" % archive_img_path)
-	return null
+	return []
 
 static func get_image_asset_data(asset_dict: Dictionary, img_bytes: PackedByteArray) -> ImageAssetData:
 	var asset_id: String = asset_dict.get("id", "")

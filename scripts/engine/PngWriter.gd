@@ -1,8 +1,6 @@
 extends RefCounted
 class_name PngWriter
 
-signal group_task_completed()
-
 static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, output_path: String) -> Error:
 	var ext: String = output_path.get_extension()
 	var base_no_ext: String = output_path.get_basename()
@@ -18,7 +16,10 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 
 	var px_per_mm: float = document_data.dpi/ 25.4
 
-	Global.progress_update("Rendering %d Pages" % layout.total_pages, 0)
+	var milestone: int = Time.get_ticks_msec()
+	var tiles_baked: int = 0
+
+	Global.progress_update("Preparing Pages (%d/%d)" % [tiles_baked, layout.total_pages], float(tiles_baked)/layout.total_pages)
 	await Engine.get_main_loop().process_frame
 
 	for page in range(layout.total_pages):
@@ -62,10 +63,19 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 			"canvas_item": canvas_item,
 		})
 
+		tiles_baked += 1
+		if Time.get_ticks_msec() - milestone > 100:
+			milestone = Time.get_ticks_msec()
+			Global.progress_update("Preparing Pages (%d/%d)" % [tiles_baked, layout.total_pages], float(tiles_baked)/layout.total_pages)
+			await Engine.get_main_loop().process_frame
+
 	if render_tasks.is_empty():
 		Global.notice("Export PNG failed", "Failed to render pages")
 		push_error("ExportEngine: Failed to render pages")
 		return FAILED
+
+	Global.progress_update("Rendering %d Pages" % layout.total_pages, 0)
+	await Engine.get_main_loop().process_frame
 
 	# await RenderingServer.frame_post_draw
 	RenderingServer.force_draw()
@@ -76,10 +86,10 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 	Global.progress_update("Baking %d Pages" % layout.total_pages, 0)
 	await Engine.get_main_loop().process_frame
 
-	var milestone: float = Time.get_ticks_msec()
-	var tiles_baked: int = 0
+	tiles_baked = 0
+	milestone = Time.get_ticks_msec()
 
-	var start_time: float = Time.get_ticks_usec()
+	# var start_time: float = Time.get_ticks_usec()
 
 	for task in render_tasks:
 		var viewport: RID = task["viewport"]
@@ -103,7 +113,7 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 			Global.progress_update("Baking Pages (%d/%d)" % [tiles_baked, render_tasks.size()], float(tiles_baked)/render_tasks.size())
 			await Engine.get_main_loop().process_frame
 
-	print("Baking Page: " + str((Time.get_ticks_usec() - start_time)/1000.0) + "ms")
+	# print("Baking Page: " + str((Time.get_ticks_usec() - start_time)/1000.0) + "ms")
 
 	Global.progress_update("Baking %d Pages" % layout.total_pages, 1)
 	await Engine.get_main_loop().process_frame
@@ -146,9 +156,8 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 
 	WorkerThreadPool.wait_for_group_task_completion(group_id)
 
-	Global.progress_update("Encoding Pages", 1)
-
 	Global.progress_update("Writing Pages to PNGs (%d/%d)" % [0, layout.total_pages], 0)
+	await Engine.get_main_loop().process_frame
 
 	for page in range(layout.total_pages):
 		var path_string: String = ""
@@ -174,10 +183,11 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 			return error
 
 		Global.progress_update("Writing Pages to PNGs (%d/%d)" % [page, layout.total_pages], float(page)/layout.total_pages)
+		await Engine.get_main_loop().process_frame
 
 	# print("IO: " + str((Time.get_ticks_usec() - start_time)/1000.0) + "ms")
 
 	Global.notice("Export Complete", "PNG document successfully exported to:\n%s" % output_path.get_file())
-	Global.progress_finished.call_deferred()
+	Global.progress_finished()
 	ExportEngine.end_timer()
 	return OK
