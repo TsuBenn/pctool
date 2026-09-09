@@ -137,6 +137,7 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 	var encode_task = func(i: int):
 		var img: Image = page_images[i]
 		page_buffers[i] = img.save_png_to_buffer()
+		page_images.erase(i)
 		mutex.lock()
 		shared_counter["current"] += 1
 		mutex.unlock()
