@@ -373,7 +373,7 @@ static func get_image_asset_manifest(asset: ImageAssetData, packer: ZIPPacker, w
 
 	if write:
 		var err: Error = packer.start_file(archive_path)
-		print(archive_path)
+		# print(archive_path)
 		if err == OK:
 			packer.write_file(img_bytes)
 			packer.close_file()

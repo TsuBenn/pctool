@@ -63,7 +63,7 @@ func _on_add_asset_to_sheet(asset_datas: Array[AssetData], add_assets_action: Ca
 	canvas_panel.add_asset_to_sheet(asset_datas, add_assets_action, select_on_add)
 
 func request_save_document(file: String = document_data.save_path):
-	if file.is_empty() or not FileAccess.file_exists(document_data.save_path):
+	if file.is_empty() and (document_data.save_path.is_empty() or not FileAccess.file_exists(document_data.save_path)):
 		save_document_dialog.get_line_edit().text = name.to_lower().replace(" ", "-") + DocumentManager.EXTENSION_DOT
 		save_document_dialog.popup_centered(Vector2i(600,400))
 		return
