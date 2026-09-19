@@ -9,6 +9,11 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 		ext = "png"
 
 	var baked_map: Dictionary = await ExportEngine.bake_tile_images(document_data)
+	if baked_map.is_empty():
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user.")
+			return OK
 	var texture_map: Dictionary = {}
 
 	var page_images: Dictionary = {}
@@ -69,6 +74,11 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 			"canvas_item": canvas_item,
 		})
 
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user.")
+			return OK
+
 		tiles_baked += 1
 		if Time.get_ticks_msec() - milestone > 100:
 			milestone = Time.get_ticks_msec()
@@ -115,6 +125,11 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 		RenderingServer.free_rid(canvas_item)
 		RenderingServer.free_rid(rendered_tex_rid)
 
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user.")
+			return OK
+
 		tiles_baked += 1
 		if Time.get_ticks_msec() - milestone > 100:
 			milestone = Time.get_ticks_msec()
@@ -158,6 +173,10 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 	)
 
 	while shared_counter["current"] < shared_counter["total"]:
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user.")
+			return OK
 		Global.progress_update("Encoding Pages (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
 		await Engine.get_main_loop().process_frame
 
@@ -188,6 +207,11 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 			Global.notice("Export PNG failed", "Failed to save PNG to file: %s" % path_string)
 			push_error("ExportEngine: Failed to save PNG to file: %s" % path_string)
 			return error
+
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, some file might not have been exported.")
+			return OK
 
 		Global.progress_update("Writing Pages to PNGs (%d/%d)" % [page, layout.total_pages], float(page)/layout.total_pages)
 		await Engine.get_main_loop().process_frame

@@ -520,12 +520,13 @@ icon = SubResource("AtlasTexture_jyqy3")
 
 [node name="PageSpinBox" type="SpinBox" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasToolbar/MarginContainer/HBoxContainer" unique_id=206367067]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 min_value = 1.0
-value = 1.0
+max_value = 999.0
+value = 999.0
 alignment = 1
-suffix = "/0"
+suffix = "/999"
 
 [node name="NextPageButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel/CanvasToolbar/MarginContainer/HBoxContainer" unique_id=802603011]
 unique_name_in_owner = true

@@ -48,7 +48,6 @@ func _on_tab_close_pressed(tab_idx: int) -> void:
 		tab_to_close.queue_free()
 		_update_view_state()
 
-
 func open_document(data: DocumentData = null, files: PackedStringArray = []) -> void:
 	if data:
 		for workspace in workspace_tab_container.get_children():
@@ -63,6 +62,7 @@ func open_document(data: DocumentData = null, files: PackedStringArray = []) -> 
 		new_workspace_instance.name = "Document %d" % (workspace_tab_container.get_child_count() + 1)
 
 	new_workspace_instance.setup(data, files)
+
 	if data.save_path:
 		new_workspace_instance.name = data.save_path.get_file().get_basename()
 

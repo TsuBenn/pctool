@@ -80,19 +80,11 @@ func _ready() -> void:
 	advanced_cropping_button.pressed.connect(request_advanced_cropping.emit)
 	isolate_row_check_button.toggled.connect(
 		func(new):
-			photo_item._save_old_state()
 			photo_item.isolate_row = new
-			if new:
-				photo_item.isolate_page = false
-			photo_item._commit_changes("%s Photo Item's Row Isolation" % ("Enabled" if new else "Disabled"))
 	)
 	isolate_page_check_button.toggled.connect(
 		func(new):
-			photo_item._save_old_state()
 			photo_item.isolate_page = new
-			if new:
-				photo_item.isolate_row = false
-			photo_item._commit_changes("%s Photo Item's Page Isolation" % ("Enabled" if new else "Disabled"))
 	)
 	properties_remove_button.pressed.connect(
 		func():
@@ -114,54 +106,50 @@ func _ready() -> void:
 	)
 	border_enabled_check_button.toggled.connect(
 		func(new):
-			photo_item._save_old_state()
 			photo_item.border_enabled = new
-			photo_item._commit_changes("%s Photo Item's Border" % ("Enabled" if new else "Disabled"))
 	)
 	border_thickness_spin_box.value_changed.connect(
 		func(new):
-			photo_item._save_old_state()
 			photo_item.border_width = new
-			photo_item._commit_changes("Changed Photo Item's Border Width [%.2f]" % new)
 	)
 	fitting_mode_option_button.item_selected.connect(
 		func(new):
-			photo_item._save_old_state()
 			photo_item.set_framing_fitting_mode(sub_asset_index, new)
-			photo_item._commit_changes("Changed Photo Item's Fitting Mode [%s]" % PhotoItemData.FittingMode.keys()[new])
 	)
 	decrement_quantity_button.pressed.connect(
 		func():
-			photo_item._save_old_state()
 			photo_item.quantity = max(photo_item.quantity - 1, 1)
-			photo_item._commit_changes("Changed Photo Item's Quantity [%d]" % photo_item.quantity)
 	)
 	increment_quantity_button.pressed.connect(
 		func():
-			photo_item._save_old_state()
 			photo_item.quantity = max(photo_item.quantity + 1, 1)
-			photo_item._commit_changes("Changed Photo Item's Quantity [%d]" % photo_item.quantity)
 	)
 	quantity_spin_box.value_changed.connect(
 		func(new):
-			photo_item._save_old_state()
 			photo_item.quantity = new
-			photo_item._commit_changes("Changed Photo Item's Quantity [%d]" % photo_item.quantity)
 	)
 	properties_presets_option_button.item_selected.connect(
 		func(new):
 			match new:
 				PRESET_3_BY_4:
-					photo_item._save_old_state()
 					photo_item.size_mm = Vector2(30.0,40.0)
-					photo_item._commit_changes("Changed Photo Item's Size to 3x4 (cm)" % photo_item.size_mm)
 				PRESET_4_BY_6:
-					photo_item._save_old_state()
 					photo_item.size_mm = Vector2(40.0,60.0)
-					photo_item._commit_changes("Changed Photo Item's Size to 6x4 (cm)" % photo_item.size_mm)
+	)
+	properties_width_spin_box.value_commit.connect(
+		func(_new):
+			if photo_item:
+				photo_item.commit_size()
+	)
+	properties_height_spin_box.value_commit.connect(
+		func(_new):
+			if photo_item:
+				photo_item.commit_size()
 	)
 	properties_width_spin_box.value_changed.connect(
 		func(new):
+			if not photo_item:
+				return
 			var aspect = photo_item.size_mm.aspect()
 			if aspect == 0:
 				lock_ratio_check_button.button_pressed = false
@@ -176,6 +164,8 @@ func _ready() -> void:
 	)
 	properties_height_spin_box.value_changed.connect(
 		func(new):
+			if not photo_item:
+				return
 			photo_item.size_mm = Vector2((new * photo_item.size_mm.aspect()) if lock_ratio else photo_item.size_mm.x, new)
 			match photo_item.size_mm:
 				Vector2(30.0,40.0):
@@ -212,6 +202,8 @@ func _on_document_changed():
 
 func _sync_ui():
 	if photo_item:
+		_on_document_changed()
+
 		var framing = photo_item.get_framing(sub_asset_index)
 
 		properties_scroll_container.visible = true

@@ -48,6 +48,10 @@ extends Resource
 
 @export var save_path: String = ""
 
+func _init() -> void:
+	if not Global.undo_redo.has(self):
+		Global.undo_redo[self] = UndoRedo.new()
+
 func _get_maximum_photo_item_size(photo_item: PhotoItemData, lock_ratio: bool = false) -> Vector2:
 	var max_w: float = paper_size_mm.x - margins_mm * 2
 	var max_h: float = paper_size_mm.y - margins_mm * 2
@@ -80,8 +84,6 @@ func add_photo_item(photo_item: PhotoItemData, signal_changed: bool = true, pos:
 	photo_item._document_data = self
 
 	if commit:
-		if not Global.undo_redo.has(self):
-			Global.undo_redo[self] = UndoRedo.new()
 		Global.undo_redo[self].create_action("Add Photo Item to Canvas")
 		Global.undo_redo[self].add_do_method(
 			func():
@@ -111,8 +113,6 @@ func remove_photo_item(photo_item: PhotoItemData, signal_changed: bool = true, p
 		photo_item.changed.disconnect(emit_changed)
 
 	if commit:
-		if not Global.undo_redo.has(self):
-			Global.undo_redo[self] = UndoRedo.new()
 		Global.undo_redo[self].create_action("Remove Photo Item from Canvas")
 		Global.undo_redo[self].add_do_method(
 			func():

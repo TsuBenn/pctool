@@ -3,6 +3,8 @@ extends HBoxContainer
 class_name LabeledSpinBox
 
 signal value_changed(new_value: float)
+signal value_commit(new_value: float)
+signal value_start_change(init_value: float)
 
 @export var label: String = "Label:":
 	set(new_text):
@@ -99,6 +101,7 @@ signal value_changed(new_value: float)
 		if is_node_ready():
 			$SpinBox.custom_minimum_size = Vector2(new_width, 0)
 
+@onready var timer: Timer = Timer.new()
 
 func _ready() -> void:
 	# Push initial values to child nodes once they are loaded
@@ -129,6 +132,17 @@ func _ready() -> void:
 
 	$Button.pressed.connect(reset)
 
+	timer.wait_time = 0.3
+	timer.one_shot = true
+	add_child(timer)
+	timer.timeout.connect(func(): value_commit.emit(value))
+
+	$SpinBox.get_line_edit().focus_exited.connect(
+		func():
+			timer.stop()
+			timer.timeout.emit()
+	)
+
 	focus_entered.connect(
 		func():
 			$SpinBox.get_line_edit().grab_focus()
@@ -137,6 +151,7 @@ func _ready() -> void:
 	# Forward the inner SpinBox signal to our custom outer signal
 	if not Engine.is_editor_hint():
 		$SpinBox.value_changed.connect(_on_spin_box_value_changed)
+
 
 func reset():
 	value = default_value
@@ -147,8 +162,13 @@ func set_value_no_signal(new_value: float):
 	else:
 		$Button.disabled = false
 	$SpinBox.set_value_no_signal(new_value)
+	value = new_value
 
 
 func _on_spin_box_value_changed(new_value: float) -> void:
+	if timer.is_stopped():
+		print("start")
+		value_start_change.emit(value)
+	timer.start()
 	value = new_value
 	value_changed.emit(new_value)

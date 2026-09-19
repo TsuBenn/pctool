@@ -104,15 +104,6 @@ func _ready() -> void:
 	auto_distort_button.pressed.connect(
 		func():
 			Global.notice("Feature Not Implemented", "Too hard to implement *Crying*")
-			# var scanner = AutoDistortEngine.new()
-			# var points = scanner.detect_corners_from_image(photo_item.asset.get_image(sub_asset_index))
-			# if points.size() > 0:
-			# 	photo_item.set_framing_top_left(sub_asset_index, points[0])
-			# 	photo_item.set_framing_top_right(sub_asset_index, points[1])
-			# 	photo_item.set_framing_bottom_right(sub_asset_index, points[2])
-			# 	photo_item.set_framing_bottom_left(sub_asset_index, points[3])
-			# else:
-			# 	push_error("No Points Detected!")
 	)
 	clip_check_button.toggled.connect(
 		func(_new):
@@ -365,8 +356,8 @@ func _get_scale():
 	return min(scale_x, scale_y)
 
 func _get_scale_distortion_panel():
-	var scale_x: float = (distortion_editor_panel.size.x - frame_margin*2) / photo_item.asset.get_image(sub_asset_index).get_size().x
-	var scale_y: float = (distortion_editor_panel.size.y - frame_margin*2) / photo_item.asset.get_image(sub_asset_index).get_size().y
+	var scale_x: float = (distortion_editor_panel.size.x - frame_margin*2) / photo_item.asset.get_preview_texture(sub_asset_index).get_size().x
+	var scale_y: float = (distortion_editor_panel.size.y - frame_margin*2) / photo_item.asset.get_preview_texture(sub_asset_index).get_size().y
 
 	return min(scale_x, scale_y)
 
@@ -384,7 +375,7 @@ func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 	distort_handle_magnifier_frame.size = Vector2(distort_handle_margins*2*distort_magnify_size, distort_handle_margins*2*distort_magnify_size)
 
 	distort_handle_magnifier_image_preview.texture = photo_item.asset.get_preview_texture(sub_asset_index)
-	distort_handle_magnifier_image_preview.size = photo_item.asset.get_image(sub_asset_index).get_size() * _get_scale_distortion_panel() * distort_magnify_scale
+	distort_handle_magnifier_image_preview.size = photo_item.asset.get_preview_texture(sub_asset_index).get_size() * _get_scale_distortion_panel() * distort_magnify_scale
 	distort_handle_magnifier_image_preview.position = (dhm*distort_magnify_size - mouse_position*distort_magnify_scale).clamp(-distortion_image_preview.size*distort_magnify_scale + dhm*distort_magnify_size, Vector2.ZERO + dhm*distort_magnify_size)
 
 	top_line_magnify.set_point_position(0, framing.top_left_corner * distort_handle_magnifier_image_preview.size)
@@ -403,7 +394,7 @@ func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 func _sync_ui_distortion_panel(framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)):
 
 	distortion_image_preview.texture = photo_item.asset.get_preview_texture(sub_asset_index)
-	distortion_image_preview.custom_minimum_size = photo_item.asset.get_image(sub_asset_index).get_size() * _get_scale_distortion_panel()
+	distortion_image_preview.custom_minimum_size = photo_item.asset.get_preview_texture(sub_asset_index).get_size() * _get_scale_distortion_panel()
 
 	tl_handle.offset_left = -distort_handle_margins
 	tl_handle.offset_top = -distort_handle_margins

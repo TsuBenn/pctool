@@ -118,6 +118,10 @@ static func save_pdf_to_file(
 	)
 
 	while shared_counter["current"] < shared_counter["total"]:
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			return OK
 		Global.progress_update("Encoding Images (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
 		await Engine.get_main_loop().process_frame
 
@@ -144,6 +148,11 @@ static func save_pdf_to_file(
 		)
 		file.store_buffer(jpg_buffer)
 		file.store_string("\nendstream\nendobj\n")
+
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			return OK
 
 		if Time.get_ticks_msec() - milestone > 100:
 			milestone = Time.get_ticks_msec()
@@ -214,6 +223,10 @@ static func save_pdf_to_file(
 			% [content_obj_id, content_buffer.size(), content_str]
 		)
 
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			return OK
 		if Time.get_ticks_msec() - milestone > 100:
 			milestone = Time.get_ticks_msec()
 			Global.progress_update("Arranging Images in PDF", 0.8 + 0.2*(p/float(num_pages)))

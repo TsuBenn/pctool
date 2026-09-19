@@ -15,11 +15,17 @@ var is_undoing: bool = false
 
 var app_title_prefix: String= "PCTool %s" % version
 
+var progress_flag: bool = false
+
 func notice(title: String, message: String, ok_button_text: String = "OK"):
 	on_noticed.emit(title, message, ok_button_text)
 
 func progress_finished():
 	on_progress_finished.emit()
+	progress_flag = false
+
+func cancel_progress():
+	progress_flag = true
 
 func progress_started(new: String = ""):
 	on_progress_started.emit(new)

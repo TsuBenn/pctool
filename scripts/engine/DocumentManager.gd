@@ -351,10 +351,14 @@ static func open_document(file_path: String) -> DocumentData:
 
 		doc.add_photo_item_no_signal(item)
 
+		item.commit_size()
+
 		opened += 1
 
 		Global.progress_update("Loading Photo Item Datas (%d/%d)" % [float(opened), items_arr.size()], float(opened)/items_arr.size())
 		await Engine.get_main_loop().process_frame
+
+	Global.undo_redo[doc].clear_history()
 
 	Global.progress_finished()
 	reader.close()

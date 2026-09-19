@@ -8,10 +8,12 @@ func _ready() -> void:
 	cancel_button.pressed.connect(
 		func():
 			hide()
+			cancel()
 	)
 	close_requested.connect(
 		func():
 			hide()
+			cancel()
 	)
 	Global.on_progress_finished.connect(
 		func():
@@ -29,6 +31,9 @@ func _ready() -> void:
 			if new_value != -1:
 				set_progress(new_value)
 	)
+
+func cancel():
+	Global.cancel_progress()
 
 func set_progress(new: float):
 	progress_bar.value = new

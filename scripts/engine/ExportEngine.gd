@@ -42,6 +42,11 @@ static func export_document(document_data: DocumentData, output_path: String, ex
 static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
 	Global.progress_started("Export to PDF")
 	var baked_map: Dictionary = await bake_tile_images(document_data)
+	if baked_map.is_empty():
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been cancled by the user.")
+			return OK
 	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path,baked_map)
 
 static func _export_as_png(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
@@ -72,11 +77,11 @@ static func bake_tile_images(document_data: DocumentData):
 			var framing = item.get_framing(index)
 			var image_rect = item.get_image_rect_mm(index)
 
-			# var raw_img: Image = item.asset.get_image(index).duplicate()
+			var raw_img: Image = item.asset.get_image(index).duplicate()
 			# raw_img.resize(round(image_rect.size.x*px_per_mm), round(image_rect.size.y*px_per_mm), Image.INTERPOLATE_TRILINEAR)
-			# var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
+			var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
 
-			var raw_tex: Texture2D = item.asset.get_preview_texture(index)
+			# var raw_tex: Texture2D = item.asset.get_preview_texture(index)
 
 			if raw_tex == null:
 				return null
@@ -123,6 +128,9 @@ static func bake_tile_images(document_data: DocumentData):
 				"canvas": canvas_rid,
 				"canvas_item": canvas_item_rid,
 			})
+
+			if Global.progress_flag:
+				return {}
 
 			tiles_baked += 1
 			if Time.get_ticks_msec() - milestone > 100:

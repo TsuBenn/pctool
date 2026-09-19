@@ -513,8 +513,11 @@ func _sync_ui():
 
 	# Responsive breakpoints
 	# print(paper_container.size.x)
-	zoom_presets_option_button.visible = paper_container.size.x > 543
-	var show_page_nav: bool = paper_container.size.x > 381
+	zoom_presets_option_button.visible = paper_container.size.x > 563
+	var show_page_nav: bool = paper_container.size.x > 401
+	var show_slider: bool = paper_container.size.x > 264
+
+	zoom_slider.visible = show_slider
 	next_page_button.visible = show_page_nav
 	previous_page_button.visible = show_page_nav
 	last_page_button.visible = show_page_nav

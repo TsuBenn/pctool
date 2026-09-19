@@ -55,8 +55,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.keycode == KEY_Z and event.ctrl_pressed:
 			if event.shift_pressed:
 				Global.undo_redo[document_data].redo()
+				accept_event()
 			else:
 				Global.undo_redo[document_data].undo()
+				accept_event()
 
 func _on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int):
 	properties_panel.photo_item = photo_item

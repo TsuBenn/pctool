@@ -33,6 +33,8 @@ class_name Main
 @onready var save_button: Button = %SaveButton
 @onready var export_button: Button = %ExportButton
 @onready var print_button: Button = %PrintButton
+@onready var undo_button: Button = %UndoButton
+@onready var redo_button: Button = %RedoButton
 
 @onready var workspace_tab_container: TabContainer = %WorkspaceTabContainer
 @onready var document_panel: DocumentPanel = %DocumentPanel
@@ -75,6 +77,8 @@ enum {
 var export_mode: int = ExportEngine.EXPORT_PNG
 
 @onready var update_checker: UpdateChecker = %UpdateChecker
+
+var active_document: DocumentData = null
 
 func _ready() -> void:
 
@@ -121,12 +125,35 @@ func _ready() -> void:
 
 	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(600,400)))
 	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(600,400)))
+
 	workspace_tab_container.tab_changed.connect(
 		func(new):
 			var yes = new == -1
 			save_button.disabled = yes
 			export_button.disabled = yes
 			print_button.disabled = yes
+			if current_workspace:
+				if current_workspace.document_data:
+					if active_document and Global.undo_redo.has(active_document) and Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
+								Global.undo_redo[active_document].version_changed.disconnect(_update_undo_redo)
+
+					active_document = current_workspace.document_data
+
+					if active_document and Global.undo_redo.has(active_document) and not Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
+								Global.undo_redo[active_document].version_changed.connect(_update_undo_redo)
+	)
+
+	undo_button.pressed.connect(
+		func():
+			if active_document and Global.undo_redo.has(active_document):
+					Global.undo_redo[active_document].undo()
+					_update_undo_redo()
+	)
+	redo_button.pressed.connect(
+		func():
+			if active_document and Global.undo_redo.has(active_document):
+					Global.undo_redo[active_document].redo()
+					_update_undo_redo()
 	)
 
 	export_dialog.file_selected.connect(_export_file)
@@ -142,6 +169,11 @@ func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 	_apply_nearest_filter(get_tree().root)
 	_apply_custom_cursor()
+
+func _update_undo_redo():
+	if active_document and Global.undo_redo.has(active_document):
+			undo_button.disabled = not Global.undo_redo[active_document].has_undo()
+			redo_button.disabled = not Global.undo_redo[active_document].has_redo()
 
 func _export_file(file_path: String):
 	if current_workspace:

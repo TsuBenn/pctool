@@ -4,6 +4,8 @@ extends Resource
 # DATA
 var _document_data: DocumentData # Used for tracking Undo Redo in the appropriate _document_data
 
+var _commit : bool = true
+
 @export var asset: AssetData:
 	set(new):
 		if asset and asset.changed.is_connected(emit_changed):
@@ -33,8 +35,33 @@ class Framing extends Resource:
 # TRANSFORMS
 @export var size_mm: Vector2 = Vector2(30.0, 40.0):
 	set(new):
+		if size_mm_last_changed == Vector2.INF:
+			size_mm_last_changed = size_mm
 		size_mm = new
 		emit_changed()
+
+var size_mm_last_changed: Vector2 = Vector2.INF
+
+func commit_size():
+	if _commit and _document_data:
+		var old: Vector2 = size_mm_last_changed
+		var new: Vector2 = size_mm
+		size_mm_last_changed = Vector2.INF
+		# print(old)
+		Global.undo_redo[_document_data].create_action("Changed Photo Item's Size [%s]" % new)
+		Global.undo_redo[_document_data].add_do_method(
+			func():
+				_commit = false
+				size_mm = new
+				_commit = true
+		)
+		Global.undo_redo[_document_data].add_undo_method(
+			func():
+				_commit = false
+				size_mm = old
+				_commit = true
+		)
+		Global.undo_redo[_document_data].commit_action(false)
 
 # @export var rotation: Rotation = Rotation.ROTATE_0:
 # 	set(new):
@@ -53,12 +80,64 @@ class Framing extends Resource:
 
 @export var isolate_row: bool = false:
 	set(new):
+		if _commit and _document_data:
+			var old: bool = isolate_row
+			var old_page: bool = isolate_page
+			Global.undo_redo[_document_data].create_action("%s Photo Item's Row Isolation" % "Enabled" if new else "Disabled")
+			Global.undo_redo[_document_data].add_do_method(
+				func():
+					_commit = false
+					isolate_row = new
+					if new:
+						isolate_page = false
+					_commit = true
+			)
+			Global.undo_redo[_document_data].add_undo_method(
+				func():
+					_commit = false
+					isolate_row = old
+					isolate_page = old_page
+					_commit = true
+			)
+			Global.undo_redo[_document_data].commit_action(false)
+
 		isolate_row = new
+		if new:
+			_commit = false
+			isolate_page = false
+			_commit = true
+
 		emit_changed()
 
 @export var isolate_page: bool = false:
 	set(new):
+		if _commit and _document_data:
+			var old_row: bool = isolate_row
+			var old: bool = isolate_page
+			Global.undo_redo[_document_data].create_action("%s Photo Item's Page Isolation" % "Enabled" if new else "Disabled")
+			Global.undo_redo[_document_data].add_do_method(
+				func():
+					_commit = false
+					isolate_page = new
+					if new:
+						isolate_row = false
+					_commit = true
+			)
+			Global.undo_redo[_document_data].add_undo_method(
+				func():
+					_commit = false
+					isolate_row = old_row
+					isolate_page = old
+					_commit = true
+			)
+			Global.undo_redo[_document_data].commit_action(false)
+
 		isolate_page = new
+		if new:
+			_commit = false
+			isolate_row = false
+			_commit = true
+
 		emit_changed()
 
 enum FittingMode { FILL, FIT, STRETCH, DISTORT }
@@ -66,6 +145,23 @@ enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 # IMAGE
 @export var quantity: int = 1:
 	set(new):
+		if _commit and _document_data:
+			var old: int = quantity
+			Global.undo_redo[_document_data].create_action("Changed Photo Item's Quantity [%d]" % new)
+			Global.undo_redo[_document_data].add_do_method(
+				func():
+					_commit = false
+					quantity = max(new,1)
+					_commit = true
+			)
+			Global.undo_redo[_document_data].add_undo_method(
+				func():
+					_commit = false
+					quantity = old
+					_commit = true
+			)
+			Global.undo_redo[_document_data].commit_action(false)
+
 		quantity = max(new,1)
 		emit_changed()
 
@@ -76,15 +172,50 @@ enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 #     fitting_mode: FittingMode,
 # }
 var framings: Dictionary[int, Framing] = {}
+var framings_last_changed: Dictionary[int, Framing] = {}
 
 # EFFECTS
 @export var border_enabled: bool = true:
 	set(new):
+		if _commit and _document_data:
+			var old: bool = border_enabled
+			Global.undo_redo[_document_data].create_action("%s Photo Item's Border" % "Enabled" if new else "Disabled")
+			Global.undo_redo[_document_data].add_do_method(
+				func():
+					_commit = false
+					border_enabled = new
+					_commit = true
+			)
+			Global.undo_redo[_document_data].add_undo_method(
+				func():
+					_commit = false
+					border_enabled = old
+					_commit = true
+			)
+			Global.undo_redo[_document_data].commit_action(false)
+
 		border_enabled = new
 		emit_changed()
 
 @export var border_width: float = 0.2:
 	set(new):
+		if _commit and _document_data:
+			var old: float = border_width
+			Global.undo_redo[_document_data].create_action("Changed Photo Item's Border Width [%.2f]" % new)
+			Global.undo_redo[_document_data].add_do_method(
+				func():
+					_commit = false
+					border_width = new
+					_commit = true
+			)
+			Global.undo_redo[_document_data].add_undo_method(
+				func():
+					_commit = false
+					border_width = old
+					_commit = true
+			)
+			Global.undo_redo[_document_data].commit_action(false)
+
 		border_width = new
 		emit_changed()
 
@@ -92,6 +223,30 @@ var framings: Dictionary[int, Framing] = {}
 	set(new):
 		border_color = new
 		emit_changed()
+
+func commit_framings():
+	if framings_last_changed.is_empty():
+		return
+
+	var new: Dictionary = framings.duplicate()
+	var old: Dictionary = framings_last_changed.duplicate()
+
+	framings_last_changed = {}
+
+	Global.undo_redo[_document_data].create_action("Changed Photo Item's Framings")
+	Global.undo_redo[_document_data].add_do_method(
+		func():
+			_commit = false
+			framings = new
+			_commit = true
+	)
+	Global.undo_redo[_document_data].add_undo_method(
+		func():
+			_commit = false
+			framings = old
+			_commit = true
+	)
+	Global.undo_redo[_document_data].commit_action(false)
 
 func apply_framing_to_all(base_index: int):
 	for f in framings.keys():
@@ -101,6 +256,8 @@ func apply_framing_to_all(base_index: int):
 	emit_changed()
 
 func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode, top_left: Vector2, top_right: Vector2, bottom_right: Vector2, bottom_left: Vector2):
+	if framings_last_changed.is_empty():
+		framings_last_changed = framings
 	var new_framing = Framing.new()
 	new_framing.scale = max(new_scale,1)
 	new_framing.offset = new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1))
@@ -242,37 +399,3 @@ func get_image_rect_mm(index: int) -> Rect2:
 			x = (size_mm.x - w) * (1 + offset.x) * 0.5
 
 	return Rect2(x, y, w, h)
-
-var _old_self: PhotoItemData
-
-func _save_old_state():
-	_old_self = self.duplicate()
-func _commit_changes(action: String):
-	var old_state: PhotoItemData = _old_self
-	var new_state: PhotoItemData = self.duplicate()
-
-	_old_self = null
-	Global.undo_redo[_document_data].create_action(action)
-	Global.undo_redo[_document_data].add_do_method(
-		func():
-			asset = new_state.asset
-			size_mm = new_state.size_mm
-			isolate_row = new_state.isolate_row
-			quantity = new_state.quantity
-			framings = new_state.framings
-			border_enabled = new_state.border_enabled
-			border_width = new_state.border_width
-			border_color = new_state.border_color
-	)
-	Global.undo_redo[_document_data].add_undo_method(
-		func():
-			asset = old_state.asset
-			size_mm = old_state.size_mm
-			isolate_row = old_state.isolate_row
-			quantity = old_state.quantity
-			framings = old_state.framings
-			border_enabled = old_state.border_enabled
-			border_width = old_state.border_width
-			border_color = old_state.border_color
-	)
-	Global.undo_redo[_document_data].commit_action()
