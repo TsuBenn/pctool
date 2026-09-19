@@ -41,50 +41,59 @@ static func export_document(document_data: DocumentData, output_path: String, ex
 
 static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
 	Global.progress_started("Export to PDF")
-	var baked_map: Dictionary = await bake_tile_images(document_data)
-	if baked_map.is_empty():
-		if Global.progress_flag:
-			Global.progress_finished()
-			Global.notice("Export Canceled", "Export has been cancled by the user.")
-			return OK
-	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path,baked_map)
+	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path)
 
 static func _export_as_png(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
 	Global.progress_started("Export to PNG")
 	return await PngWriter.save_png_to_files(document_data,layout,output_path)
 
-static func bake_tile_images(document_data: DocumentData):
+static func get_tile_indices(document_data: DocumentData) -> Array[Array]:
+	var tile_indices: Array[Array] = []
+	for item in document_data.photo_items:
+		for index in item.asset.get_count():
+			tile_indices.append([item, index])
+	return tile_indices
+
+static func get_tiles_tracker(tile_indices: Array[Array]) -> Dictionary:
+	var tracker: Dictionary = {}
+	for tile in tile_indices:
+		tracker[tile] = false
+	return tracker
+
+static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_tiles: int = 0) -> Dictionary:
 	var baked_map: Dictionary = {}
 	var render_tasks: Array[Dictionary] = []
 
-	var px_per_mm: float = (document_data.dpi/25.4)
-
-	var tiles_to_bake: int = 0
-
-	for item in document_data.photo_items:
-		tiles_to_bake += item.asset.get_count()
+	var px_per_mm: float = (dpi/25.4)
 
 	var milestone: float = Time.get_ticks_msec()
-	var tiles_baked: int = 0
-
-	Global.progress_update("Preparing Tiles (%d/%d)" % [tiles_baked, tiles_to_bake], 0)
-	await Engine.get_main_loop().process_frame
 
 	var temp_mat : Array[ShaderMaterial] = []
+	var temp_tex : Array[Texture2D] = []
 
-	for item in document_data.photo_items:
-		for index in item.asset.get_count():
+	print("--------------------------")
+	Global.print_memory_usage()
+	Global.print_video_memory_usage()
+	print("--------------------------")
+
+	var tile_calls: int = 0
+
+	while (Global.get_memory_usage_mb() <= 1000) and tile_calls < tile_indices.size():
+		for i in range(tile_calls, tile_indices.size()):
+			var tile = tile_indices[i]
+			var item: PhotoItemData = tile[0]
+			var index: int = tile[1]
+
 			var framing = item.get_framing(index)
 			var image_rect = item.get_image_rect_mm(index)
 
-			var raw_img: Image = item.asset.get_image(index).duplicate()
-			# raw_img.resize(round(image_rect.size.x*px_per_mm), round(image_rect.size.y*px_per_mm), Image.INTERPOLATE_TRILINEAR)
+			var raw_img: Image = item.asset.get_image(index)
 			var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
 
-			# var raw_tex: Texture2D = item.asset.get_preview_texture(index)
+			temp_tex.append(raw_tex)
 
 			if raw_tex == null:
-				return null
+				return baked_map
 
 			var tree: SceneTree = Engine.get_main_loop() as SceneTree
 
@@ -93,7 +102,7 @@ static func bake_tile_images(document_data: DocumentData):
 				shader_mat = tree.current_scene.distort_shader_material as ShaderMaterial
 			else:
 				Global.notice("Tile Renderer Failed", "Missing Shader Material")
-				return null
+				return baked_map
 
 			var mat: ShaderMaterial = shader_mat.duplicate()
 			temp_mat.append(mat)
@@ -132,59 +141,76 @@ static func bake_tile_images(document_data: DocumentData):
 			if Global.progress_flag:
 				return {}
 
-			tiles_baked += 1
+			tile_calls += 1
+
+			if Global.get_video_memory_usage_mb() > 1000:
+				print("Exeeded %.2f MB of VRAM, offloading... (%d/%d)" % [Global.get_video_memory_usage_mb(), tile_calls + processed_tiles, tile_indices.size() + processed_tiles])
+				break
+			if Global.get_memory_usage_mb() > 1000:
+				print("Exeeded %.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), tile_calls + processed_tiles, tile_indices.size() + processed_tiles])
+				break
+
 			if Time.get_ticks_msec() - milestone > 100:
 				milestone = Time.get_ticks_msec()
-				Global.progress_update("Preparing Tiles (%d/%d)" % [tiles_baked, tiles_to_bake], float(tiles_baked)/tiles_to_bake)
+				Global.progress_update("Preparing Tiles (%d/%d)" % [tile_calls + processed_tiles, tile_indices.size() + processed_tiles], float(tile_calls + processed_tiles)/tile_indices.size() + processed_tiles)
 				await Engine.get_main_loop().process_frame
 
-	if render_tasks.is_empty():
-		return baked_map
+		if render_tasks.is_empty():
+			return baked_map
 
-	Global.progress_update("Rendering %d Tiles" % tiles_to_bake, 0)
-	await Engine.get_main_loop().process_frame
+		Global.progress_update("Rendering %d Tiles" % tile_indices.size(), 0)
+		await Engine.get_main_loop().process_frame
 
-	# await RenderingServer.frame_post_draw
-	RenderingServer.force_draw()
+		# await RenderingServer.frame_post_draw
+		RenderingServer.force_draw()
 
-	temp_mat.clear()
+		Global.print_memory_usage()
+		Global.print_video_memory_usage()
+		print("--------------------------")
 
-	Global.progress_update("Rendering %d Tiles" % tiles_to_bake, 1)
-	await Engine.get_main_loop().process_frame
+		temp_mat.clear()
+		temp_tex.clear()
 
-	Global.progress_update("Baking %d Tiles" % tiles_to_bake, 0)
-	await Engine.get_main_loop().process_frame
+		Global.progress_update("Rendering %d Tiles" % tile_indices.size(), 1)
+		await Engine.get_main_loop().process_frame
 
-	milestone = Time.get_ticks_msec()
-	tiles_baked = 0
+		Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, tile_indices.size() + processed_tiles], float(tile_calls)/tile_indices.size())
+		await Engine.get_main_loop().process_frame
 
-	for task in render_tasks:
-		var viewport: RID = task["viewport"]
-		var canvas: RID = task["canvas"]
-		var canvas_item: RID = task["canvas_item"]
+		milestone = Time.get_ticks_msec()
 
-		var item: PhotoItemData = task["item"]
-		var index: int = task["index"]
+		for task in render_tasks:
+			var viewport: RID = task["viewport"]
+			var canvas: RID = task["canvas"]
+			var canvas_item: RID = task["canvas_item"]
 
-		var rendered_tex_rid: RID = RenderingServer.viewport_get_texture(viewport)
-		var rendered_img: Image = RenderingServer.texture_2d_get(rendered_tex_rid)
+			var item: PhotoItemData = task["item"]
+			var index: int = task["index"]
 
-		if rendered_img:
-			baked_map[[item, index]] = rendered_img
+			var rendered_tex_rid: RID = RenderingServer.viewport_get_texture(viewport)
+			var rendered_img: Image = RenderingServer.texture_2d_get(rendered_tex_rid)
 
-		RenderingServer.free_rid(viewport)
-		RenderingServer.free_rid(canvas)
-		RenderingServer.free_rid(canvas_item)
-		RenderingServer.free_rid(rendered_tex_rid)
+			if rendered_img:
+				baked_map[[item, index]] = rendered_img
 
-		tiles_baked += 1
-		if Time.get_ticks_msec() - milestone > 100:
-			milestone = Time.get_ticks_msec()
-			Global.progress_update("Baking Tiles (%d/%d)" % [tiles_baked, render_tasks.size()], float(tiles_baked)/render_tasks.size())
-			await Engine.get_main_loop().process_frame
+			RenderingServer.free_rid(viewport)
+			RenderingServer.free_rid(canvas)
+			RenderingServer.free_rid(canvas_item)
+			RenderingServer.free_rid(rendered_tex_rid)
 
-	Global.progress_update("Baking %d Tiles" % tiles_to_bake, 1)
-	await Engine.get_main_loop().process_frame
+			if Time.get_ticks_msec() - milestone > 100:
+				milestone = Time.get_ticks_msec()
+				Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, tile_indices.size() + processed_tiles], float(tile_calls + processed_tiles)/tile_indices.size() + processed_tiles)
+				await Engine.get_main_loop().process_frame
+
+		render_tasks.clear()
+
+	if (Global.get_memory_usage_mb() > 1000):
+		print("Exeeded %.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), tile_calls + processed_tiles, tile_indices.size() + processed_tiles])
+
+	Global.print_memory_usage()
+	Global.print_video_memory_usage()
+	print("--------------------------")
 
 	return baked_map
 

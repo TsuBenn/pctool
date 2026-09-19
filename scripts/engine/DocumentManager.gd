@@ -242,18 +242,18 @@ static func open_document(file_path: String) -> DocumentData:
 			"image":
 				var asset_obj: ImageAssetData = get_image_asset_data(asset_dict, asset_bytes_map[asset_dict.id])
 				asset_bytes_map.erase(asset_dict.id)
+				mutex.lock()
 				if asset_obj:
 					asset_map[asset_dict.id] = asset_obj
 					imported_assets[i] = asset_obj
-				mutex.lock()
 				shared_counter["current"] += 1
 				mutex.unlock()
 			"group":
 				var asset_obj: GroupAssetData = get_group_asset_data(asset_dict, asset_bytes_map, asset_map)
+				mutex.lock()
 				if asset_obj:
 					asset_map[asset_dict.id] = asset_obj
 					imported_assets[i] = asset_obj
-				mutex.lock()
 				shared_counter["current"] += 1
 				mutex.unlock()
 
@@ -351,14 +351,14 @@ static func open_document(file_path: String) -> DocumentData:
 
 		doc.add_photo_item_no_signal(item)
 
-		item.commit_size()
+		# item.commit_size()
 
 		opened += 1
 
 		Global.progress_update("Loading Photo Item Datas (%d/%d)" % [float(opened), items_arr.size()], float(opened)/items_arr.size())
 		await Engine.get_main_loop().process_frame
 
-	Global.undo_redo[doc].clear_history()
+	# Global.undo_redo[doc].clear_history()
 
 	Global.progress_finished()
 	reader.close()
@@ -373,7 +373,8 @@ static func get_image_asset_manifest(asset: ImageAssetData, packer: ZIPPacker, w
 	# Grab raw buffer directly with zero re-encoding overhead
 	var img_bytes: PackedByteArray = img_asset.raw_file_buffer
 	if img_bytes.is_empty():
-		img_bytes = img_asset.original_image.save_png_to_buffer()
+		Global.notice("Save Failed", "Empty Image Bytes")
+		push_error("DocumentManager: Failed to Image Manifest")
 
 	if write:
 		var err: Error = packer.start_file(archive_path)

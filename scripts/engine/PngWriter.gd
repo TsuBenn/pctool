@@ -8,7 +8,8 @@ static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, 
 	if ext.is_empty() or ext != "png":
 		ext = "png"
 
-	var baked_map: Dictionary = await ExportEngine.bake_tile_images(document_data)
+	# var baked_map: Dictionary = await ExportEngine.bake_tile_images(document_data)
+	var baked_map: Dictionary = {}
 	if baked_map.is_empty():
 		if Global.progress_flag:
 			Global.progress_finished()

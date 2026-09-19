@@ -9,8 +9,10 @@ static func save_pdf_to_file(
 	doc: DocumentData,
 	layout: PrintLayout,
 	output_path: String,
-	baked_images_map: Dictionary # PhotoItemData, Index -> Image (Baked 300 DPI sticker)
 ) -> Error:
+
+	var tile_indices: Array[Array] = ExportEngine.get_tile_indices(doc)
+	var tiles_tracker: Dictionary = ExportEngine.get_tiles_tracker(tile_indices)
 
 	Global.progress_update("Preparing PDF", 0)
 	await Engine.get_main_loop().process_frame
@@ -53,7 +55,7 @@ static func save_pdf_to_file(
 
 	for item in doc.photo_items:
 		for index in item.asset.get_count():
-			if baked_images_map.has([item, index]) and not item_to_resource_id.has([item, index]):
+			if tiles_tracker.has([item, index]) and not item_to_resource_id.has([item, index]):
 				item_to_resource_id[[item, index]] = res_counter
 				image_items.append([item,index])
 				res_counter += 1
@@ -81,53 +83,73 @@ static func save_pdf_to_file(
 	var xobject_resource_dict: String = "<< "
 
 	var total_images: int = image_items.size()
-	var images_to_encode: Array[Image] = []
 	var jpg_buffers: Array[PackedByteArray] = []
-
-	images_to_encode.resize(total_images)
 	jpg_buffers.resize(total_images)
 
 	Global.progress_update("Encoding Images", 0.3)
 	await Engine.get_main_loop().process_frame
 
-	for i in range(total_images):
-		var item = image_items[i]
-		images_to_encode[i] = baked_images_map[[item[0], item[1]]]
+	var processed_images: int = 0
 
-	var mutex: Mutex = Mutex.new()
-	var shared_counter: Dictionary = {
-		"current": 0,
-		"total": total_images
-	}
+	while (processed_images < total_images):
+		var unprocessed_tiles: Array[Array] = []
 
-	var encode_task = func(i: int):
-		var img = images_to_encode[i]
-		jpg_buffers[i] = img.save_jpg_to_buffer(0.90)
-		mutex.lock()
-		shared_counter["current"] += 1
-		mutex.unlock()
+		for tile in tile_indices:
+			if not tiles_tracker[tile]:
+				unprocessed_tiles.append(tile)
 
-	# var start_time: float = Time.get_ticks_usec()
+		var baked_images_map: Dictionary = {}
 
-	var group_id: int = WorkerThreadPool.add_group_task(
-		encode_task,
-		total_images,
-		-1,
-		true,
-		"PDF_JPEG_ENCODING"
-	)
+		baked_images_map = await ExportEngine.bake_tile_images(unprocessed_tiles, doc.dpi, processed_images)
 
-	while shared_counter["current"] < shared_counter["total"]:
-		if Global.progress_flag:
-			Global.progress_finished()
-			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
-			return OK
-		Global.progress_update("Encoding Images (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
-		await Engine.get_main_loop().process_frame
+		var tiles_to_encode: Array[Array] = []
 
-	WorkerThreadPool.wait_for_group_task_completion(group_id)
+		for tile in baked_images_map.keys():
+			tiles_tracker[tile] = true
+			tiles_to_encode.append(tile)
 
-	# print("Image -> JPEG: " + str((Time.get_ticks_usec() - start_time)/1000.0))
+		var images_to_encode: Array[Image] = []
+		images_to_encode.resize(tiles_to_encode.size())
+
+		for i in range(tiles_to_encode.size()):
+			var item = tiles_to_encode[i]
+			images_to_encode[i] = baked_images_map[item]
+			baked_images_map.erase(item)
+
+
+		var mutex: Mutex = Mutex.new()
+		var shared_counter: Dictionary = {
+			"current": 0,
+			"total": tiles_to_encode.size()
+		}
+
+		var encode_task = func(i: int):
+			var img = images_to_encode[i]
+			jpg_buffers[processed_images + i] = img.save_jpg_to_buffer(0.90)
+			mutex.lock()
+			shared_counter["current"] += 1
+			mutex.unlock()
+
+		var group_id: int = WorkerThreadPool.add_group_task(
+			encode_task,
+			tiles_to_encode.size(),
+			-1,
+			true,
+			"PDF_JPEG_ENCODING"
+		)
+
+		while shared_counter["current"] < shared_counter["total"]:
+			if Global.progress_flag:
+				Global.progress_finished()
+				Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+				return OK
+			Global.progress_update("Encoding Images (%d/%d)" % [shared_counter["current"] + processed_images,unprocessed_tiles.size() + processed_images], (shared_counter["current"] + processed_images)/(float(unprocessed_tiles.size() + processed_images)))
+			await Engine.get_main_loop().process_frame
+
+		WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+		processed_images += tiles_to_encode.size()
+
 
 	Global.progress_update("Writing Images to PDF", 0.3)
 	await Engine.get_main_loop().process_frame
@@ -135,16 +157,16 @@ static func save_pdf_to_file(
 	var milestone: float = Time.get_ticks_msec()
 
 	for i in range(total_images):
-		var img: Image = images_to_encode[i]
 		var obj_id: int = first_img_obj_id + i
 		var jpg_buffer: PackedByteArray = jpg_buffers[i]
+		var img_size: Vector2i = ImageAssetData.get_dimensions(jpg_buffer)
 
 		xobject_resource_dict += "/Im%d %d 0 R " % [i, obj_id]
 
 		offsets.append(file.get_position())
 		file.store_string(
 			"%d 0 obj\n<< /Type /XObject /Subtype /Image /Width %d /Height %d /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length %d >>\nstream\n"
-			% [obj_id, img.get_width(), img.get_height(), jpg_buffer.size()]
+			% [obj_id, img_size.x, img_size.y, jpg_buffer.size()]
 		)
 		file.store_buffer(jpg_buffer)
 		file.store_string("\nendstream\nendobj\n")

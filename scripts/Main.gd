@@ -141,6 +141,8 @@ func _ready() -> void:
 
 					if active_document and Global.undo_redo.has(active_document) and not Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
 								Global.undo_redo[active_document].version_changed.connect(_update_undo_redo)
+
+					_update_undo_redo()
 	)
 
 	undo_button.pressed.connect(

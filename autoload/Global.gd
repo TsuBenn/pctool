@@ -32,3 +32,20 @@ func progress_started(new: String = ""):
 
 func progress_update(message: String = "", value: float = -1):
 	on_progress_updated.emit(message, value)
+
+func get_memory_usage_mb():
+	return OS.get_static_memory_usage()/(1024.0*1024.0)
+
+func get_video_memory_usage_mb():
+	var texture_vram: float = Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED)
+	var buffer_vram: float = Performance.get_monitor(Performance.RENDER_BUFFER_MEM_USED)
+	var texture_mb: float = texture_vram / (1024.0 * 1024.0)
+	var buffer_mb: float = buffer_vram / (1024.0 * 1024.0)
+	var total_mb: float = texture_mb + buffer_mb
+	return total_mb
+
+func print_memory_usage():
+	print(" RAM:   %.2f MB" % get_memory_usage_mb())
+
+func print_video_memory_usage():
+	print("VRAM:   %.2f MB" % get_video_memory_usage_mb())

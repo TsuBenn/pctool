@@ -167,7 +167,6 @@ func set_value_no_signal(new_value: float):
 
 func _on_spin_box_value_changed(new_value: float) -> void:
 	if timer.is_stopped():
-		print("start")
 		value_start_change.emit(value)
 	timer.start()
 	value = new_value
