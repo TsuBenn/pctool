@@ -473,46 +473,9 @@ static func get_image_asset_data(asset_dict: Dictionary, img_bytes: PackedByteAr
 	var internal_name: String = asset_dict.get("file_name", "")
 	var archive_img_path: String = "assets/%s" % internal_name
 
-	var img: Image = Image.new()
-	var err: Error = FAILED
+	var asset_obj: ImageAssetData = ImageAssetData.create_from_buffer(img_bytes, archive_img_path)
 
-	var ext: String = internal_name.get_extension().to_lower()
-
-	# Determine loader priority based on stored extension, with safety fallbacks
-	if ext in ["jpg", "jpeg"]:
-		err = img.load_jpg_from_buffer(img_bytes)
-		if err != OK: err = img.load_png_from_buffer(img_bytes)
-		if err != OK: err = img.load_webp_from_buffer(img_bytes)
-	elif ext == "webp":
-		err = img.load_webp_from_buffer(img_bytes)
-		if err != OK: err = img.load_png_from_buffer(img_bytes)
-		if err != OK: err = img.load_jpg_from_buffer(img_bytes)
-	else: # Default try PNG first
-		err = img.load_png_from_buffer(img_bytes)
-		if err != OK: err = img.load_jpg_from_buffer(img_bytes)
-		if err != OK: err = img.load_webp_from_buffer(img_bytes)
-
-	if err != OK:
-		push_error("DocumentManager: Failed to decode image from archive: %s" % archive_img_path)
-		return null
-
-	var tex: Texture2D = ImageTexture.create_from_image(img)
-	var dim: Vector2i = img.get_size()
-	var display_name: String = asset_dict.get("display_name", "")
-	var source_path: String = asset_dict.get("source_path", "")
-
-	# Instantiate the asset
-	var asset_obj: ImageAssetData = ImageAssetData.new(
-		asset_id,
-		display_name,
-		source_path,
-		tex,
-		img,
-		dim
-	)
-
-	asset_obj.raw_file_buffer = img_bytes
-	asset_obj.file_extension = ext
+	asset_obj.id = asset_id
+	asset_obj.display_name = asset_dict.get("display_name", asset_id)
 
 	return asset_obj
-

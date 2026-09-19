@@ -7,6 +7,8 @@ uniform mat3 u_homography_matrix = mat3(
 	vec3(0.0, 0.0, 1.0)
 );
 
+uniform float opacity = 1;
+
 uniform vec4 frame_rect = vec4(0.0,0.0,0.0,0.0);
 
 varying vec2 local_pos;
@@ -46,6 +48,6 @@ void fragment() {
 	if (local_pos.x >= frame_rect.x && local_pos.x <= (frame_rect.x + frame_rect.z) &&
         local_pos.y >= frame_rect.y && local_pos.y <= (frame_rect.y + frame_rect.w)) {}
 	else {
-		COLOR = COLOR * vec4(1,1,1,out_bound_opacity);
+		COLOR = COLOR * vec4(1,1,1,out_bound_opacity*opacity);
 	}
 }

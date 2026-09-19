@@ -38,6 +38,7 @@ max_value = 1.0
 
 [node name="CancelButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1424725988]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Cancel"

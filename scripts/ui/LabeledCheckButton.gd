@@ -23,7 +23,7 @@ signal toggled(toggled_on: bool)
 		button_pressed = new_val
 		if is_node_ready():
 			%CheckButton.button_pressed = new_val
-			%Button.button_pressed = new_val
+			%Button.set_pressed_no_signal(new_val)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -34,9 +34,10 @@ func _ready() -> void:
 	%Button.button_pressed = button_pressed
 
 	if not Engine.is_editor_hint():
-		%CheckButton.toggled.connect(_on_toggled)
+		# %CheckButton.toggled.connect(_on_toggled)
 		%Button.toggled.connect(_on_toggled)
 
 func _on_toggled(toggled_on: bool):
 	button_pressed = toggled_on
 	toggled.emit(toggled_on)
+

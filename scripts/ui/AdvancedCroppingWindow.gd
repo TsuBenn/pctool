@@ -319,13 +319,13 @@ func panel_gui_input(event: InputEvent):
 				if event.ctrl_pressed:
 					zoom_scale = int(zoom_scale * 1.1)
 				else:
-					zoom_spin_box.value *= 1.05 if event.shift_pressed else 1.2
+					zoom_spin_box.value *= 1.01 if event.shift_pressed else 1.1
 					zoom_spin_box.value = max(zoom_spin_box.value, 100)
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				if event.ctrl_pressed:
 					zoom_scale = int(zoom_scale / 1.1)
 				else:
-					zoom_spin_box.value /= 1.05 if event.shift_pressed else 1.2
+					zoom_spin_box.value /= 1.01 if event.shift_pressed else 1.1
 					zoom_spin_box.value = max(zoom_spin_box.value, 100)
 		elif event.is_released():
 			if event.button_index == MOUSE_BUTTON_LEFT:
@@ -383,6 +383,7 @@ func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 
 	distort_handle_magnifier_frame.size = Vector2(distort_handle_margins*2*distort_magnify_size, distort_handle_margins*2*distort_magnify_size)
 
+	distort_handle_magnifier_image_preview.texture = photo_item.asset.get_preview_texture(sub_asset_index)
 	distort_handle_magnifier_image_preview.size = photo_item.asset.get_image(sub_asset_index).get_size() * _get_scale_distortion_panel() * distort_magnify_scale
 	distort_handle_magnifier_image_preview.position = (dhm*distort_magnify_size - mouse_position*distort_magnify_scale).clamp(-distortion_image_preview.size*distort_magnify_scale + dhm*distort_magnify_size, Vector2.ZERO + dhm*distort_magnify_size)
 
@@ -401,6 +402,7 @@ func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 
 func _sync_ui_distortion_panel(framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)):
 
+	distortion_image_preview.texture = photo_item.asset.get_preview_texture(sub_asset_index)
 	distortion_image_preview.custom_minimum_size = photo_item.asset.get_image(sub_asset_index).get_size() * _get_scale_distortion_panel()
 
 	tl_handle.offset_left = -distort_handle_margins

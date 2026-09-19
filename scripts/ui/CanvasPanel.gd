@@ -258,7 +258,7 @@ func _on_paper_container_gui_input(event: InputEvent):
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed():
 		if (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE):
-			_on_photo_tile_context_menu_pressed(TILE_REMOVE_ITEM)
+			_on_photo_tile_context_menu_pressed(TILE_REMOVE)
 		elif event.keycode == KEY_D and event.ctrl_pressed:
 			_on_photo_tile_context_menu_pressed(TILE_DUPLICATE)
 
@@ -276,8 +276,7 @@ enum {
 		TILE_COPY_PROPERTIES,
 		TILE_PASTE_PROPERTIES,
 		TILE_DUPLICATE,
-		TILE_REMOVE_ITEM,
-		TILE_REMOVE_ALL,
+		TILE_REMOVE,
 	}
 
 var photo_item_clipboard: PhotoItemData = null
@@ -316,14 +315,14 @@ func _on_photo_tile_context_menu_pressed(id: int):
 			TILE_DUPLICATE:
 				_select_photo_item(document_data.duplicate_photo_item(item))
 				_sync_ui()
-			TILE_REMOVE_ITEM:
-				if selected_photo_item.asset.get_count() > 1:
-					selected_photo_item.asset.remove_child(selected_sub_asset_index)
-				else:
-					var to_remove = selected_photo_item
-					_deselect_all_photo_items()
-					document_data.remove_photo_item(to_remove)
-			TILE_REMOVE_ALL:
+			# TILE_REMOVE_ITEM:
+			# 	if selected_photo_item.asset.get_count() > 1:
+			# 		selected_photo_item.asset.remove_child(selected_sub_asset_index)
+			# 	else:
+			# 		var to_remove = selected_photo_item
+			# 		_deselect_all_photo_items()
+			# 		document_data.remove_photo_item(to_remove)
+			TILE_REMOVE:
 				var to_remove = selected_photo_item
 				_deselect_all_photo_items()
 				document_data.remove_photo_item(to_remove)

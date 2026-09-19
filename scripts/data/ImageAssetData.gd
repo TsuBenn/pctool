@@ -84,7 +84,12 @@ static func create_from_buffer(buffer: PackedByteArray, path: String = "") -> Im
 		push_error('ImageAssetData: Image from path "%s" is unsupported or corrupted' % path)
 		return null
 
-	var tex: Texture2D = ImageTexture.create_from_image(img)
+	var scale: float = min((2000000.0)/(img.get_size().x*img.get_size().y), 1)
+	var lower_img: Image = img.duplicate()
+	lower_img.resize(round(img.get_size().x*scale),round(img.get_size().y*scale), Image.INTERPOLATE_NEAREST)
+	var tex: Texture2D = ImageTexture.create_from_image(lower_img)
+	print("original:" + str(img.get_size()))
+	print("lower   :" + str(lower_img.get_size()))
 	var dim = Vector2i(img.get_width(), img.get_height())
 	var file_name = path.get_file()
 	var new_id = AssetData.get_id()

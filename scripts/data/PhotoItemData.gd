@@ -2,6 +2,8 @@ class_name PhotoItemData
 extends Resource
 
 # DATA
+var _document_data: DocumentData # Used for tracking Undo Redo in the appropriate _document_data
+
 @export var asset: AssetData:
 	set(new):
 		if asset and asset.changed.is_connected(emit_changed):
@@ -240,3 +242,37 @@ func get_image_rect_mm(index: int) -> Rect2:
 			x = (size_mm.x - w) * (1 + offset.x) * 0.5
 
 	return Rect2(x, y, w, h)
+
+var _old_self: PhotoItemData
+
+func _save_old_state():
+	_old_self = self.duplicate()
+func _commit_changes(action: String):
+	var old_state: PhotoItemData = _old_self
+	var new_state: PhotoItemData = self.duplicate()
+
+	_old_self = null
+	Global.undo_redo[_document_data].create_action(action)
+	Global.undo_redo[_document_data].add_do_method(
+		func():
+			asset = new_state.asset
+			size_mm = new_state.size_mm
+			isolate_row = new_state.isolate_row
+			quantity = new_state.quantity
+			framings = new_state.framings
+			border_enabled = new_state.border_enabled
+			border_width = new_state.border_width
+			border_color = new_state.border_color
+	)
+	Global.undo_redo[_document_data].add_undo_method(
+		func():
+			asset = old_state.asset
+			size_mm = old_state.size_mm
+			isolate_row = old_state.isolate_row
+			quantity = old_state.quantity
+			framings = old_state.framings
+			border_enabled = old_state.border_enabled
+			border_width = old_state.border_width
+			border_color = old_state.border_color
+	)
+	Global.undo_redo[_document_data].commit_action()

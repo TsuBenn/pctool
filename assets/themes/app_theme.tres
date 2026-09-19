@@ -109,10 +109,10 @@ atlas = ExtResource("13_d5hwj")
 region = Rect2(1166, 0, 2, 32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjspk"]
-bg_color = Color(0.85490197, 0.13333334, 0.22745098, 1)
+bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dds1x"]
-bg_color = Color(0.85490197, 0.13333334, 0.22745098, 1)
+bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_umjuq"]
 
@@ -282,10 +282,10 @@ texture_margin_bottom = 2.0
 region_rect = Rect2(896, 0, 32, 32)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cdpo6"]
-bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
+bg_color = Color(0.85490197, 0.13333334, 0.22745098, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0quv3"]
-bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
+bg_color = Color(0.85490197, 0.13333334, 0.22745098, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ccmpb"]
 atlas = ExtResource("13_d5hwj")

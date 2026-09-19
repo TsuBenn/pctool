@@ -65,6 +65,8 @@ static func bake_tile_images(document_data: DocumentData):
 	Global.progress_update("Preparing Tiles (%d/%d)" % [tiles_baked, tiles_to_bake], 0)
 	await Engine.get_main_loop().process_frame
 
+	var temp_mat : Array[ShaderMaterial] = []
+
 	for item in document_data.photo_items:
 		for index in item.asset.get_count():
 			var framing = item.get_framing(index)
@@ -83,14 +85,17 @@ static func bake_tile_images(document_data: DocumentData):
 
 			var shader_mat: ShaderMaterial = null
 			if tree and tree.current_scene and tree.current_scene.distort_shader_material:
-				shader_mat = tree.current_scene.distort_shader_material
+				shader_mat = tree.current_scene.distort_shader_material as ShaderMaterial
 			else:
 				Global.notice("Tile Renderer Failed", "Missing Shader Material")
 				return null
 
+			var mat: ShaderMaterial = shader_mat.duplicate()
+			temp_mat.append(mat)
+
 			var homography_mat: Basis = item.get_distort_matrix(index)
-			shader_mat.set_shader_parameter("u_homography_matrix", homography_mat if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
-			shader_mat.set_shader_parameter("out_bound_opacity", 1)
+			mat.set_shader_parameter("u_homography_matrix", homography_mat if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
+			mat.set_shader_parameter("out_bound_opacity", 1)
 
 			var viewport_rid: RID = RenderingServer.viewport_create()
 			var canvas_rid: RID = RenderingServer.canvas_create()
@@ -104,7 +109,7 @@ static func bake_tile_images(document_data: DocumentData):
 			RenderingServer.viewport_set_update_mode(viewport_rid, RenderingServer.VIEWPORT_UPDATE_ONCE)
 
 			RenderingServer.canvas_item_set_parent(canvas_item_rid, canvas_rid)
-			RenderingServer.canvas_item_set_material(canvas_item_rid, shader_mat.get_rid())
+			RenderingServer.canvas_item_set_material(canvas_item_rid, mat.get_rid())
 			RenderingServer.canvas_item_set_default_texture_filter(canvas_item_rid, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR)
 
 			var dest_rect: Rect2 = Rect2(image_rect.position*px_per_mm, image_rect.size*px_per_mm)
@@ -133,6 +138,8 @@ static func bake_tile_images(document_data: DocumentData):
 
 	# await RenderingServer.frame_post_draw
 	RenderingServer.force_draw()
+
+	temp_mat.clear()
 
 	Global.progress_update("Rendering %d Tiles" % tiles_to_bake, 1)
 	await Engine.get_main_loop().process_frame

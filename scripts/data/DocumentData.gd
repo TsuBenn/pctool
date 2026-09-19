@@ -43,9 +43,8 @@ extends Resource
 
 @export var photo_items: Array[PhotoItemData] = []:
 	set(new):
-		if photo_items != new:
-			photo_items = new
-			emit_changed()
+		photo_items = new
+		emit_changed()
 
 @export var save_path: String = ""
 
@@ -72,9 +71,28 @@ func remove_photo_item_no_signal(photo_item: PhotoItemData):
 func clear_photo_items_no_signal():
 	clear_photo_items(false)
 
-func add_photo_item(photo_item: PhotoItemData, signal_changed: bool = true):
-	photo_items.append(photo_item)
+func add_photo_item(photo_item: PhotoItemData, signal_changed: bool = true, pos: int = -1, commit: bool = true):
+	if pos >= 0:
+		photo_items.insert(pos, photo_item)
+	else:
+		photo_items.append(photo_item)
 	photo_item.changed.connect(emit_changed)
+	photo_item._document_data = self
+
+	if commit:
+		if not Global.undo_redo.has(self):
+			Global.undo_redo[self] = UndoRedo.new()
+		Global.undo_redo[self].create_action("Add Photo Item to Canvas")
+		Global.undo_redo[self].add_do_method(
+			func():
+				add_photo_item(photo_item, true, pos, false)
+		)
+		Global.undo_redo[self].add_undo_method(
+			func():
+				remove_photo_item(photo_item, true, pos, false)
+		)
+		Global.undo_redo[self].commit_action(false)
+
 	if signal_changed:
 		emit_changed()
 
@@ -82,17 +100,30 @@ func duplicate_photo_item(photo_item: PhotoItemData, signal_changed: bool = true
 	var copy: PhotoItemData = photo_item.duplicate()
 	var copy_framings: Dictionary[int, PhotoItemData.Framing] = photo_item.framings.duplicate(true)
 	copy.framings = copy_framings
-	photo_items.append(copy)
-	copy.changed.connect(emit_changed)
-	if signal_changed:
-		emit_changed()
+	add_photo_item(copy, signal_changed)
 
 	return copy
 
-func remove_photo_item(photo_item: PhotoItemData, signal_changed: bool = true):
+func remove_photo_item(photo_item: PhotoItemData, signal_changed: bool = true, pos: int = -1, commit: bool = true):
+	pos = photo_items.find(photo_item)
 	photo_items.erase(photo_item)
 	if photo_item.changed.is_connected(emit_changed):
 		photo_item.changed.disconnect(emit_changed)
+
+	if commit:
+		if not Global.undo_redo.has(self):
+			Global.undo_redo[self] = UndoRedo.new()
+		Global.undo_redo[self].create_action("Remove Photo Item from Canvas")
+		Global.undo_redo[self].add_do_method(
+			func():
+				remove_photo_item(photo_item, true, pos, false)
+		)
+		Global.undo_redo[self].add_undo_method(
+			func():
+				add_photo_item(photo_item, true, pos, false)
+		)
+		Global.undo_redo[self].commit_action(false)
+
 	if signal_changed:
 		emit_changed()
 

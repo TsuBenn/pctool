@@ -8,8 +8,10 @@ signal on_progress_updated(message: String, value: float)
 
 var version: String= ProjectSettings.get_setting("application/config/version", "N/A")
 
-
 var version_v: String= "v%s" % ProjectSettings.get_setting("application/config/version", "0")
+
+var undo_redo: Dictionary[DocumentData, UndoRedo] = {}
+var is_undoing: bool = false
 
 var app_title_prefix: String= "PCTool %s" % version
 

@@ -50,6 +50,14 @@ func _init_children():
 	canvas_panel.setup(document_data)
 	properties_panel.setup(document_data)
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.is_pressed():
+		if event.keycode == KEY_Z and event.ctrl_pressed:
+			if event.shift_pressed:
+				Global.undo_redo[document_data].redo()
+			else:
+				Global.undo_redo[document_data].undo()
+
 func _on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int):
 	properties_panel.photo_item = photo_item
 	properties_panel.sub_asset_index = sub_asset_index

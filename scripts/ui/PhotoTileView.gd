@@ -16,6 +16,7 @@ var is_selected: bool = false:
 	set(new):
 		is_selected = new
 		if is_node_ready():
+			_update_image_rect()
 			selection_outline.visible = new
 
 var is_selected_tile: bool = false:
@@ -70,6 +71,7 @@ func _update_image_rect():
 	var mat: ShaderMaterial = image_texture.material
 	if mat:
 		mat.set_shader_parameter("u_homography_matrix", photo_item.get_distort_matrix(photo_tile.sub_asset_index) if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
+		mat.set_shader_parameter("opacity", 1.0 if is_selected_tile or not is_selected else 0.7)
 
 
 
@@ -83,7 +85,7 @@ func _update_tile_rect():
 	var padding: float = selection_padding*view_scale/2
 
 	if selection_padding <= 1:
-		base_selection.visible = false
+		base_selection.visible = true
 	else:
 		base_selection.visible = true
 
