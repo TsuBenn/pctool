@@ -135,14 +135,17 @@ func _ready() -> void:
 			if current_workspace:
 				if current_workspace.document_data:
 					if active_document and Global.undo_redo.has(active_document) and Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
-								Global.undo_redo[active_document].version_changed.disconnect(_update_undo_redo)
+						Global.undo_redo[active_document].version_changed.disconnect(_update_undo_redo)
 
 					active_document = current_workspace.document_data
 
 					if active_document and Global.undo_redo.has(active_document) and not Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
-								Global.undo_redo[active_document].version_changed.connect(_update_undo_redo)
+						Global.undo_redo[active_document].version_changed.connect(_update_undo_redo)
 
 					_update_undo_redo()
+			else:
+				print("yeh")
+				active_document = null
 	)
 
 	undo_button.pressed.connect(

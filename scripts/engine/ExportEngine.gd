@@ -61,6 +61,10 @@ static func get_tiles_tracker(tile_indices: Array[Array]) -> Dictionary:
 	return tracker
 
 static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_tiles: int = 0) -> Dictionary:
+
+	var MAX_RAM_MB: float = 1000
+	var MAX_VRAM_MB: float = 1000
+
 	var baked_map: Dictionary = {}
 	var render_tasks: Array[Dictionary] = []
 
@@ -71,6 +75,61 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 	var temp_mat : Array[ShaderMaterial] = []
 	var temp_tex : Array[Texture2D] = []
 
+	var total_tiles: int = tile_indices.size()
+
+	var texture_map: Dictionary = {} # [item, index] -> Texture2D
+
+	var mutex: Mutex = Mutex.new()
+	var shared_counter: Dictionary = {
+		"current": 0,
+		"total": total_tiles,
+		"canceled": false,
+		"mb": 0,
+	}
+
+	var create_texture = func(i: int):
+		mutex.lock()
+		if shared_counter["canceled"]:
+			mutex.unlock()
+			return
+		if shared_counter["mb"] > MAX_VRAM_MB:
+			print.call_deferred("Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)" % [shared_counter["mb"], MAX_VRAM_MB, shared_counter["current"] + processed_tiles, total_tiles + processed_tiles])
+			mutex.unlock()
+			return
+		mutex.unlock()
+
+		var tile = tile_indices[i]
+		var item: PhotoItemData = tile[0]
+		var index: int = tile[1]
+		var raw_img: Image = item.asset.get_image(index)
+		var raw_tex: Texture2D = ImageTexture.create_from_image(raw_img)
+		raw_img = null
+
+		mutex.lock()
+		shared_counter["mb"] += ((raw_tex.get_size().x*raw_tex.get_size().y*4)/(1024.0*1024.0)) * 1.3333
+		shared_counter["current"] += 1
+		texture_map[tile] = raw_tex
+		mutex.unlock()
+
+	var group_id: int = WorkerThreadPool.add_group_task(
+		create_texture,
+		total_tiles,
+		-1,
+		true,
+		"CREATING_TEXTURE"
+	)
+
+	WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+	print(shared_counter)
+	print(texture_map.size())
+	print(Global.print_memory_usage())
+	print(Global.print_video_memory_usage())
+
+	Global.cancel_progress()
+
+	return {}
+
 	print("--------------------------")
 	Global.print_memory_usage()
 	Global.print_video_memory_usage()
@@ -78,7 +137,7 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 
 	var tile_calls: int = 0
 
-	while (Global.get_memory_usage_mb() <= 1000) and tile_calls < tile_indices.size():
+	while ((Global.get_memory_usage_mb() <= MAX_RAM_MB) and tile_calls < total_tiles) or tile_calls == 0:
 		for i in range(tile_calls, tile_indices.size()):
 			var tile = tile_indices[i]
 			var item: PhotoItemData = tile[0]
@@ -143,22 +202,22 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 
 			tile_calls += 1
 
-			if Global.get_video_memory_usage_mb() > 1000:
-				print("Exeeded %.2f MB of VRAM, offloading... (%d/%d)" % [Global.get_video_memory_usage_mb(), tile_calls + processed_tiles, tile_indices.size() + processed_tiles])
+			if Global.get_video_memory_usage_mb() > MAX_VRAM_MB:
+				print("Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)" % [Global.get_video_memory_usage_mb(), MAX_VRAM_MB, tile_calls + processed_tiles, total_tiles + processed_tiles])
 				break
-			if Global.get_memory_usage_mb() > 1000:
-				print("Exeeded %.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), tile_calls + processed_tiles, tile_indices.size() + processed_tiles])
+			if Global.get_memory_usage_mb() > MAX_RAM_MB:
+				print("Exeeded %.2f/%.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), MAX_RAM_MB,tile_calls + processed_tiles, total_tiles + processed_tiles])
 				break
 
 			if Time.get_ticks_msec() - milestone > 100:
 				milestone = Time.get_ticks_msec()
-				Global.progress_update("Preparing Tiles (%d/%d)" % [tile_calls + processed_tiles, tile_indices.size() + processed_tiles], float(tile_calls + processed_tiles)/tile_indices.size() + processed_tiles)
+				Global.progress_update("Preparing Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles], float(tile_calls + processed_tiles)/total_tiles + processed_tiles)
 				await Engine.get_main_loop().process_frame
 
 		if render_tasks.is_empty():
 			return baked_map
 
-		Global.progress_update("Rendering %d Tiles" % tile_indices.size(), 0)
+		Global.progress_update("Rendering %d Tiles" % total_tiles, 0)
 		await Engine.get_main_loop().process_frame
 
 		# await RenderingServer.frame_post_draw
@@ -171,10 +230,10 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 		temp_mat.clear()
 		temp_tex.clear()
 
-		Global.progress_update("Rendering %d Tiles" % tile_indices.size(), 1)
+		Global.progress_update("Rendering %d Tiles" % total_tiles, 1)
 		await Engine.get_main_loop().process_frame
 
-		Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, tile_indices.size() + processed_tiles], float(tile_calls)/tile_indices.size())
+		Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles], float(tile_calls)/total_tiles)
 		await Engine.get_main_loop().process_frame
 
 		milestone = Time.get_ticks_msec()
@@ -200,13 +259,13 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 
 			if Time.get_ticks_msec() - milestone > 100:
 				milestone = Time.get_ticks_msec()
-				Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, tile_indices.size() + processed_tiles], float(tile_calls + processed_tiles)/tile_indices.size() + processed_tiles)
+				Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles], float(tile_calls + processed_tiles)/total_tiles + processed_tiles)
 				await Engine.get_main_loop().process_frame
 
 		render_tasks.clear()
 
-	if (Global.get_memory_usage_mb() > 1000):
-		print("Exeeded %.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), tile_calls + processed_tiles, tile_indices.size() + processed_tiles])
+	if (Global.get_memory_usage_mb() > MAX_RAM_MB):
+		print("Exeeded %.2f/%.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), MAX_RAM_MB,tile_calls + processed_tiles, total_tiles + processed_tiles])
 
 	Global.print_memory_usage()
 	Global.print_video_memory_usage()

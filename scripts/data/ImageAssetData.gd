@@ -97,9 +97,8 @@ static func create_from_buffer(buffer: PackedByteArray, path: String = "") -> Im
 		return null
 
 	var scale: float = (1920.0*1080)/(img.get_size().x*img.get_size().y)
-	var lower_img: Image = img.duplicate()
-	lower_img.resize(round(img.get_size().x*scale),round(img.get_size().y*scale), Image.INTERPOLATE_NEAREST)
-	var tex: Texture2D = ImageTexture.create_from_image(lower_img)
+	img.resize(round(img.get_size().x*scale),round(img.get_size().y*scale), Image.INTERPOLATE_LANCZOS)
+	var tex: Texture2D = ImageTexture.create_from_image(img)
 	# print("original:" + str(img.get_size()))
 	# print("lower   :" + str(lower_img.get_size()))
 	var dim = Vector2i(img.get_width(), img.get_height())

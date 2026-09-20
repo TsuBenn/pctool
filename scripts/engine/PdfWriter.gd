@@ -102,6 +102,11 @@ static func save_pdf_to_file(
 
 		baked_images_map = await ExportEngine.bake_tile_images(unprocessed_tiles, doc.dpi, processed_images)
 
+		if Global.progress_flag:
+			Global.progress_finished()
+			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			return OK
+
 		var tiles_to_encode: Array[Array] = []
 
 		for tile in baked_images_map.keys():

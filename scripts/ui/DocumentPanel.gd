@@ -42,7 +42,7 @@ func _update_view_state(_node: Node = null) -> void:
 
 
 func _on_tab_close_pressed(tab_idx: int) -> void:
-	var tab_to_close: Node = workspace_tab_container.get_child(tab_idx)
+	var tab_to_close: WorkspaceInstance = workspace_tab_container.get_child(tab_idx)
 	if tab_to_close:
 		workspace_tab_container.remove_child(tab_to_close)
 		tab_to_close.queue_free()
