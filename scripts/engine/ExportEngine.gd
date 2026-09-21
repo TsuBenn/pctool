@@ -79,6 +79,9 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 	var MAX_RAM_MB: float = min(Global.get_available_os_memory_mb()*0.5, 1000)
 	var MAX_VRAM_MB: float =  min(Global.get_available_os_memory_mb()*0.25, 1000)
 
+	# var MAX_RAM_MB: float = 0
+	# var MAX_VRAM_MB: float = 0
+
 	var baked_map: Dictionary = {}
 	var render_tasks: Array[Dictionary] = []
 
@@ -152,6 +155,10 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 
 	# for i in range(total_tiles):
 	# 	create_texture.call(i)
+	# 	if Global.progress_flag:
+	# 		return {}
+	# 	Global.progress_update("Decoding Tiles (%d/%d)" % [shared_counter["current"] + processed_tiles, total_tiles + processed_tiles], float(shared_counter["current"] + processed_tiles)/(total_tiles + processed_tiles))
+	# 	await Engine.get_main_loop().process_frame
 
 	# PLEASE DO NOT ALLOCATE GPU MEMORIES IN MULTI THREADS
 	for tile in texture_map.keys():

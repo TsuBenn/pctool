@@ -9,6 +9,7 @@ extends PanelContainer
 
 signal import_assets_requested
 signal open_document_requested
+signal open_recent_requested(file: String)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -26,6 +27,7 @@ func _ready() -> void:
 	home_panel.new_document_requested.connect(open_document)
 	home_panel.open_document_requested.connect(open_document_requested.emit)
 	home_panel.import_assets_requested.connect(import_assets_requested.emit)
+	home_panel.open_recent_requested.connect(open_recent_requested.emit)
 
 	_update_view_state(null)
 	pass  # Replace with function body.

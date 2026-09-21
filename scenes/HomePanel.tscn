@@ -82,3 +82,7 @@ size_flags_vertical = 3
 [node name="RecentsGroupBox" parent="MarginContainer/HBoxContainer/HBoxContainer" unique_id=1471613207 instance=ExtResource("4_75ha7")]
 layout_mode = 2
 title = "Recents"
+
+[node name="RecentsVBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/HBoxContainer/RecentsGroupBox" unique_id=212012608]
+unique_name_in_owner = true
+layout_mode = 2

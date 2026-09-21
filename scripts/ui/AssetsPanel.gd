@@ -7,6 +7,7 @@ signal request_import_dialog
 @export var asset_card_instance: PackedScene
 
 @onready var import_button: Button = %ImportButton
+@onready var assets_search: LineEdit = %AssetsSearch
 
 @onready var assets_empty_state_label: Label = %AssetsEmptyStateLabel
 
@@ -64,9 +65,32 @@ func _ready() -> void:
 
 	resized.connect(_on_resized)
 
+	assets_search.text_changed.connect(_assets_search)
+
 	_update_status_footer()
 	_update_view_mode(view_option_button.selected)
 
+func _assets_search(query: String):
+	query = Global.flatten_string(query)
+	match view_mode:
+		"grid":
+			for card: AssetCard in grid_assets_container.get_children():
+				if query.is_empty():
+					card.visible = true
+					continue
+				var card_name: String = Global.flatten_string(card.asset_data.display_name)
+				if query.is_subsequence_of(card_name):
+					card.visible = true
+				else:
+					card.visible = false
+		"list":
+			for card in list_assets_container.get_children():
+				if query.is_empty():
+					card.visible = true
+					continue
+				var card_name: String = Global.flatten_string(card.asset_data.display_name)
+				if not query.is_subsequence_of(card_name):
+					card.visible = true
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed:
@@ -89,6 +113,8 @@ func _on_assets_container_pressed(event: InputEvent):
 
 
 func _on_import_button_pressed() -> void:
+	assets_search.text = ""
+	assets_search.text_changed.emit("")
 	request_import_dialog.emit()
 
 

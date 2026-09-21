@@ -8,6 +8,8 @@ oversampling_override = 1.0
 title = "Exporting"
 position = Vector2i(0, 26)
 size = Vector2i(420, 100)
+transient = true
+exclusive = true
 script = ExtResource("1_66jub")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=843476739]

@@ -125,6 +125,11 @@ func _ready() -> void:
 
 	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(600,400)))
 	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(600,400)))
+	document_panel.open_recent_requested.connect(
+		func(file):
+			var files: PackedStringArray = [file]
+			_open_documents(files)
+	)
 
 	workspace_tab_container.tab_changed.connect(
 		func(new):
@@ -185,9 +190,27 @@ func _export_file(file_path: String):
 
 func _open_documents(files: PackedStringArray):
 	for file in files:
+
+		if not FileAccess.file_exists(file):
+			Global.notice("Recent Files", "File at path: \n\"%s\"\n is no longer exists" % file)
+			var recent: Array = Global.get_config("recent", "files")
+			if recent.has(file):
+				recent.erase(file)
+			Global.set_config("recent", "files", recent)
+			Global.save_config()
+			continue
+
 		var doc : DocumentData = await DocumentManager.open_document(file)
 		if not doc == null:
 			doc.save_path = file
+
+			var recent: Array = Global.get_config("recent", "files")
+			if recent.has(file):
+				recent.erase(file)
+			recent.append(file)
+			Global.set_config("recent", "files", recent)
+			Global.save_config()
+
 			document_panel.open_document(doc)
 
 func _on_file_dropped(files: PackedStringArray) -> void:

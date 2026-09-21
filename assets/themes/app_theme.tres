@@ -57,6 +57,39 @@ region = Rect2(524, 6, 40, 20)
 atlas = ExtResource("13_d5hwj")
 region = Rect2(1804, 6, 40, 20)
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wk7m2"]
+content_margin_left = 6.0
+content_margin_top = 0.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dnfgt"]
+content_margin_left = 6.0
+content_margin_top = 0.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+bg_color = Color(0.99215686, 0.9411765, 0.9411765, 0.1254902)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_02bah"]
+content_margin_left = 6.0
+content_margin_top = 0.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fjjhj"]
+content_margin_left = 6.0
+content_margin_top = 0.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hmwc7"]
+content_margin_left = 6.0
+content_margin_top = 0.0
+content_margin_right = 6.0
+content_margin_bottom = 2.0
+bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_1o0ea"]
 atlas = ExtResource("13_d5hwj")
 region = Rect2(1110, 14, 10, 6)
@@ -423,6 +456,12 @@ EmptyPanel/base_type = &"Panel"
 EmptyPanel/styles/panel = ExtResource("16_sm37i")
 EmptyPanelContainer/base_type = &"PanelContainer"
 EmptyPanelContainer/styles/panel = ExtResource("16_sm37i")
+FlatButton/base_type = &"Button"
+FlatButton/styles/disabled = SubResource("StyleBoxEmpty_wk7m2")
+FlatButton/styles/hover = SubResource("StyleBoxFlat_dnfgt")
+FlatButton/styles/hover_pressed = SubResource("StyleBoxFlat_02bah")
+FlatButton/styles/normal = SubResource("StyleBoxEmpty_fjjhj")
+FlatButton/styles/pressed = SubResource("StyleBoxFlat_hmwc7")
 FoldableContainer/colors/collapsed_font_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
 FoldableContainer/colors/font_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
 FoldableContainer/colors/hover_font_color = Color(0.99215686, 0.9411765, 0.9411765, 1)

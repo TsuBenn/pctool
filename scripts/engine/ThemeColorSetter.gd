@@ -87,6 +87,10 @@ func apply_texture():
 	target_theme.get_stylebox("hover_pressed", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
 	target_theme.get_stylebox("pressed", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
 
+	target_theme.get_stylebox("hover", "FlatButton").bg_color = get_color(Flat.MENU_BUTTON_HOVER)
+	target_theme.get_stylebox("hover_pressed", "FlatButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
+	target_theme.get_stylebox("pressed", "FlatButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
+
 	target_theme.get_stylebox("hover", "PopupMenu").bg_color = get_color(Flat.POPUP_MENU_HOVER)
 
 	target_theme.get_stylebox("panel", "HighlightedPanel").bg_color = get_color(Flat.PANEL_HIGHLIGHTED)
