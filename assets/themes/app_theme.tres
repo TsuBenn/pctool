@@ -41,6 +41,11 @@
 [ext_resource type="StyleBox" uid="uid://cion87qjvw4eo" path="res://assets/style/new/scroll_v.tres" id="35_rooqo"]
 [ext_resource type="FontVariation" uid="uid://c1klwc08siytl" path="res://assets/fonts/theme_font.tres" id="36_8ehde"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dw7qm"]
+bg_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8bk25"]
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_t3xdf"]
 atlas = ExtResource("13_d5hwj")
 region = Rect2(588, 6, 40, 20)
@@ -401,6 +406,10 @@ default_font = ExtResource("36_8ehde")
 default_font_size = 16
 AccentLabel/base_type = &"Label"
 AccentLabel/colors/font_color = Color(0.6392157, 0.14117648, 0.20784314, 1)
+AccentPanel/base_type = &"Panel"
+AccentPanel/styles/panel = SubResource("StyleBoxFlat_dw7qm")
+AccentPanelContainer/base_type = &"PanelContainer"
+AccentPanelContainer/styles/panel = SubResource("StyleBoxFlat_8bk25")
 AcceptDialog/styles/panel = ExtResource("1_8ehde")
 BigLabel/base_type = &"Label"
 BigLabel/font_sizes/font_size = 20

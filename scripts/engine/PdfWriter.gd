@@ -9,6 +9,7 @@ static func save_pdf_to_file(
 	doc: DocumentData,
 	layout: PrintLayout,
 	output_path: String,
+	open_on_finished: bool = true
 ) -> Error:
 
 	var tile_indices: Array[Array] = ExportEngine.get_tile_indices(doc)
@@ -310,5 +311,8 @@ static func save_pdf_to_file(
 	Global.print_video_memory_usage()
 	print("-----------------------")
 	ExportEngine.end_timer()
+
+	if open_on_finished:
+		OS.shell_open(output_path)
 
 	return OK

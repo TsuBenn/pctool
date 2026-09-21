@@ -47,6 +47,7 @@ extends Resource
 		emit_changed()
 
 @export var save_path: String = ""
+@export var export_path: String = ""
 
 func _init() -> void:
 	if not Global.undo_redo.has(self):

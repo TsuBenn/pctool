@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://cyorikepkbyw4" path="res://scripts/engine/ThemeColorSetter.gd" id="12_mwfav"]
 [ext_resource type="PackedScene" uid="uid://cn3eh3w2vkmk" path="res://scenes/components/AboutWindow.tscn" id="13_qmy6f"]
 [ext_resource type="PackedScene" uid="uid://cdf3fkgv2o3gt" path="res://scenes/components/ExportingProgressDialog.tscn" id="14_3p2gp"]
+[ext_resource type="PackedScene" uid="uid://pv5wto3evsri" path="res://scenes/components/LicenseWindow.tscn" id="16_cvmbd"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_3p2gp"]
 shader = ExtResource("2_mwfav")
@@ -273,10 +274,11 @@ items = Array[String](["Fit to Window", "Center to Window", "Zoom In", "Zoom Out
 unique_name_in_owner = true
 layout_mode = 2
 text = "Help"
-item_count = 1
+item_count = 2
 popup/item_0/text = "About"
+popup/item_1/text = "License"
 label = "Help"
-items = Array[String](["About"])
+items = Array[String](["About", "License"])
 
 [node name="DocumentPanel" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=2019930383]
 unique_name_in_owner = true
@@ -407,8 +409,12 @@ title = "Export to Image"
 position = Vector2i(0, 36)
 size = Vector2i(421, 200)
 access = 2
+filters = PackedStringArray("*.pdf; PDF files")
+option_count = 1
 favorites_enabled = false
 recent_list_enabled = false
+option_0/name = "Open on Finished"
+option_0/default = 1
 script = ExtResource("9_wp0k4")
 normal_style = SubResource("StyleBoxTexture_wp0k4")
 hover_style = SubResource("StyleBoxTexture_bjd11")
@@ -459,4 +465,9 @@ visible = false
 [node name="AboutWindow" parent="." unique_id=263161894 instance=ExtResource("13_qmy6f")]
 unique_name_in_owner = true
 position = Vector2i(52, 68)
+visible = false
+transient = true
+
+[node name="LicenseWindow" parent="." unique_id=1129714506 instance=ExtResource("16_cvmbd")]
+unique_name_in_owner = true
 visible = false

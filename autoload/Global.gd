@@ -8,9 +8,9 @@ signal on_progress_updated(message: String, value: float)
 
 signal on_config_changed(section: String, file: String)
 
-var version: String= ProjectSettings.get_setting("application/_config/version", "N/A")
+var version: String= ProjectSettings.get_setting("application/config/version", "N/A")
 
-var version_v: String= "v%s" % ProjectSettings.get_setting("application/_config/version", "0")
+var version_v: String= "v%s" % ProjectSettings.get_setting("application/config/version", "0")
 
 var undo_redo: Dictionary[DocumentData, UndoRedo] = {}
 var is_undoing: bool = false
@@ -24,6 +24,10 @@ var _config : ConfigFile = ConfigFile.new()
 var _config_path: String = "user://settings.cfg"
 
 var _default_config: Dictionary = {
+	"file_dialog_dir": {
+		"open": OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP),
+		"import": OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP),
+	},
 	"recent": {
 		"files": []
 	}

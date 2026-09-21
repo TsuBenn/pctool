@@ -17,7 +17,7 @@ static func start_timer():
 static func end_timer():
 	print("Export time: %.2fms" % ((Time.get_ticks_usec() - start_time)/1000))
 
-static func export_document(document_data: DocumentData, output_path: String, export_type: int) -> Error:
+static func export_document(document_data: DocumentData, output_path: String, export_type: int, open_on_finished: bool) -> Error:
 	if not document_data:
 		Global.notice("Export Failed", "No Document Data has been provided!")
 		push_error("ExportEngine: No Document Data has been provided!")
@@ -31,18 +31,20 @@ static func export_document(document_data: DocumentData, output_path: String, ex
 
 	start_timer()
 
+	document_data.export_path = output_path.get_base_dir()
+
 	match export_type:
 		EXPORT_PNG:
 			return await _export_as_png(document_data, layout, output_path)
 		EXPORT_PDF:
-			return await _export_as_pdf(document_data, layout, output_path)
+			return await _export_as_pdf(document_data, layout, output_path, open_on_finished)
 
 	return OK
 
-static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
+static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , output_path: String, open_on_finished) -> Error:
 	Global.progress_started("Export to PDF")
 	print("----- Started Exporting -----")
-	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path)
+	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path, open_on_finished)
 
 static func _export_as_png(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
 	Global.progress_started("Export to PNG")

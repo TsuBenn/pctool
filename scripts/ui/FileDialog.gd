@@ -16,6 +16,9 @@ extends FileDialog
 @export var custom_font: Font
 
 func _ready() -> void:
+
+	current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
+
 	await get_tree().process_frame
 	_override_menu_button_styles()
 	make_dialog_pixel_perfect(get_window())

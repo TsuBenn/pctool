@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://pv5wto3evsri"]
+
+[sub_resource type="GDScript" id="GDScript_p4tbp"]
+script/source = "extends Window
+
+func _ready() -> void:
+	min_size = Vector2i(690,330)
+	close_requested.connect(hide)
+	%OkButton.pressed.connect(hide)
+	%LicenseLabel.text = Engine.get_license_text()
+"
+
+[node name="LicenseWindow" type="Window" unique_id=1129714506]
+oversampling_override = 1.0
+title = "License"
+position = Vector2i(0, 26)
+size = Vector2i(690, 330)
+transient = true
+exclusive = true
+always_on_top = true
+script = SubResource("GDScript_p4tbp")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1007691176]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"EmptyPanelContainer"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1653413941]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/VBoxContainer" unique_id=6052008]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/ScrollContainer" unique_id=1236325782]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer/MarginContainer" unique_id=446325188]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=36003043]
+layout_mode = 2
+text = "This program is powered by the Godot Engine (MIT LICENSE)
+https://godotengine.org"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=686368884]
+layout_mode = 2
+
+[node name="LicenseLabel" type="Label" parent="PanelContainer/VBoxContainer/ScrollContainer/MarginContainer/VBoxContainer" unique_id=155235521]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MiniLabel"
+text = "Copyright (c) 2014-present Godot Engine contributors.
+Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the \"Software\"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE."
+autowrap_mode = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBoxContainer" unique_id=83672206]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/PanelContainer" unique_id=2118091204]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/VBoxContainer/PanelContainer/MarginContainer" unique_id=62506424]
+layout_mode = 2
+
+[node name="OkButton" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer/MarginContainer/CenterContainer" unique_id=1854512883]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Ok"

@@ -97,7 +97,10 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 			push_error("Cannot import file at %s (Reason: Empty)" % file)
 			continue
 		asset_buffer_map[file] = buffer
+		Global.set_config("file_dialog_dir", "import", file.get_base_dir())
 		imported_buffers += 1
+
+	Global.save_config()
 
 	asset_buffer_keys = asset_buffer_map.keys()
 
@@ -160,6 +163,9 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 	Global.progress_finished()
 
 func _on_import_dialog_requested() -> void:
+	var current_dir: String = Global.get_config("file_dialog_dir", "import")
+	if DirAccess.dir_exists_absolute(current_dir):
+		image_import_dialog.current_dir = current_dir
 	image_import_dialog.popup_centered(Vector2i(600, 400))
 
 func _open_advanced_cropping_window():

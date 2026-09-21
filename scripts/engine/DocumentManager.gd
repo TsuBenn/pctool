@@ -130,9 +130,17 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 	packer.write_file(json_string.to_utf8_buffer())
 	packer.close_file()
 
+	var recents: Array = Global.get_config("recent", "files")
+
+	if recents.has(output_path):
+		recents.erase(output_path)
+	recents.append(output_path)
+
+	Global.set_config("recent", "files", recents)
+	Global.save_config()
+
 	Global.progress_finished()
 	packer.close()
-	# Global.notice("Document Saved", "Project successfully saved to:\n%s" % output_path.get_file())
 	return OK
 
 

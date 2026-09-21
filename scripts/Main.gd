@@ -26,6 +26,7 @@ class_name Main
 @onready var export_dialog: FileDialog = %ExportDialog
 
 @onready var about_window: Window = %AboutWindow
+@onready var license_window: Window = %LicenseWindow
 
 @onready var new_button: Button = %NewButton
 @onready var open_button: Button = %OpenButton
@@ -71,7 +72,8 @@ enum {
 	}
 
 enum {
-		HELP_ABOUT
+		HELP_ABOUT,
+		HELP_LICENSE
 	}
 
 var export_mode: int = ExportEngine.EXPORT_PNG
@@ -121,10 +123,24 @@ func _ready() -> void:
 			match id:
 				HELP_ABOUT:
 					about_window.popup_centered()
+				HELP_LICENSE:
+					license_window.popup_centered()
 	)
 
-	document_panel.import_assets_requested.connect(func(): image_import_dialog.popup_centered(Vector2i(600,400)))
-	document_panel.open_document_requested.connect(func(): open_document_dialog.popup_centered(Vector2i(600,400)))
+	document_panel.import_assets_requested.connect(
+		func():
+			var current_dir: String = Global.get_config("file_dialog_dir", "import")
+			if DirAccess.dir_exists_absolute(current_dir):
+				image_import_dialog.current_dir = current_dir
+			image_import_dialog.popup_centered(Vector2i(600,400))
+	)
+	document_panel.open_document_requested.connect(
+		func():
+			var current_dir: String = Global.get_config("file_dialog_dir", "open")
+			if DirAccess.dir_exists_absolute(current_dir):
+				open_document_dialog.current_dir = current_dir
+			open_document_dialog.popup_centered(Vector2i(600,400))
+	)
 	document_panel.open_recent_requested.connect(
 		func(file):
 			var files: PackedStringArray = [file]
@@ -186,7 +202,8 @@ func _update_undo_redo():
 
 func _export_file(file_path: String):
 	if current_workspace:
-		ExportEngine.export_document(current_workspace.document_data, file_path, export_mode)
+		var open_on_finished: bool = export_dialog.get_selected_options()["Open on Finished"]
+		ExportEngine.export_document(current_workspace.document_data, file_path, export_mode, open_on_finished)
 
 func _open_documents(files: PackedStringArray):
 	for file in files:
@@ -209,6 +226,7 @@ func _open_documents(files: PackedStringArray):
 				recent.erase(file)
 			recent.append(file)
 			Global.set_config("recent", "files", recent)
+			Global.set_config("file_dialog_dir", "open", file.get_base_dir())
 			Global.save_config()
 
 			document_panel.open_document(doc)
@@ -292,6 +310,13 @@ func _on_file_menu_pressed(id: int):
 				export_mode = ExportEngine.EXPORT_PDF
 				export_dialog.title = "Export to PDF"
 				export_dialog.get_line_edit().text = current_workspace.name.to_lower().replace(" ", "-") + ".pdf"
+				if current_workspace.document_data.export_path.is_empty():
+					if current_workspace.document_data.save_path.is_empty():
+						export_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
+					else:
+						export_dialog.current_dir = current_workspace.document_data.save_path.get_base_dir()
+				else:
+					export_dialog.current_dir = current_workspace.document_data.export_path
 				export_dialog.popup_centered(Vector2(600, 400))
 		FILE_EXPORT_IMAGE:
 			if current_workspace:

@@ -83,6 +83,8 @@ func apply_texture():
 
 	# ProjectSettings.set_setting("application/boot_splash/bg_color", get_color(Flat.BOOT_SPLASH_BG))
 
+	target_theme.get_stylebox("panel", "AccentPanel").bg_color = get_color(LABEL_ACCENT_COLOR)
+
 	target_theme.get_stylebox("hover", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_HOVER)
 	target_theme.get_stylebox("hover_pressed", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
 	target_theme.get_stylebox("pressed", "MenuButton").bg_color = get_color(Flat.MENU_BUTTON_PRESSED)
