@@ -46,6 +46,10 @@ func get_video_memory_usage_mb():
 	var total_mb: float = texture_mb + buffer_mb + video_mb
 	return total_mb
 
+func get_available_os_memory_mb():
+	var mem_info = OS.get_memory_info()
+	return mem_info["free"] / 1024.0 / 1024.0
+
 func print_memory_usage():
 	print(" RAM:   %.2f MB" % get_memory_usage_mb())
 

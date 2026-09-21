@@ -76,8 +76,8 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 	Global.print_video_memory_usage()
 	print("------------------------------")
 
-	var MAX_RAM_MB: float = 1000
-	var MAX_VRAM_MB: float = 1000
+	var MAX_RAM_MB: float = min(Global.get_available_os_memory_mb()*0.5, 1000)
+	var MAX_VRAM_MB: float =  min(Global.get_available_os_memory_mb()*0.25, 1000)
 
 	var baked_map: Dictionary = {}
 	var render_tasks: Array[Dictionary] = []
