@@ -9,6 +9,8 @@ extends Resource
 @abstract func get_preview_texture(index: int) -> Texture2D
 @abstract func get_image(index: int) -> Image
 
+@abstract func clean() -> void
+
 static func get_id() -> String:
 	var crypto = Crypto.new()
 	# Generate 6 random bytes (48 bits = 281 trillion combinations)

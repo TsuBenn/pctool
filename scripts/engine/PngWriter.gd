@@ -2,6 +2,11 @@ extends RefCounted
 class_name PngWriter
 
 static func save_png_to_files(document_data: DocumentData, layout: PrintLayout, output_path: String) -> Error:
+	Global.notice("Export Failed", "PNG is currently under maintanance...")
+	Global.progress_finished()
+	ExportEngine.end_timer()
+	return OK
+
 	var ext: String = output_path.get_extension()
 	var base_no_ext: String = output_path.get_basename()
 

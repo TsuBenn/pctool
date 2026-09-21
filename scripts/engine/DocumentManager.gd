@@ -192,7 +192,8 @@ static func open_document(file_path: String) -> DocumentData:
 
 	var shared_counter: Dictionary = {
 		"current": 0,
-		"total": 0
+		"total": 0,
+		"group": false,
 	}
 
 	for asset_dict in assets_arr:
@@ -236,10 +237,18 @@ static func open_document(file_path: String) -> DocumentData:
 		var type: String = asset_dict.get("type", "")
 
 		if asset_map.has(asset_dict.get("id", "")):
+			mutex.lock()
+			shared_counter["current"] += 1
+			mutex.unlock()
 			return
 
 		match type:
 			"image":
+				if shared_counter["group"]:
+					mutex.lock()
+					shared_counter["current"] += 1
+					mutex.unlock()
+					return
 				var asset_obj: ImageAssetData = get_image_asset_data(asset_dict, asset_bytes_map[asset_dict.id])
 				asset_bytes_map.erase(asset_dict.id)
 				mutex.lock()
@@ -249,6 +258,11 @@ static func open_document(file_path: String) -> DocumentData:
 				shared_counter["current"] += 1
 				mutex.unlock()
 			"group":
+				if not shared_counter["group"]:
+					mutex.lock()
+					shared_counter["current"] += 1
+					mutex.unlock()
+					return
 				var asset_obj: GroupAssetData = get_group_asset_data(asset_dict, asset_bytes_map, asset_map)
 				mutex.lock()
 				if asset_obj:
@@ -271,8 +285,28 @@ static func open_document(file_path: String) -> DocumentData:
 
 	WorkerThreadPool.wait_for_group_task_completion(group_id)
 
-	for asset in imported_assets:
+	shared_counter["group"] = true
+	shared_counter["current"] = 0
+
+	group_id = WorkerThreadPool.add_group_task(
+		create_asset,
+		shared_counter["total"],
+		-1,
+		true,
+		"CREATING_ASSETS"
+	)
+
+	while shared_counter["current"] < shared_counter["total"]:
+		Global.progress_update("Creating Asset Datas (%d/%d)" % [shared_counter["current"],shared_counter["total"]], float(shared_counter["current"])/shared_counter["total"])
+		await Engine.get_main_loop().process_frame
+
+	WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+	for asset: AssetData in imported_assets:
 		if asset:
+			if asset is ImageAssetData:
+				if not asset.preview_texture:
+					asset.generate_preview_texture()
 			doc.assets.append(asset)
 
 	# for asset_dict in assets_arr:
@@ -478,7 +512,7 @@ static func get_image_asset_data(asset_dict: Dictionary, img_bytes: PackedByteAr
 	var internal_name: String = asset_dict.get("file_name", "")
 	var archive_img_path: String = "assets/%s" % internal_name
 
-	var asset_obj: ImageAssetData = ImageAssetData.create_from_buffer(img_bytes, archive_img_path)
+	var asset_obj: ImageAssetData = ImageAssetData.create_from_buffer(img_bytes, archive_img_path, false)
 
 	asset_obj.id = asset_id
 	asset_obj.display_name = asset_dict.get("display_name", asset_id)

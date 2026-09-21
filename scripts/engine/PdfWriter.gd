@@ -12,7 +12,11 @@ static func save_pdf_to_file(
 ) -> Error:
 
 	var tile_indices: Array[Array] = ExportEngine.get_tile_indices(doc)
+	# [item, index]
 	var tiles_tracker: Dictionary = ExportEngine.get_tiles_tracker(tile_indices)
+	# [item, index] -> boolean
+	var tiles_pos: Dictionary = ExportEngine.get_tiles_position(tile_indices)
+	# [item, index] -> position
 
 	Global.progress_update("Preparing PDF", 0)
 	await Engine.get_main_loop().process_frame
@@ -47,7 +51,6 @@ static func save_pdf_to_file(
 
 	# 1. Map each unique PhotoItemData to an XObject image resource name and object ID
 	var item_to_resource_id: Dictionary = {} # PhotoItemData, Index -> int (e.g. 0 for /Im0)
-	var image_items: Array[Array] = []
 	var res_counter: int = 0
 
 	Global.progress_update("Preparing Images", 0.1)
@@ -57,11 +60,10 @@ static func save_pdf_to_file(
 		for index in item.asset.get_count():
 			if tiles_tracker.has([item, index]) and not item_to_resource_id.has([item, index]):
 				item_to_resource_id[[item, index]] = res_counter
-				image_items.append([item,index])
 				res_counter += 1
 
 	var first_img_obj_id: int = 3
-	var first_page_obj_id: int = first_img_obj_id + image_items.size()
+	var first_page_obj_id: int = first_img_obj_id + tile_indices.size()
 
 	# --- OBJ 1: Catalog ---
 	offsets.append(file.get_position())
@@ -82,45 +84,55 @@ static func save_pdf_to_file(
 	# --- IMAGE XOBJECTS (De-duplicated) ---
 	var xobject_resource_dict: String = "<< "
 
-	var total_images: int = image_items.size()
+	var total_images: int = tile_indices.size()
 	var jpg_buffers: Array[PackedByteArray] = []
 	jpg_buffers.resize(total_images)
-
-	Global.progress_update("Encoding Images", 0.3)
-	await Engine.get_main_loop().process_frame
 
 	var processed_images: int = 0
 
 	while (processed_images < total_images):
-		var unprocessed_tiles: Array[Array] = []
 
+		# Count all of the unprocessed tiles in the tiles tracker
+		var unprocessed_tiles: Array[Array] = []
 		for tile in tile_indices:
 			if not tiles_tracker[tile]:
 				unprocessed_tiles.append(tile)
 
+		# Attempt to render all remaining tiles
 		var baked_images_map: Dictionary = {}
-
+		# [item, index] -> Image
 		baked_images_map = await ExportEngine.bake_tile_images(unprocessed_tiles, doc.dpi, processed_images)
 
 		if Global.progress_flag:
 			Global.progress_finished()
 			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			file.close()
 			return OK
 
-		var tiles_to_encode: Array[Array] = []
+		if baked_images_map.is_empty():
+			Global.notice("Export Failed", "No Tiles were managed to be rendered!")
+			file.close()
+			return ERR_BUG
 
+		var tiles_to_encode: Array[Array] = []
+		tiles_to_encode.assign(baked_images_map.keys())
+		# [item, index]
+
+		# Track the processed tiles
 		for tile in baked_images_map.keys():
 			tiles_tracker[tile] = true
-			tiles_to_encode.append(tile)
 
-		var images_to_encode: Array[Image] = []
+		var images_to_encode: Array[Array] = []
+		# [image, position]
 		images_to_encode.resize(tiles_to_encode.size())
 
+		# Populate images_to_encode
 		for i in range(tiles_to_encode.size()):
 			var item = tiles_to_encode[i]
-			images_to_encode[i] = baked_images_map[item]
+			images_to_encode[i] = [baked_images_map[item], tiles_pos[item]]
 			baked_images_map.erase(item)
 
+		baked_images_map.clear()
 
 		var mutex: Mutex = Mutex.new()
 		var shared_counter: Dictionary = {
@@ -128,11 +140,14 @@ static func save_pdf_to_file(
 			"total": tiles_to_encode.size()
 		}
 
+		# Encode the processed tile into jpg at the right position in the array parallelly
 		var encode_task = func(i: int):
-			var img = images_to_encode[i]
-			jpg_buffers[processed_images + i] = img.save_jpg_to_buffer(0.90)
+			var img = images_to_encode[i][0]
+			var pos = images_to_encode[i][1]
+			jpg_buffers[pos] = img.save_jpg_to_buffer(0.90)
 			mutex.lock()
 			shared_counter["current"] += 1
+			images_to_encode[i][0] = null
 			mutex.unlock()
 
 		var group_id: int = WorkerThreadPool.add_group_task(
@@ -147,14 +162,22 @@ static func save_pdf_to_file(
 			if Global.progress_flag:
 				Global.progress_finished()
 				Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+				file.close()
 				return OK
 			Global.progress_update("Encoding Images (%d/%d)" % [shared_counter["current"] + processed_images,unprocessed_tiles.size() + processed_images], (shared_counter["current"] + processed_images)/(float(unprocessed_tiles.size() + processed_images)))
 			await Engine.get_main_loop().process_frame
 
 		WorkerThreadPool.wait_for_group_task_completion(group_id)
 
+		print("----- JPG Encoding Done -----")
+		Global.print_memory_usage()
+		Global.print_video_memory_usage()
+
 		processed_images += tiles_to_encode.size()
 
+	print("----- JPEG BUFFER FULLY ALLOCATED -----")
+	Global.print_memory_usage()
+	Global.print_video_memory_usage()
 
 	Global.progress_update("Writing Images to PDF", 0.3)
 	await Engine.get_main_loop().process_frame
@@ -179,6 +202,7 @@ static func save_pdf_to_file(
 		if Global.progress_flag:
 			Global.progress_finished()
 			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			file.close()
 			return OK
 
 		if Time.get_ticks_msec() - milestone > 100:
@@ -187,6 +211,8 @@ static func save_pdf_to_file(
 			await Engine.get_main_loop().process_frame
 
 	xobject_resource_dict += ">>"
+
+	jpg_buffers.clear()
 
 	Global.progress_update("Arranging Images in PDF", 0.8)
 	await Engine.get_main_loop().process_frame
@@ -253,6 +279,7 @@ static func save_pdf_to_file(
 		if Global.progress_flag:
 			Global.progress_finished()
 			Global.notice("Export Canceled", "Export has been canceled by the user during the writing phase, the file might not be usuable.")
+			file.close()
 			return OK
 		if Time.get_ticks_msec() - milestone > 100:
 			milestone = Time.get_ticks_msec()
@@ -276,5 +303,12 @@ static func save_pdf_to_file(
 	file.close()
 	Global.notice.call_deferred("Export Complete", "PDF document successfully exported to:\n%s" % output_path.get_file())
 	Global.progress_finished()
+
+
+	print("----- EXPORT DONE -----")
+	Global.print_memory_usage()
+	Global.print_video_memory_usage()
+	print("-----------------------")
 	ExportEngine.end_timer()
+
 	return OK

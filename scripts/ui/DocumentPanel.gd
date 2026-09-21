@@ -45,6 +45,9 @@ func _on_tab_close_pressed(tab_idx: int) -> void:
 	var tab_to_close: WorkspaceInstance = workspace_tab_container.get_child(tab_idx)
 	if tab_to_close:
 		workspace_tab_container.remove_child(tab_to_close)
+		var doc:DocumentData = tab_to_close.document_data
+		if Global.undo_redo.has(doc):
+			Global.undo_redo.erase(doc)
 		tab_to_close.queue_free()
 		_update_view_state()
 

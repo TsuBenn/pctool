@@ -108,9 +108,15 @@ func _ready() -> void:
 		func(new):
 			photo_item.border_enabled = new
 	)
+	border_thickness_spin_box.value_commit.connect(
+		func(_new):
+			if photo_item:
+				photo_item.commit_border_width()
+	)
 	border_thickness_spin_box.value_changed.connect(
 		func(new):
-			photo_item.border_width = new
+			if photo_item:
+				photo_item.border_width = new
 	)
 	fitting_mode_option_button.item_selected.connect(
 		func(new):

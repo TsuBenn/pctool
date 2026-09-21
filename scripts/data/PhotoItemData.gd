@@ -174,6 +174,32 @@ enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 var framings: Dictionary[int, Framing] = {}
 var framings_last_changed: Dictionary[int, Framing] = {}
 
+func commit_framings():
+	if framings_last_changed.is_empty():
+		return
+
+	var new: Dictionary = framings.duplicate()
+	var old: Dictionary = framings_last_changed.duplicate()
+
+	framings_last_changed = {}
+
+	Global.undo_redo[_document_data].create_action("Changed Photo Item's Framings")
+	Global.undo_redo[_document_data].add_do_method(
+		func():
+			_commit = false
+			framings = new
+			emit_changed()
+			_commit = true
+	)
+	Global.undo_redo[_document_data].add_undo_method(
+		func():
+			_commit = false
+			framings = old
+			emit_changed()
+			_commit = true
+	)
+	Global.undo_redo[_document_data].commit_action(false)
+
 # EFFECTS
 @export var border_enabled: bool = true:
 	set(new):
@@ -197,56 +223,43 @@ var framings_last_changed: Dictionary[int, Framing] = {}
 		border_enabled = new
 		emit_changed()
 
+
+@export var border_width_last_changed: float = -1;
+
 @export var border_width: float = 0.2:
 	set(new):
-		if _commit and _document_data:
-			var old: float = border_width
-			Global.undo_redo[_document_data].create_action("Changed Photo Item's Border Width [%.2f]" % new)
-			Global.undo_redo[_document_data].add_do_method(
-				func():
-					_commit = false
-					border_width = new
-					_commit = true
-			)
-			Global.undo_redo[_document_data].add_undo_method(
-				func():
-					_commit = false
-					border_width = old
-					_commit = true
-			)
-			Global.undo_redo[_document_data].commit_action(false)
-
-		border_width = new
+		if border_width_last_changed == -1:
+			border_width_last_changed = border_width
+		border_width = max(0.1,new)
 		emit_changed()
+
+func commit_border_width():
+	if border_width_last_changed == -1:
+		return
+
+	var old: float = border_width_last_changed
+	var new: float = border_width
+	border_width_last_changed = -1
+	Global.undo_redo[_document_data].create_action("Changed Photo Item's Border Width [%.2f]" % new)
+	Global.undo_redo[_document_data].add_do_method(
+		func():
+			_commit = false
+			border_width = new
+			_commit = true
+	)
+	Global.undo_redo[_document_data].add_undo_method(
+		func():
+			_commit = false
+			border_width = old
+			_commit = true
+	)
+	Global.undo_redo[_document_data].commit_action(false)
 
 @export var border_color: Color = Color.BLACK:
 	set(new):
 		border_color = new
 		emit_changed()
 
-func commit_framings():
-	if framings_last_changed.is_empty():
-		return
-
-	var new: Dictionary = framings.duplicate()
-	var old: Dictionary = framings_last_changed.duplicate()
-
-	framings_last_changed = {}
-
-	Global.undo_redo[_document_data].create_action("Changed Photo Item's Framings")
-	Global.undo_redo[_document_data].add_do_method(
-		func():
-			_commit = false
-			framings = new
-			_commit = true
-	)
-	Global.undo_redo[_document_data].add_undo_method(
-		func():
-			_commit = false
-			framings = old
-			_commit = true
-	)
-	Global.undo_redo[_document_data].commit_action(false)
 
 func apply_framing_to_all(base_index: int):
 	for f in framings.keys():
@@ -257,7 +270,7 @@ func apply_framing_to_all(base_index: int):
 
 func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode, top_left: Vector2, top_right: Vector2, bottom_right: Vector2, bottom_left: Vector2):
 	if framings_last_changed.is_empty():
-		framings_last_changed = framings
+		framings_last_changed = framings.duplicate()
 	var new_framing = Framing.new()
 	new_framing.scale = max(new_scale,1)
 	new_framing.offset = new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1))
@@ -300,6 +313,7 @@ func set_framing_offset_y(index: int, new: float):
 func set_framing_fitting_mode(index: int, new: int):
 	var f = get_framing(index)
 	set_framing(index, f.scale, f.offset, new as FittingMode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+	commit_framings()
 
 func set_framing_top_left(index: int, new: Vector2):
 	var f = get_framing(index)

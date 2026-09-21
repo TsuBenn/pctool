@@ -185,10 +185,12 @@ func _ready() -> void:
 	done_button.pressed.connect(
 		func():
 			hide()
+			photo_item.commit_framings()
 	)
 	cancel_button.pressed.connect(
 		func():
 			cancel()
+			photo_item.commit_framings()
 			hide()
 	)
 	min_size = Vector2(730,440)

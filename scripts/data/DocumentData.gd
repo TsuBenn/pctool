@@ -129,8 +129,19 @@ func remove_photo_item(photo_item: PhotoItemData, signal_changed: bool = true, p
 
 func clear_photo_items(signal_changed: bool = true):
 	for photo_item in photo_items:
+		if photo_item._document_data:
+			photo_item._document_data = null
 		if photo_item.changed.is_connected(emit_changed):
 			photo_item.changed.disconnect(emit_changed)
 	photo_items.clear()
 	if signal_changed:
 		emit_changed()
+
+func clear_assets():
+	for asset in assets:
+		asset.clean()
+	assets.clear()
+
+func clean_up():
+	clear_photo_items_no_signal()
+	clear_assets()

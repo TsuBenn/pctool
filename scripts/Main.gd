@@ -144,7 +144,6 @@ func _ready() -> void:
 
 					_update_undo_redo()
 			else:
-				print("yeh")
 				active_document = null
 	)
 

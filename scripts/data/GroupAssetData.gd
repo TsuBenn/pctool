@@ -22,6 +22,12 @@ func get_image(index: int) -> Image:
 func get_preview_texture(index: int) -> Texture2D:
 	return children[index].get_preview_texture(0)
 
+func clean() -> void:
+	for child in children:
+		child.clean()
+
+	children.clear()
+
 func flatten() -> Array[AssetData]:
 	var flattened_group: Array[AssetData] = []
 

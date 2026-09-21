@@ -71,7 +71,7 @@ func _update_image_rect():
 	var mat: ShaderMaterial = image_texture.material
 	if mat:
 		mat.set_shader_parameter("u_homography_matrix", photo_item.get_distort_matrix(photo_tile.sub_asset_index) if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
-		mat.set_shader_parameter("opacity", 1.0 if is_selected_tile or not is_selected else 0.7)
+		mat.set_shader_parameter("opacity", 1.0 if is_selected_tile or not is_selected else 0.5)
 
 
 
