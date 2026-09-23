@@ -57,7 +57,13 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 
 	var data: Dictionary = json.data
 	var tag_name: String = data.get("tag_name", "")
-	_latest_release_url = data.get("html_url", "")
+
+	var assets: Array = data.get("assets", [])
+	if not assets.is_empty():
+		for asset in assets:
+			if asset.get("content_type", "") == "application/zip":
+				_latest_release_url = asset.get("browser_download_url", "")
+
 
 	if tag_name.is_empty():
 		return
@@ -68,8 +74,9 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 	if _is_newer_version(tag_name, current_version):
 		var changelog: String = data.get("body", "A new version of the app is available!")
 		# Truncate long changelogs for the popup
-		if changelog.length() > 300:
-			changelog = changelog.substr(0, 300) + "..."
+		changelog = changelog.replace("\r", "")
+		if changelog.split("\n").size() > 10:
+			changelog = "\n".join(changelog.split("\n").slice(0, 10)) + "\n…"
 
 		_update_dialog.dialog_text = (
 			"A new version (%s) is available! (Current: %s)\n\nNotes:\n%s\n\nWould you like to open the download page?"
