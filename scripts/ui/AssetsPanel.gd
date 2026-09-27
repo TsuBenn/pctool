@@ -412,7 +412,7 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 func instantiate_asset_card(asset_data: AssetData) -> void:
 	var new_asset_card: AssetCard = asset_card_instance.instantiate()
 
-	if not new_asset_card:
+	if not new_asset_card or not asset_data:
 		return
 
 	assets_empty_state_label.visible = false

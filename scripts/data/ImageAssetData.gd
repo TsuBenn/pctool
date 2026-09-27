@@ -94,6 +94,9 @@ static func create_from_buffer(buffer: PackedByteArray, path: String = "", inclu
 
 	var type: ImageType = get_image_type(buffer)
 
+	# img = Image.load_from_file(path)
+	# err = OK if img else ERR_CANT_OPEN
+
 	match type:
 		ImageType.JPEG:
 			err = img.load_jpg_from_buffer(buffer)

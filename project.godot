@@ -40,14 +40,10 @@ window/stretch/scale_mode="integer"
 common/snap_controls_to_pixels=false
 theme/custom="uid://dlfosfauj3rqr"
 
-[physics]
-
-3d/physics_engine="Jolt Physics"
-
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
 textures/lossless_compression/force_png=true
 textures/default_filters/use_nearest_mipmap_filter=true
 textures/decals/filter=0
