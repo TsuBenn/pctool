@@ -16,7 +16,9 @@ var photo_item: PhotoItemData:
 
 var sub_asset_index: int
 
-var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
+var preview_texture: Texture2D
+
+var old_framing: Array[PhotoItemData.Framing] = []:
 	set(new):
 		old_framing = new.duplicate()
 
@@ -53,7 +55,8 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 
 @onready var distort_handle_magnifier: Control = %DistortHandleMagnifier
 @onready var distort_handle_magnifier_frame: Panel = %DistortHandleMagnifierFrame
-@onready var distort_handle_magnifier_image_preview: TextureRect = %DistortHandleMagnifierImagePreview
+@onready
+var distort_handle_magnifier_image_preview: TextureRect = %DistortHandleMagnifierImagePreview
 
 @onready var tl_handle: Control = %TLHandle
 @onready var tr_handle: Control = %TRHandle
@@ -95,20 +98,14 @@ var old_framing: Dictionary[int, PhotoItemData.Framing] = {}:
 @onready var zoom_scale_spin_box: LabeledSpinBox = %ZoomScaleSpinBox
 @onready var zoom_scale_slider: HSlider = %ZoomScaleSlider
 
+
 func _ready() -> void:
-	magnify_scale_slider.value_changed.connect(
-		func(new):
-			distort_magnify_scale = new
-	)
+	magnify_scale_slider.value_changed.connect(func(new): distort_magnify_scale = new)
 	magnify_scale_slider.set_value_no_signal(distort_magnify_scale)
 	auto_distort_button.pressed.connect(
-		func():
-			Global.notice("Feature Not Implemented", "Too hard to implement *Crying*")
+		func(): Global.notice("Feature Not Implemented", "Too hard to implement *Crying*")
 	)
-	clip_check_button.toggled.connect(
-		func(_new):
-			_sync_ui()
-	)
+	clip_check_button.toggled.connect(func(_new): _sync_ui())
 	reset_offsets_button.pressed.connect(
 		func():
 			zoom_spin_box.reset()
@@ -122,29 +119,22 @@ func _ready() -> void:
 			br_position_spin_box.reset()
 			bl_position_spin_box.reset()
 	)
-	distortion_editor_check_button.toggled.connect(
-		func(new):
-			distortion_editor_panel.visible = new
-	)
+	distortion_editor_check_button.toggled.connect(func(new): distortion_editor_panel.visible = new)
 	tl_handle.gui_input.connect(func(event): _distort_handle_input(event, "tl"))
 	tr_handle.gui_input.connect(func(event): _distort_handle_input(event, "tr"))
 	br_handle.gui_input.connect(func(event): _distort_handle_input(event, "br"))
 	bl_handle.gui_input.connect(func(event): _distort_handle_input(event, "bl"))
 	tl_position_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_top_left(sub_asset_index, new/100)
+		func(new): photo_item.set_framing_top_left(sub_asset_index, new / 100)
 	)
 	tr_position_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_top_right(sub_asset_index, new/100)
+		func(new): photo_item.set_framing_top_right(sub_asset_index, new / 100)
 	)
 	br_position_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_bottom_right(sub_asset_index, new/100)
+		func(new): photo_item.set_framing_bottom_right(sub_asset_index, new / 100)
 	)
 	bl_position_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_bottom_left(sub_asset_index, new/100)
+		func(new): photo_item.set_framing_bottom_left(sub_asset_index, new / 100)
 	)
 	fitting_mode_option_button.item_selected.connect(
 		func(new):
@@ -153,16 +143,13 @@ func _ready() -> void:
 			photo_item.set_framing_fitting_mode(sub_asset_index, new)
 	)
 	zoom_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_scale(sub_asset_index, new/100, true)
+		func(new): photo_item.set_framing_scale(sub_asset_index, new / 100, true)
 	)
 	offset_x_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_offset_x(sub_asset_index, new/100)
+		func(new): photo_item.set_framing_offset_x(sub_asset_index, new / 100)
 	)
 	offset_y_spin_box.value_changed.connect(
-		func(new):
-			photo_item.set_framing_offset_y(sub_asset_index, new/100)
+		func(new): photo_item.set_framing_offset_y(sub_asset_index, new / 100)
 	)
 	next_sub_asset_button.pressed.connect(
 		func():
@@ -174,14 +161,8 @@ func _ready() -> void:
 			sub_asset_index -= 1
 			_sync_ui()
 	)
-	zoom_scale_spin_box.value_changed.connect(
-		func(new):
-			zoom_scale = new
-	)
-	zoom_scale_slider.value_changed.connect(
-		func(new):
-			zoom_scale = new
-	)
+	zoom_scale_spin_box.value_changed.connect(func(new): zoom_scale = new)
+	zoom_scale_slider.value_changed.connect(func(new): zoom_scale = new)
 	done_button.pressed.connect(
 		func():
 			hide()
@@ -193,7 +174,7 @@ func _ready() -> void:
 			photo_item.commit_framings()
 			hide()
 	)
-	min_size = Vector2(730,440)
+	min_size = Vector2(730, 440)
 	# size_changed.connect(_sync_ui)
 	photo_item_panel.resized.connect(_sync_ui)
 	close_requested.connect(
@@ -204,7 +185,7 @@ func _ready() -> void:
 	get_parent().get_window().size_changed.connect(
 		func():
 			if visible:
-				popup_centered(get_parent().get_window().size*0.8)
+				popup_centered(get_parent().get_window().size * 0.8)
 	)
 	photo_item_panel.gui_input.connect(panel_gui_input)
 	photo_item_image.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -212,10 +193,12 @@ func _ready() -> void:
 	distort_handle_magnifier_image_preview.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_sync_ui()
 
+
 var _handle_grabbed: bool = false
 
 var active_corner: String = ""
 var _cursor_offset: Vector2 = Vector2.ZERO
+
 
 func _distort_handle_input(event: InputEvent, corner: String):
 	if event is InputEventMouseButton:
@@ -228,13 +211,25 @@ func _distort_handle_input(event: InputEvent, corner: String):
 				var image_size: Vector2 = distortion_image_preview.custom_minimum_size
 				match active_corner:
 					"tl":
-						_cursor_offset = distortion_image_preview.get_local_mouse_position() - framing.top_left_corner * image_size
+						_cursor_offset = (
+							distortion_image_preview.get_local_mouse_position()
+							- framing.top_left_corner * image_size
+						)
 					"tr":
-						_cursor_offset = distortion_image_preview.get_local_mouse_position() - framing.top_right_corner * image_size
+						_cursor_offset = (
+							distortion_image_preview.get_local_mouse_position()
+							- framing.top_right_corner * image_size
+						)
 					"br":
-						_cursor_offset = distortion_image_preview.get_local_mouse_position() - framing.bottom_right_corner * image_size
+						_cursor_offset = (
+							distortion_image_preview.get_local_mouse_position()
+							- framing.bottom_right_corner * image_size
+						)
 					"bl":
-						_cursor_offset = distortion_image_preview.get_local_mouse_position() - framing.bottom_left_corner * image_size
+						_cursor_offset = (
+							distortion_image_preview.get_local_mouse_position()
+							- framing.bottom_left_corner * image_size
+						)
 				_sync_ui_distortion_magnifier(_update_distort_handle())
 				distort_handle_magnifier.visible = true
 				_handle_grabbed = true
@@ -246,21 +241,52 @@ func _distort_handle_input(event: InputEvent, corner: String):
 				var framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)
 				match active_corner:
 					"tl":
-						get_viewport().warp_mouse(distortion_image_preview.global_position + framing.top_left_corner*distortion_image_preview.size - _cursor_offset)
+						get_viewport().warp_mouse(
+							(
+								distortion_image_preview.global_position
+								+ framing.top_left_corner * distortion_image_preview.size
+								- _cursor_offset
+							)
+						)
 					"tr":
-						get_viewport().warp_mouse(distortion_image_preview.global_position + framing.top_right_corner*distortion_image_preview.size - _cursor_offset)
+						get_viewport().warp_mouse(
+							(
+								distortion_image_preview.global_position
+								+ framing.top_right_corner * distortion_image_preview.size
+								- _cursor_offset
+							)
+						)
 					"br":
-						get_viewport().warp_mouse(distortion_image_preview.global_position + framing.bottom_right_corner*distortion_image_preview.size - _cursor_offset)
+						get_viewport().warp_mouse(
+							(
+								distortion_image_preview.global_position
+								+ framing.bottom_right_corner * distortion_image_preview.size
+								- _cursor_offset
+							)
+						)
 					"bl":
-						get_viewport().warp_mouse(distortion_image_preview.global_position + framing.bottom_left_corner*distortion_image_preview.size - _cursor_offset)
+						get_viewport().warp_mouse(
+							(
+								distortion_image_preview.global_position
+								+ framing.bottom_left_corner * distortion_image_preview.size
+								- _cursor_offset
+							)
+						)
 	elif event is InputEventMouseMotion:
 		if _handle_grabbed:
-			_update_distort_handle(event.relative*(0.1/distort_magnify_scale) if event.shift_pressed else event.relative*(1/distort_magnify_scale))
+			_update_distort_handle(
+				(
+					event.relative * (0.1 / distort_magnify_scale)
+					if event.shift_pressed
+					else event.relative * (1 / distort_magnify_scale)
+				)
+			)
+
 
 func _update_distort_handle(relative: Vector2 = Vector2.ZERO) -> Vector2:
 	if relative == Vector2.ZERO:
 		var new_pos: Vector2 = distortion_image_preview.get_local_mouse_position() - _cursor_offset
-		var new_pos_ratio: Vector2 = (new_pos/distortion_image_preview.size)
+		var new_pos_ratio: Vector2 = new_pos / distortion_image_preview.size
 		match active_corner:
 			"tl":
 				photo_item.set_framing_top_left(sub_asset_index, new_pos_ratio)
@@ -275,32 +301,34 @@ func _update_distort_handle(relative: Vector2 = Vector2.ZERO) -> Vector2:
 		return new_pos
 	else:
 		var framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)
-		var relative_ratio: Vector2 = relative/distortion_image_preview.size
+		var relative_ratio: Vector2 = relative / distortion_image_preview.size
 		match active_corner:
 			"tl":
 				var new_pos = framing.top_left_corner + relative_ratio
 				photo_item.set_framing_top_left(sub_asset_index, new_pos)
-				new_pos = new_pos*distortion_image_preview.size
+				new_pos = new_pos * distortion_image_preview.size
 				_sync_ui_distortion_magnifier(new_pos)
 				return new_pos
 			"tr":
 				var new_pos = framing.top_right_corner + relative_ratio
 				photo_item.set_framing_top_right(sub_asset_index, new_pos)
-				_sync_ui_distortion_magnifier(new_pos*distortion_image_preview.size)
+				_sync_ui_distortion_magnifier(new_pos * distortion_image_preview.size)
 				return new_pos
 			"br":
 				var new_pos = framing.bottom_right_corner + relative_ratio
 				photo_item.set_framing_bottom_right(sub_asset_index, new_pos)
-				_sync_ui_distortion_magnifier(new_pos*distortion_image_preview.size)
+				_sync_ui_distortion_magnifier(new_pos * distortion_image_preview.size)
 				return new_pos
 			"bl":
 				var new_pos = framing.bottom_left_corner + relative_ratio
 				photo_item.set_framing_bottom_left(sub_asset_index, new_pos)
-				_sync_ui_distortion_magnifier(new_pos*distortion_image_preview.size)
+				_sync_ui_distortion_magnifier(new_pos * distortion_image_preview.size)
 				return new_pos
 	return Vector2.ZERO
 
+
 var _is_panning: bool = false
+
 
 func panel_gui_input(event: InputEvent):
 	if event is InputEventMouseButton:
@@ -327,76 +355,134 @@ func panel_gui_input(event: InputEvent):
 	if event is InputEventMouseMotion:
 		if _is_panning:
 			var image_rect = photo_item.get_image_rect_mm(sub_asset_index)
-			var px = ((image_rect.size - photo_item.size_mm)*_get_scale()*(zoom_scale/100.0)/2)
+			var px = (
+				(image_rect.size - photo_item.size_mm) * _get_scale() * (zoom_scale / 100.0) / 2
+			)
 			var framing = photo_item.get_framing(sub_asset_index)
-			framing.offset.x -= (event.relative.x/px.x)*(0.5 if event.shift_pressed else 1.0) if px.x != 0 else 0
-			framing.offset.y += (event.relative.y/px.y)*(0.5 if event.shift_pressed else 1.0) if px.y != 0 else 0
+			framing.offset.x -= (
+				(event.relative.x / px.x) * (0.5 if event.shift_pressed else 1.0)
+				if px.x != 0
+				else 0
+			)
+			framing.offset.y += (
+				(event.relative.y / px.y) * (0.5 if event.shift_pressed else 1.0)
+				if px.y != 0
+				else 0
+			)
 
 			photo_item.set_framing_offset(sub_asset_index, framing.offset)
+
 
 func cancel():
 	photo_item.framings = old_framing.duplicate()
 	photo_item.emit_changed()
-	old_framing = {}
+	old_framing.clear()
+
 
 func request_open(item: PhotoItemData, index: int = 0):
 	if item:
 		photo_item = item
 		sub_asset_index = index
-		photo_item_image.texture = photo_item.asset.get_preview_texture(index)
-		distortion_image_preview.texture = photo_item.asset.get_preview_texture(index)
-		distort_handle_magnifier_image_preview.texture = photo_item.asset.get_preview_texture(index)
+		photo_item_image.texture = preview_texture
+		distortion_image_preview.texture = photo_item_image.texture
+		distort_handle_magnifier_image_preview.texture = photo_item_image.texture
 		old_framing = photo_item.framings
 		clip_check_button.button_pressed = false
-		popup_centered(get_parent().get_window().size*0.8)
+		popup_centered(get_parent().get_window().size * 0.8)
 		_sync_ui()
 
+
 func _get_scale():
-	var scale_x: float = (photo_item_panel.size.x - frame_margin*2) / photo_item.size_mm.x
-	var scale_y: float = (photo_item_panel.size.y - frame_margin*2) / photo_item.size_mm.y
+	var scale_x: float = (photo_item_panel.size.x - frame_margin * 2) / photo_item.size_mm.x
+	var scale_y: float = (photo_item_panel.size.y - frame_margin * 2) / photo_item.size_mm.y
 
 	return min(scale_x, scale_y)
+
 
 func _get_scale_distortion_panel():
-	var scale_x: float = (distortion_editor_panel.size.x - frame_margin*2) / photo_item.asset.get_preview_texture(sub_asset_index).get_size().x
-	var scale_y: float = (distortion_editor_panel.size.y - frame_margin*2) / photo_item.asset.get_preview_texture(sub_asset_index).get_size().y
+	var scale_x: float = (
+		(distortion_editor_panel.size.x - frame_margin * 2) / photo_item_image.texture.size.x
+	)
+	var scale_y: float = (
+		(distortion_editor_panel.size.y - frame_margin * 2) / photo_item_image.texture.size.y
+	)
 
 	return min(scale_x, scale_y)
+
 
 var distort_handle_margins: int = 16
 var distort_magnify_size: float = 4
 var distort_magnify_scale: float = 2
 
-func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 
+func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 	var dhm: Vector2 = Vector2(distort_handle_margins, distort_handle_margins)
 	var framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)
 
-	distort_handle_magnifier.position = (mouse_position - Vector2(distort_handle_margins, distort_handle_margins)*distort_magnify_size).clamp(Vector2.ZERO - dhm*distort_magnify_size, distortion_image_preview.size - dhm*distort_magnify_size)
+	distort_handle_magnifier.position = (
+		(
+			mouse_position
+			- Vector2(distort_handle_margins, distort_handle_margins) * distort_magnify_size
+		)
+		. clamp(
+			Vector2.ZERO - dhm * distort_magnify_size,
+			distortion_image_preview.size - dhm * distort_magnify_size
+		)
+	)
 
-	distort_handle_magnifier_frame.size = Vector2(distort_handle_margins*2*distort_magnify_size, distort_handle_margins*2*distort_magnify_size)
+	distort_handle_magnifier_frame.size = Vector2(
+		distort_handle_margins * 2 * distort_magnify_size,
+		distort_handle_margins * 2 * distort_magnify_size
+	)
 
-	distort_handle_magnifier_image_preview.texture = photo_item.asset.get_preview_texture(sub_asset_index)
-	distort_handle_magnifier_image_preview.size = photo_item.asset.get_preview_texture(sub_asset_index).get_size() * _get_scale_distortion_panel() * distort_magnify_scale
-	distort_handle_magnifier_image_preview.position = (dhm*distort_magnify_size - mouse_position*distort_magnify_scale).clamp(-distortion_image_preview.size*distort_magnify_scale + dhm*distort_magnify_size, Vector2.ZERO + dhm*distort_magnify_size)
+	distort_handle_magnifier_image_preview.texture = photo_item_image.texture
+	distort_handle_magnifier_image_preview.size = (
+		photo_item_image.texture.size * _get_scale_distortion_panel() * distort_magnify_scale
+	)
+	distort_handle_magnifier_image_preview.position = (
+		(dhm * distort_magnify_size - mouse_position * distort_magnify_scale)
+		. clamp(
+			-distortion_image_preview.size * distort_magnify_scale + dhm * distort_magnify_size,
+			Vector2.ZERO + dhm * distort_magnify_size
+		)
+	)
 
-	top_line_magnify.set_point_position(0, framing.top_left_corner * distort_handle_magnifier_image_preview.size)
-	top_line_magnify.set_point_position(1, framing.top_right_corner * distort_handle_magnifier_image_preview.size)
+	top_line_magnify.set_point_position(
+		0, framing.top_left_corner * distort_handle_magnifier_image_preview.size
+	)
+	top_line_magnify.set_point_position(
+		1, framing.top_right_corner * distort_handle_magnifier_image_preview.size
+	)
 
-	right_line_magnify.set_point_position(0, framing.top_right_corner * distort_handle_magnifier_image_preview.size)
-	right_line_magnify.set_point_position(1, framing.bottom_right_corner * distort_handle_magnifier_image_preview.size)
+	right_line_magnify.set_point_position(
+		0, framing.top_right_corner * distort_handle_magnifier_image_preview.size
+	)
+	right_line_magnify.set_point_position(
+		1, framing.bottom_right_corner * distort_handle_magnifier_image_preview.size
+	)
 
-	bottom_line_magnify.set_point_position(1, framing.bottom_right_corner * distort_handle_magnifier_image_preview.size)
-	bottom_line_magnify.set_point_position(0, framing.bottom_left_corner * distort_handle_magnifier_image_preview.size)
+	bottom_line_magnify.set_point_position(
+		1, framing.bottom_right_corner * distort_handle_magnifier_image_preview.size
+	)
+	bottom_line_magnify.set_point_position(
+		0, framing.bottom_left_corner * distort_handle_magnifier_image_preview.size
+	)
 
-	left_line_magnify.set_point_position(0, framing.bottom_left_corner * distort_handle_magnifier_image_preview.size)
-	left_line_magnify.set_point_position(1, framing.top_left_corner * distort_handle_magnifier_image_preview.size)
+	left_line_magnify.set_point_position(
+		0, framing.bottom_left_corner * distort_handle_magnifier_image_preview.size
+	)
+	left_line_magnify.set_point_position(
+		1, framing.top_left_corner * distort_handle_magnifier_image_preview.size
+	)
 
 
-func _sync_ui_distortion_panel(framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)):
-
-	distortion_image_preview.texture = photo_item.asset.get_preview_texture(sub_asset_index)
-	distortion_image_preview.custom_minimum_size = photo_item.asset.get_preview_texture(sub_asset_index).get_size() * _get_scale_distortion_panel()
+func _sync_ui_distortion_panel(
+	framing: PhotoItemData.Framing = photo_item.get_framing(sub_asset_index)
+):
+	distortion_image_preview.texture = photo_item_image.texture
+	distortion_image_preview.custom_minimum_size = (
+		photo_item_image.texture.size * _get_scale_distortion_panel()
+	)
 
 	tl_handle.offset_left = -distort_handle_margins
 	tl_handle.offset_top = -distort_handle_margins
@@ -438,22 +524,39 @@ func _sync_ui_distortion_panel(framing: PhotoItemData.Framing = photo_item.get_f
 	bl_handle.anchor_top = framing.bottom_left_corner.y
 	bl_handle.anchor_bottom = framing.bottom_left_corner.y
 
-	top_line.set_point_position(0, framing.top_left_corner * distortion_image_preview.custom_minimum_size)
-	top_line.set_point_position(1, framing.top_right_corner * distortion_image_preview.custom_minimum_size)
+	top_line.set_point_position(
+		0, framing.top_left_corner * distortion_image_preview.custom_minimum_size
+	)
+	top_line.set_point_position(
+		1, framing.top_right_corner * distortion_image_preview.custom_minimum_size
+	)
 
-	right_line.set_point_position(0, framing.top_right_corner * distortion_image_preview.custom_minimum_size)
-	right_line.set_point_position(1, framing.bottom_right_corner * distortion_image_preview.custom_minimum_size)
+	right_line.set_point_position(
+		0, framing.top_right_corner * distortion_image_preview.custom_minimum_size
+	)
+	right_line.set_point_position(
+		1, framing.bottom_right_corner * distortion_image_preview.custom_minimum_size
+	)
 
-	bottom_line.set_point_position(0, framing.bottom_left_corner * distortion_image_preview.custom_minimum_size)
-	bottom_line.set_point_position(1, framing.bottom_right_corner * distortion_image_preview.custom_minimum_size)
+	bottom_line.set_point_position(
+		0, framing.bottom_left_corner * distortion_image_preview.custom_minimum_size
+	)
+	bottom_line.set_point_position(
+		1, framing.bottom_right_corner * distortion_image_preview.custom_minimum_size
+	)
 
-	left_line.set_point_position(0, framing.top_left_corner * distortion_image_preview.custom_minimum_size)
-	left_line.set_point_position(1, framing.bottom_left_corner * distortion_image_preview.custom_minimum_size)
+	left_line.set_point_position(
+		0, framing.top_left_corner * distortion_image_preview.custom_minimum_size
+	)
+	left_line.set_point_position(
+		1, framing.bottom_left_corner * distortion_image_preview.custom_minimum_size
+	)
 
-	tl_position_spin_box.set_value_no_signal(framing.top_left_corner*100)
-	tr_position_spin_box.set_value_no_signal(framing.top_right_corner*100)
-	br_position_spin_box.set_value_no_signal(framing.bottom_right_corner*100)
-	bl_position_spin_box.set_value_no_signal(framing.bottom_left_corner*100)
+	tl_position_spin_box.set_value_no_signal(framing.top_left_corner * 100)
+	tr_position_spin_box.set_value_no_signal(framing.top_right_corner * 100)
+	br_position_spin_box.set_value_no_signal(framing.bottom_right_corner * 100)
+	bl_position_spin_box.set_value_no_signal(framing.bottom_left_corner * 100)
+
 
 func _sync_ui():
 	if not photo_item:
@@ -463,7 +566,10 @@ func _sync_ui():
 
 	sub_asset_index = clamp(sub_asset_index, 0, photo_item.asset.get_count() - 1)
 
-	summary_label.text = "Size: %dmm x %dmm\nImage size: %dmm x %dmm" % [photo_item.size_mm.x, photo_item.size_mm.y, image_rect.size.x, image_rect.size.y]
+	summary_label.text = (
+		"Size: %dmm x %dmm\nImage size: %dmm x %dmm"
+		% [photo_item.size_mm.x, photo_item.size_mm.y, image_rect.size.x, image_rect.size.y]
+	)
 
 	var framing = photo_item.get_framing(sub_asset_index)
 
@@ -522,26 +628,36 @@ func _sync_ui():
 			distortion_editor_panel.visible = distortion_editor_check_button.button_pressed
 			_sync_ui_distortion_panel.call_deferred(framing)
 
-
 	zoom_scale_slider.set_value_no_signal(zoom_scale)
 	zoom_scale_spin_box.set_value_no_signal(zoom_scale)
 
-	photo_item_image.texture = photo_item.asset.get_preview_texture(sub_asset_index)
+	photo_item_image.texture = preview_texture
 
-	photo_item_background.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale/100.0)
-	photo_item_frame.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale/100.0)
+	photo_item_background.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale / 100.0)
+	photo_item_frame.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale / 100.0)
 
-	photo_item_image.custom_minimum_size = image_rect.size * scale * (zoom_scale/100.0)
-	photo_item_image.offset_transform_position = image_rect.position * scale * (zoom_scale/100.0)
+	photo_item_image.custom_minimum_size = image_rect.size * scale * (zoom_scale / 100.0)
+	photo_item_image.offset_transform_position = image_rect.position * scale * (zoom_scale / 100.0)
 
 	var mat: ShaderMaterial = photo_item_image.material as ShaderMaterial
 	if mat:
 		var f_size = photo_item_frame.custom_minimum_size
 		var pos = photo_item_image.offset_transform_position
 
-		mat.set_shader_parameter("frame_rect", Vector4(max(-pos.x,0), max(-pos.y,0), f_size.x, f_size.y))
-		mat.set_shader_parameter("out_bound_opacity", 0.0 if clip_check_button.button_pressed else 0.1)
-		mat.set_shader_parameter("u_homography_matrix", photo_item.get_distort_matrix(sub_asset_index) if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
+		mat.set_shader_parameter(
+			"frame_rect", Vector4(max(-pos.x, 0), max(-pos.y, 0), f_size.x, f_size.y)
+		)
+		mat.set_shader_parameter(
+			"out_bound_opacity", 0.0 if clip_check_button.button_pressed else 0.1
+		)
+		mat.set_shader_parameter(
+			"u_homography_matrix",
+			(
+				photo_item.get_distort_matrix(sub_asset_index)
+				if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT
+				else Basis.IDENTITY
+			)
+		)
 
 	selected_asset_label.text = photo_item.asset.display_name
 	sub_asset_spin_box.set_value_no_signal(sub_asset_index + 1)
@@ -549,5 +665,5 @@ func _sync_ui():
 	sub_asset_spin_box.suffix = "/%s" % photo_item.asset.get_count()
 
 	zoom_spin_box.set_value_no_signal(framing.scale * 100)
-	offset_x_spin_box.set_value_no_signal(framing.offset.x*100)
-	offset_y_spin_box.set_value_no_signal(framing.offset.y*100)
+	offset_x_spin_box.set_value_no_signal(framing.offset.x * 100)
+	offset_y_spin_box.set_value_no_signal(framing.offset.y * 100)

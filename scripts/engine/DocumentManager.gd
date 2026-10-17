@@ -83,7 +83,7 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 
 		var framings: Dictionary = {}
 
-		for index in item.framings.keys():
+		for index in range(item.framings.size()):
 			framings[index] = {
 				"scale": item.framings[index].scale,
 				"offset": [item.framings[index].offset.x, item.framings[index].offset.y],
@@ -279,10 +279,12 @@ static func open_document(file_path: String) -> DocumentData:
 				shared_counter["current"] += 1
 				mutex.unlock()
 
+	var total_threads: int = min(6, OS.get_processor_count())
+
 	var group_id: int = WorkerThreadPool.add_group_task(
 		create_asset,
 		shared_counter["total"],
-		-1,
+		total_threads,
 		true,
 		"CREATING_ASSETS"
 	)
@@ -299,7 +301,7 @@ static func open_document(file_path: String) -> DocumentData:
 	group_id = WorkerThreadPool.add_group_task(
 		create_asset,
 		shared_counter["total"],
-		-1,
+		total_threads,
 		true,
 		"CREATING_ASSETS"
 	)
@@ -313,33 +315,9 @@ static func open_document(file_path: String) -> DocumentData:
 	for asset: AssetData in imported_assets:
 		if asset:
 			if asset is ImageAssetData:
-				if not asset.preview_texture:
-					asset.generate_preview_texture()
+				if not asset.thumbnail:
+					asset.generate_thumbnail()
 			doc.assets.append(asset)
-
-	# for asset_dict in assets_arr:
-	# 	var type: String = asset_dict.get("type", "")
-
-	# 	if type.is_empty():
-	# 		push_error("DocumentManager: Unknown Asset Type")
-	# 		continue
-
-	# 	match type:
-	# 		"image":
-	# 			var asset_obj: ImageAssetData = get_image_asset_data(asset_dict, reader)
-	# 			doc.assets.append(asset_obj)
-	# 			asset_map[asset_dict.id] = asset_obj
-	# 		"group":
-	# 			var asset_obj: GroupAssetData = get_group_asset_data(asset_dict, asset_map, reader)
-	# 			doc.assets.append(asset_obj)
-	# 			asset_map[asset_dict.get("id", "")] = asset_obj
-	# 			for sub_asset_obj in asset_obj.children:
-	# 				if not asset_map.has(sub_asset_obj.id):
-	# 					asset_map[sub_asset_obj.id] = sub_asset_obj
-
-	# 	opened += 1
-	# 	Global.progress_update("Loading Asset Datas (%d/%d)" % [float(opened), assets_arr.size()], float(opened)/assets_arr.size())
-	# 	await Engine.get_main_loop().process_frame
 
 	# 4. Reconstruct PhotoItemData list
 	var items_arr: Array = data.get("photo_items", [])

@@ -14,26 +14,24 @@ var quick_import_files: PackedStringArray
 
 @onready var advanced_cropping_window: Window = %AdvancedCroppingWindow
 
+
 func _ready() -> void:
 	assets_panel.request_import_dialog.connect(_on_import_dialog_requested)
 	assets_panel.add_asset_to_sheet.connect(_on_add_asset_to_sheet)
 
-	image_import_dialog.files_selected.connect(_on_image_files_selected)
+	image_import_dialog.files_selected.connect(_on_files_selected)
 	save_document_dialog.file_selected.connect(func(file): request_save_document(file))
 
 	canvas_panel.on_photo_item_selected.connect(_on_photo_item_selected)
 
 	properties_panel.request_duplicate.connect(
-		func():
-			canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_DUPLICATE)
+		func(): canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_DUPLICATE)
 	)
 	properties_panel.request_copy.connect(
-		func():
-			canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_COPY_PROPERTIES)
+		func(): canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_COPY_PROPERTIES)
 	)
 	properties_panel.request_paste.connect(
-		func():
-			canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_PASTE_PROPERTIES)
+		func(): canvas_panel._on_photo_tile_context_menu_pressed(CanvasPanel.TILE_PASTE_PROPERTIES)
 	)
 
 	properties_panel.request_advanced_cropping.connect(_open_advanced_cropping_window)
@@ -41,14 +39,16 @@ func _ready() -> void:
 	_init_children()
 
 	if not quick_import_files.is_empty():
-		_on_image_files_selected(quick_import_files)
+		_on_files_selected(quick_import_files)
 		quick_import_files.clear()
+
 
 func _init_children():
 	toolbar.setup(document_data)
 	assets_panel.setup(document_data)
 	canvas_panel.setup(document_data)
 	properties_panel.setup(document_data)
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed():
@@ -60,44 +60,115 @@ func _unhandled_input(event: InputEvent) -> void:
 				Global.undo_redo[document_data].undo()
 				accept_event()
 
+
 func _on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int):
 	properties_panel.photo_item = photo_item
 	properties_panel.sub_asset_index = sub_asset_index
 	pass
 
+
 func setup(data: DocumentData, files: PackedStringArray) -> void:
 	document_data = data
 	quick_import_files = files
 
-func _on_add_asset_to_sheet(asset_datas: Array[AssetData], add_assets_action: CanvasPanel.AddAssetAction = CanvasPanel.AddAssetAction.ADD, select_on_add: bool = false):
+
+func _on_add_asset_to_sheet(
+	asset_datas: Array[AssetData],
+	add_assets_action: CanvasPanel.AddAssetAction = CanvasPanel.AddAssetAction.ADD,
+	select_on_add: bool = false
+):
 	canvas_panel.add_asset_to_sheet(asset_datas, add_assets_action, select_on_add)
 
+
 func request_save_document(file: String = document_data.save_path):
-	if file.is_empty() and (document_data.save_path.is_empty() or not FileAccess.file_exists(document_data.save_path)):
-		save_document_dialog.get_line_edit().text = name.to_lower().replace(" ", "-") + DocumentManager.EXTENSION_DOT
-		save_document_dialog.popup_centered(Vector2i(600,400))
+	if (
+		file.is_empty()
+		and (
+			document_data.save_path.is_empty()
+			or not FileAccess.file_exists(document_data.save_path)
+		)
+	):
+		save_document_dialog.get_line_edit().text = (
+			name.to_lower().replace(" ", "-") + DocumentManager.EXTENSION_DOT
+		)
+		save_document_dialog.popup_centered(Vector2i(600, 400))
 		return
 
 	document_data.save_path = file
 	if await DocumentManager.save_document(document_data, file) == OK:
 		name = file.get_file().get_basename()
 
-func _on_image_files_selected(files: PackedStringArray) -> void:
 
-	Global.progress_started("Importing")
+func _on_files_selected(files: PackedStringArray) -> void:
+	# [
+	#     [path, buffer],
+	#     [path, buffer],
+	#     [path, buffer]
+	# ]
+	var valid_image_files: Array[Array] = []
+	var valid_pdf_files: Array[Array] = []
+
+	for file in files:
+		var ext: String = file.get_extension().to_lower()
+
+		if ["png", "jpeg", "jpg", "webp"].has(ext):
+			match ImageAssetData.get_image_type_from_file(file):
+				ImageAssetData.ImageType.UNKNOWN:
+					push_error("Cannot import image file at %s (Reason: Not an Image file)" % file)
+					continue
+				_:
+					var bytes: PackedByteArray = FileAccess.get_file_as_bytes(file)
+					valid_image_files.append([file, bytes])
+					continue
+
+		if "pdf" == ext:
+			if PdfAssetData.is_valid_pdf(file):
+				var bytes: PackedByteArray = FileAccess.get_file_as_bytes(file)
+				valid_pdf_files.append([file, bytes])
+			else:
+				push_error("Cannot import Pdf file at %s (Reason: Not a Pdf file)" % file)
+				continue
+
+	_import_image_files(valid_image_files)
+	_import_pdf_files(valid_pdf_files)
+
+
+# [
+#     [path, buffer],
+#     [path, buffer],
+#     [path, buffer]
+# ]
+func _import_pdf_files(buffers: Array[Array]):
+	Global.progress_started("Importing PDFs")
+
+	var imported_assets: Array = []
+
+	for buffer in buffers:
+		var asset = PdfAssetData.create_from_file(buffer[0], buffer[1])
+		if asset:
+			imported_assets.append(asset)
+
+	for asset in imported_assets:
+		document_data.assets.append(asset)
+		assets_panel.instantiate_asset_card(asset)
+
+	Global.progress_finished()
+
+
+func _import_image_files(buffers: Array[Array]):
+	Global.progress_started("Importing Images")
 
 	var asset_buffer_map: Dictionary = {}
 	var asset_buffer_keys: Array = []
 
 	var imported_buffers: int = 0
 
-	for file in files:
-		var buffer: PackedByteArray = FileAccess.get_file_as_bytes(file)
-		if buffer.is_empty():
-			push_error("Cannot import file at %s (Reason: Empty)" % file)
+	for buffer in buffers:
+		if buffer[1].is_empty():
+			push_error("Cannot import image file at %s (Reason: Empty)" % buffer)
 			continue
-		asset_buffer_map[file] = buffer
-		Global.set_config("file_dialog_dir", "import", file.get_base_dir())
+		asset_buffer_map[buffer[0]] = buffer[1]
+		Global.set_config("file_dialog_dir", "import", buffer[0].get_base_dir())
 		imported_buffers += 1
 
 	Global.save_config()
@@ -113,7 +184,10 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 		"total": imported_buffers,
 	}
 
-	Global.progress_update("Creating assets (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
+	Global.progress_update(
+		"Creating Image assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+		shared_counter["current"] / float(shared_counter["total"])
+	)
 	await Engine.get_main_loop().process_frame
 
 	var create_asset = func(i: int):
@@ -129,15 +203,14 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 		mutex.unlock()
 
 	var group_id: int = WorkerThreadPool.add_group_task(
-		create_asset,
-		files.size(),
-		-1,
-		true,
-		"IMPORT_ASSETS"
+		create_asset, imported_buffers, -1, true, "IMPORT_ASSETS"
 	)
 
 	while shared_counter["current"] < shared_counter["total"]:
-		Global.progress_update("Creating assets (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
+		Global.progress_update(
+			"Creating Image assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+			shared_counter["current"] / float(shared_counter["total"])
+		)
 		await Engine.get_main_loop().process_frame
 
 	WorkerThreadPool.wait_for_group_task_completion(group_id)
@@ -146,7 +219,10 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 
 	var milestone: int = Time.get_ticks_msec()
 
-	Global.progress_update("Importing files (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
+	Global.progress_update(
+		"Importing Image files (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+		shared_counter["current"] / float(shared_counter["total"])
+	)
 	await Engine.get_main_loop().process_frame
 
 	for asset in imported_assets:
@@ -156,17 +232,25 @@ func _on_image_files_selected(files: PackedStringArray) -> void:
 		shared_counter["current"] += 1
 		if Time.get_ticks_msec() - milestone > 100:
 			milestone = Time.get_ticks_msec()
-			Global.progress_update("Importing files (%d/%d)" % [shared_counter["current"],shared_counter["total"]], shared_counter["current"]/float(shared_counter["total"]))
+			Global.progress_update(
+				(
+					"Importing Image files (%d/%d)"
+					% [shared_counter["current"], shared_counter["total"]]
+				),
+				shared_counter["current"] / float(shared_counter["total"])
+			)
 			await Engine.get_main_loop().process_frame
 
-
 	Global.progress_finished()
+	pass
+
 
 func _on_import_dialog_requested() -> void:
 	var current_dir: String = Global.get_config("file_dialog_dir", "import")
 	if DirAccess.dir_exists_absolute(current_dir):
 		image_import_dialog.current_dir = current_dir
 	image_import_dialog.popup_centered(Vector2i(600, 400))
+
 
 func _open_advanced_cropping_window():
 	var item: PhotoItemData = canvas_panel.selected_photo_item

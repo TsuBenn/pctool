@@ -1,12 +1,13 @@
 class_name ImageAssetData
 extends AssetData
 
-@export var preview_texture: Texture2D
+@export var thumbnail: Texture2D
 @export var pixel_dimensions: Vector2i
 @export var original_image: Image
 
 @export var raw_file_buffer: PackedByteArray = PackedByteArray()
 @export var file_extension: String = "png"
+
 
 func _init(
 	new_id: String = "",
@@ -21,7 +22,7 @@ func _init(
 	id = new_id
 	display_name = file_name
 	source_path = path
-	preview_texture = tex
+	thumbnail = tex
 	pixel_dimensions = dim
 	raw_file_buffer = buffer
 	original_image = img
@@ -32,7 +33,7 @@ func get_count() -> int:
 	return 1
 
 
-func get_image(_index: int) -> Image:
+func get_image(_index: int, _size: Vector2i = Vector2i.ZERO) -> Image:
 	var img: Image = Image.new()
 	var err: Error = FAILED
 
@@ -49,20 +50,21 @@ func get_image(_index: int) -> Image:
 			err = Error.ERR_FILE_UNRECOGNIZED
 
 	if err != OK:
-		Global.notice("Cannot load file", 'File from path "%s" is unsupported or corrupted' % source_path)
+		Global.notice(
+			"Cannot load file", 'File from path "%s" is unsupported or corrupted' % source_path
+		)
 		push_error('ImageAssetData: Image from path "%s" is unsupported or corrupted' % source_path)
 		return null
 
 	return img
 
-
-func get_preview_texture(_index: int) -> Texture2D:
-	return preview_texture
+func get_thumbnail(_index: int) -> Texture2D:
+	return thumbnail
 
 func clean() -> void:
-	print(raw_file_buffer.size())
 	raw_file_buffer.clear()
-	preview_texture = null
+	thumbnail = null
+
 
 static func create_from_file(path: String) -> ImageAssetData:
 	var img_buffer: PackedByteArray = FileAccess.get_file_as_bytes(path)
@@ -75,18 +77,22 @@ static func create_from_file(path: String) -> ImageAssetData:
 
 	return asset
 
-func generate_preview_texture():
-	if preview_texture:
+
+func generate_thumbnail():
+	if thumbnail:
 		return
 	if not original_image:
-		Global.notice("Cannot generate preview", 'No Image found in asset')
-		push_error('ImageAssetData: Cannot generate preview texture because of no Image present')
+		Global.notice("Cannot generate preview", "No Image found in asset")
+		push_error("ImageAssetData: Cannot generate preview texture because of no Image present")
 		return
 
-	preview_texture = ImageTexture.create_from_image(original_image)
+	thumbnail = ImageTexture.create_from_image(original_image)
 	original_image = null
 
-static func create_from_buffer(buffer: PackedByteArray, path: String = "", include_texture: bool = true) -> ImageAssetData:
+
+static func create_from_buffer(
+	buffer: PackedByteArray, path: String = "", include_texture: bool = true
+) -> ImageAssetData:
 	var img: Image = Image.new()
 	var err: Error = FAILED
 
@@ -115,8 +121,10 @@ static func create_from_buffer(buffer: PackedByteArray, path: String = "", inclu
 		push_error('ImageAssetData: Image from path "%s" is unsupported or corrupted' % path)
 		return null
 
-	var scale: float = min((1920.0*1080)/(img.get_size().x*img.get_size().y),1)
-	img.resize(round(img.get_size().x*scale),round(img.get_size().y*scale), Image.INTERPOLATE_LANCZOS)
+	var scale: float = 200.0/img.get_size().x
+	img.resize(
+		round(img.get_size().x * scale), round(img.get_size().y * scale), Image.INTERPOLATE_NEAREST
+	)
 	var tex: Texture2D = ImageTexture.create_from_image(img) if include_texture else null
 	# print("original:" + str(img.get_size()))
 	# print("lower   :" + str(lower_img.get_size()))
@@ -127,17 +135,15 @@ static func create_from_buffer(buffer: PackedByteArray, path: String = "", inclu
 	if include_texture:
 		img = null
 
-	var asset: ImageAssetData = ImageAssetData.new(new_id, file_name, path, tex, dim, buffer, img, ext)
+	var asset: ImageAssetData = ImageAssetData.new(
+		new_id, file_name, path, tex, dim, buffer, img, ext
+	)
 
 	return asset
 
 
-enum ImageType {
-	UNKNOWN,
-	PNG,
-	JPEG,
-	WEBP
-}
+enum ImageType { UNKNOWN, PNG, JPEG, WEBP }
+
 
 static func get_dimensions(buffer: PackedByteArray) -> Vector2i:
 	var type: ImageType = get_image_type(buffer)
@@ -152,6 +158,40 @@ static func get_dimensions(buffer: PackedByteArray) -> Vector2i:
 		_:
 			return Vector2i.ZERO
 
+
+static func get_image_type_from_file(file_path: String) -> ImageType:
+	var file = FileAccess.open(file_path, FileAccess.READ)
+	if not file:
+		return ImageType.UNKNOWN
+
+	var buffer = file.get_buffer(12)
+	if buffer.size() < 12:
+		return ImageType.UNKNOWN
+
+	# 1. PNG Magic Bytes (0x89 'P' 'N' 'G')
+	if buffer[0] == 0x89 and buffer[1] == 0x50 and buffer[2] == 0x4E and buffer[3] == 0x47:
+		return ImageType.PNG
+
+	# 2. JPEG Magic Bytes (0xFF 0xD8)
+	if buffer[0] == 0xFF and buffer[1] == 0xD8:
+		return ImageType.JPEG
+
+	# 3. WebP Magic Bytes ('R' 'I' 'F' 'F' ... 'W' 'E' 'B' 'P')
+	if (
+		buffer[0] == 0x52
+		and buffer[1] == 0x49
+		and buffer[2] == 0x46
+		and buffer[3] == 0x46
+		and buffer[8] == 0x57
+		and buffer[9] == 0x45
+		and buffer[10] == 0x42
+		and buffer[11] == 0x50
+	):
+		return ImageType.WEBP
+
+	return ImageType.UNKNOWN
+
+
 static func get_image_type(buffer: PackedByteArray) -> ImageType:
 	if buffer.size() < 12:
 		return ImageType.UNKNOWN
@@ -165,11 +205,20 @@ static func get_image_type(buffer: PackedByteArray) -> ImageType:
 		return ImageType.JPEG
 
 	# 3. WebP Magic Bytes ('R' 'I' 'F' 'F' ... 'W' 'E' 'B' 'P')
-	if buffer[0] == 0x52 and buffer[1] == 0x49 and buffer[2] == 0x46 and buffer[3] == 0x46 \
-	and buffer[8] == 0x57 and buffer[9] == 0x45 and buffer[10] == 0x42 and buffer[11] == 0x50:
+	if (
+		buffer[0] == 0x52
+		and buffer[1] == 0x49
+		and buffer[2] == 0x46
+		and buffer[3] == 0x46
+		and buffer[8] == 0x57
+		and buffer[9] == 0x45
+		and buffer[10] == 0x42
+		and buffer[11] == 0x50
+	):
 		return ImageType.WEBP
 
 	return ImageType.UNKNOWN
+
 
 static func _parse_png_dimensions(buffer: PackedByteArray) -> Vector2i:
 	if buffer.size() < 24:
@@ -177,6 +226,7 @@ static func _parse_png_dimensions(buffer: PackedByteArray) -> Vector2i:
 	var width: int = (buffer[16] << 24) | (buffer[17] << 16) | (buffer[18] << 8) | buffer[19]
 	var height: int = (buffer[20] << 24) | (buffer[21] << 16) | (buffer[22] << 8) | buffer[23]
 	return Vector2i(width, height)
+
 
 static func _parse_jpeg_dimensions(buffer: PackedByteArray) -> Vector2i:
 	var offset: int = 2
@@ -199,6 +249,7 @@ static func _parse_jpeg_dimensions(buffer: PackedByteArray) -> Vector2i:
 
 	return Vector2i.ZERO
 
+
 static func _parse_webp_dimensions(buffer: PackedByteArray) -> Vector2i:
 	if buffer.size() < 16:
 		return Vector2i.ZERO
@@ -207,13 +258,15 @@ static func _parse_webp_dimensions(buffer: PackedByteArray) -> Vector2i:
 
 	match format_chunk:
 		"VP8 ":
-			if buffer.size() < 30: return Vector2i.ZERO
+			if buffer.size() < 30:
+				return Vector2i.ZERO
 			var width: int = (buffer[26] | (buffer[27] << 8)) & 0x3FFF
 			var height: int = (buffer[28] | (buffer[29] << 8)) & 0x3FFF
 			return Vector2i(width, height)
 
 		"VP8L":
-			if buffer.size() < 25: return Vector2i.ZERO
+			if buffer.size() < 25:
+				return Vector2i.ZERO
 			var b0: int = buffer[21]
 			var b1: int = buffer[22]
 			var b2: int = buffer[23]
@@ -224,7 +277,8 @@ static func _parse_webp_dimensions(buffer: PackedByteArray) -> Vector2i:
 			return Vector2i(width, height)
 
 		"VP8X":
-			if buffer.size() < 30: return Vector2i.ZERO
+			if buffer.size() < 30:
+				return Vector2i.ZERO
 			var width: int = 1 + (buffer[24] | (buffer[25] << 8) | (buffer[26] << 16))
 			var height: int = 1 + (buffer[27] | (buffer[28] << 8) | (buffer[29] << 16))
 			return Vector2i(width, height)

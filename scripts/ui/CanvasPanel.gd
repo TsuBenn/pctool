@@ -3,7 +3,6 @@ class_name CanvasPanel
 
 signal on_photo_item_selected(photo_item: PhotoItemData, sub_asset_index: int)
 
-
 enum ZoomPreset {
 	PERCENT_50,
 	PERCENT_100,
@@ -11,6 +10,9 @@ enum ZoomPreset {
 	PERCENT_200,
 	CUSTOM,
 }
+
+var preview_texture_engine: PreviewTextureEngine = PreviewTextureEngine.new()
+var preview_debouce_timer: Timer = Timer.new()
 
 var selected_tile_view: PhotoTileView = null
 var selected_photo_item: PhotoItemData = null
@@ -72,21 +74,25 @@ var view_offset: Vector2 = Vector2.ZERO:
 var offset_padding: Vector2:
 	get:
 		if paper_sheet.is_node_ready():
-			return Vector2(paper_padding*2,paper_padding)
+			return Vector2(paper_padding * 2, paper_padding)
 		else:
 			return Vector2.ZERO
 
-
 @export var paper_padding: int = 32
+
 
 func animate_page_popup():
 	if _page_popup_tween and _page_popup_tween.is_running():
 		_page_popup_tween.kill()
 
-	page_popup_label.text = ("PAGE: %d" % (current_page_index + 1)) + (" (MAX)" if current_page_index == print_layout.total_pages - 1 else "")
+	page_popup_label.text = (
+		("PAGE: %d" % (current_page_index + 1))
+		+ (" (MAX)" if current_page_index == print_layout.total_pages - 1 else "")
+	)
 	_page_popup_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_page_popup_tween.tween_property(page_popup, "modulate:a", 1, 0.05)
 	_page_popup_tween.tween_property(page_popup, "modulate:a", 0, 0.8).set_delay(0.2)
+
 
 func advance_page(delta: int) -> bool:
 	var new = clamp(current_page_index + delta, 0, print_layout.total_pages - 1)
@@ -97,22 +103,35 @@ func advance_page(delta: int) -> bool:
 		return true
 	return false
 
+func update_tiles(report: bool = false) -> bool:
+	var clear: bool = true
+	for tile: PhotoTileView in photo_tiles_container.get_children():
+		var texture: Texture2D = preview_texture_engine.request(tile.photo_tile, report)
+		tile.preview_texture = texture
+		tile._update_image_rect()
+		if tile.preview_texture == null:
+			clear = false
+
+	if report:
+		preview_texture_engine.provide()
+
+	return clear
+
+func _process(_delta: float):
+	pass
+
 func _ready() -> void:
+	preview_debouce_timer.wait_time = 0.1
+	preview_debouce_timer.one_shot = true
+	add_child(preview_debouce_timer)
+	preview_debouce_timer.timeout.connect(func(): update_tiles(true))
+
 	canvas_context_menu.id_pressed.connect(_on_canvas_context_menu_pressed)
 	photo_tile_context_menu.id_pressed.connect(_on_photo_tile_context_menu_pressed)
 	page_popup.modulate.a = 0
-	paper_container.resized.connect(
-	func():
-		_sync_ui()
-	)
-	paper_container_v_scrollbar.value_changed.connect(
-		func(new):
-			view_offset.y = -new
-	)
-	paper_container_h_scrollbar.value_changed.connect(
-		func(new):
-			view_offset.x = -new
-	)
+	paper_container.resized.connect(func(): _sync_ui())
+	paper_container_v_scrollbar.value_changed.connect(func(new): view_offset.y = -new)
+	paper_container_h_scrollbar.value_changed.connect(func(new): view_offset.x = -new)
 	margins_overlay.draw.connect(_draw_margins_overlay)
 	paper_container.gui_input.connect(_on_paper_container_gui_input)
 	first_page_button.pressed.connect(
@@ -122,14 +141,8 @@ func _ready() -> void:
 				current_page_index = new
 				_sync_ui()
 	)
-	previous_page_button.pressed.connect(
-		func():
-			advance_page(-1)
-	)
-	next_page_button.pressed.connect(
-		func():
-			advance_page(1)
-	)
+	previous_page_button.pressed.connect(func(): advance_page(-1))
+	next_page_button.pressed.connect(func(): advance_page(1))
 	last_page_button.pressed.connect(
 		func():
 			var new = print_layout.total_pages - 1
@@ -151,9 +164,7 @@ func _ready() -> void:
 					zoom_slider.value = 200
 
 			var custom_index = zoom_presets_option_button.get_item_index(ZoomPreset.CUSTOM)
-			zoom_presets_option_button.set_item_text(
-				custom_index, "Custom"
-			)
+			zoom_presets_option_button.set_item_text(custom_index, "Custom")
 	)
 	zoom_slider.value_changed.connect(
 		func(new):
@@ -168,10 +179,7 @@ func _ready() -> void:
 	duplicate_assets_confirmation_dialog.ok_button_text = "Increment Quantity"
 	duplicate_assets_confirmation_dialog.add_button("Add as New Item", false, "add_new")
 
-	duplicate_assets_confirmation_dialog.canceled.connect(
-		func():
-			assets_on_hold.clear()
-	)
+	duplicate_assets_confirmation_dialog.canceled.connect(func(): assets_on_hold.clear())
 	duplicate_assets_confirmation_dialog.confirmed.connect(
 		func():
 			if not assets_on_hold:
@@ -188,6 +196,7 @@ func _ready() -> void:
 			assets_on_hold.clear()
 	)
 
+
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	# Only accept drops that carry our specific asset payload
 	if data is Dictionary and data.get("type") == "asset_data_group":
@@ -201,10 +210,12 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		if dropped_assets:
 			add_asset_to_sheet(dropped_assets)
 
+
 func setup(data):
 	document_data = data
 	document_data.changed.connect(_sync_ui)
 	_sync_ui()
+
 
 var _is_panning: bool = false
 
@@ -255,32 +266,35 @@ func _on_paper_container_gui_input(event: InputEvent):
 				_is_panning = false
 				paper_container.mouse_default_cursor_shape = CursorShape.CURSOR_ARROW
 
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed():
-		if (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE):
+		if event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE:
 			_on_photo_tile_context_menu_pressed(TILE_REMOVE)
 		elif event.keycode == KEY_D and event.ctrl_pressed:
 			_on_photo_tile_context_menu_pressed(TILE_DUPLICATE)
 
-enum {
-		CANVAS_FIT_TO_WINDOW,
-		CANVAS_CENTER_TO_WINDOW,
-		CANVAS_ZOOM_IN,
-		CANVAS_ZOOM_OUT,
-		CANVAS_ROTATE_PAPER,
-	}
 
 enum {
-		TILE_INCREMENT,
-		TILE_DECREMENT,
-		TILE_COPY_PROPERTIES,
-		TILE_PASTE_PROPERTIES,
-		TILE_DUPLICATE,
-		TILE_REMOVE,
-	}
+	CANVAS_FIT_TO_WINDOW,
+	CANVAS_CENTER_TO_WINDOW,
+	CANVAS_ZOOM_IN,
+	CANVAS_ZOOM_OUT,
+	CANVAS_ROTATE_PAPER,
+}
+
+enum {
+	TILE_INCREMENT,
+	TILE_DECREMENT,
+	TILE_COPY_PROPERTIES,
+	TILE_PASTE_PROPERTIES,
+	TILE_DUPLICATE,
+	TILE_REMOVE,
+}
 
 var photo_item_clipboard: PhotoItemData = null
 var photo_item_clipboard_sub_asset_index: int = 0
+
 
 func _on_canvas_context_menu_pressed(id: int):
 	match id:
@@ -296,9 +310,14 @@ func _on_canvas_context_menu_pressed(id: int):
 		CANVAS_ROTATE_PAPER:
 			document_data.is_landscape = not document_data.is_landscape
 
+
 func _open_canvas_context_menu():
-	canvas_context_menu.set_item_text(canvas_context_menu.get_item_index(CANVAS_ROTATE_PAPER), "Switch to Portrait" if document_data.is_landscape else "Switch to Landscape")
+	canvas_context_menu.set_item_text(
+		canvas_context_menu.get_item_index(CANVAS_ROTATE_PAPER),
+		"Switch to Portrait" if document_data.is_landscape else "Switch to Landscape"
+	)
 	canvas_context_menu.popup()
+
 
 func _on_photo_tile_context_menu_pressed(id: int):
 	var item = selected_photo_item
@@ -327,14 +346,18 @@ func _on_photo_tile_context_menu_pressed(id: int):
 				_deselect_all_photo_items()
 				document_data.remove_photo_item(to_remove)
 
+
 func _copy_properties():
 	if selected_photo_item:
 		photo_item_clipboard = selected_photo_item.duplicate()
 		photo_item_clipboard_sub_asset_index = selected_sub_asset_index
 
+
 func _paste_properties():
 	if photo_item_clipboard == null:
-		Global.notice("Cannot Paste Properties", "Photo Item Data clipboard is empty, copy something first!")
+		Global.notice(
+			"Cannot Paste Properties", "Photo Item Data clipboard is empty, copy something first!"
+		)
 		return
 
 	selected_photo_item.size_mm = photo_item_clipboard.size_mm
@@ -349,14 +372,19 @@ func _open_photo_tile_context_menu(tile: PhotoTileView):
 	for tile_view: PhotoTileView in photo_tiles_container.get_children():
 		if tile_view.photo_item == tile.photo_item:
 			tile_view.is_selected = true
-			tile_view.is_selected_tile = tile_view.photo_tile.sub_asset_index == tile.photo_tile.sub_asset_index
+			tile_view.is_selected_tile = (
+				tile_view.photo_tile.sub_asset_index == tile.photo_tile.sub_asset_index
+			)
 			tile_view._update_tile_rect()
 	selected_photo_item = tile.photo_item
 	selected_tile_view = tile
 	selected_sub_asset_index = tile.photo_tile.sub_asset_index
 	on_photo_item_selected.emit(tile.photo_item, tile.photo_tile.sub_asset_index)
-	photo_tile_context_menu.set_item_disabled(photo_tile_context_menu.get_item_index(TILE_PASTE_PROPERTIES), photo_item_clipboard == null)
+	photo_tile_context_menu.set_item_disabled(
+		photo_tile_context_menu.get_item_index(TILE_PASTE_PROPERTIES), photo_item_clipboard == null
+	)
 	photo_tile_context_menu.popup()
+
 
 func _get_px_per_mm_scale() -> float:
 	var scale_w = (paper_container.size.x - paper_padding * 2) / document_data.paper_size_mm.x
@@ -389,7 +417,9 @@ var assets_on_hold: Array[AssetData]
 
 
 func add_asset_to_sheet(
-	asset_datas: Array[AssetData], add_asset_action: AddAssetAction = AddAssetAction.ADD, select_on_add: bool = false
+	asset_datas: Array[AssetData],
+	add_asset_action: AddAssetAction = AddAssetAction.ADD,
+	select_on_add: bool = false
 ):
 	var duplicated_count: int = 0
 	for asset in asset_datas:
@@ -401,14 +431,19 @@ func add_asset_to_sheet(
 					if photo_item.asset.id == asset.id:
 						duplicated_count += 1
 						duplicate_assets_confirmation_dialog.dialog_text = (
-							'%s already on the paper sheet.\nWould you like to:\n - Increment its existing Photo Item quantity?\n - Add a new Photo Item itself?'
-							% ("Asset of name " + str(asset.display_name) + " is" if duplicated_count == 1 else "There are " + str(duplicated_count) + " assets that are")
+							"%s already on the paper sheet.\nWould you like to:\n - Increment its existing Photo Item quantity?\n - Add a new Photo Item itself?"
+							% (
+								"Asset of name " + str(asset.display_name) + " is"
+								if duplicated_count == 1
+								else "There are " + str(duplicated_count) + " assets that are"
+							)
 						)
 						duplicate_assets_confirmation_dialog.popup_centered(Vector2i(360, 120))
 						on_hold = true
 						break
 			AddAssetAction.INCREMENT:
-				for photo_item in document_data.photo_items:
+				for i in range(document_data.photo_items.size() - 1, -1, -1):
+					var photo_item: PhotoItemData = document_data.photo_items[i]
 					if photo_item.asset.id == asset.id:
 						photo_item.quantity += 1
 						document_data.emit_changed()
@@ -439,22 +474,31 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 		photo_tiles_container.remove_child(tile)
 		tile.queue_free()
 
-
 	current_page_index = clamp(current_page_index, 0, max(print_layout.total_pages - 1, 0))
 
 	var new_tiles: Array[PhotoTile] = print_layout.get_page_tiles(current_page_index)
 
-
 	for new_tile in new_tiles:
+		var texture = preview_texture_engine.request(new_tile, false)
 		var new_tile_view = photo_tile_view_instance.instantiate()
-
 		photo_tiles_container.add_child(new_tile_view)
-		new_tile_view.setup(new_tile, scale_px_per_mm, new_tile.photo_item == selected_photo_item, new_tile.sub_asset_index == selected_sub_asset_index, document_data.spacing_mm)
-		if new_tile.photo_item == selected_photo_item and new_tile.sub_asset_index == selected_sub_asset_index:
+		new_tile_view.setup(
+			new_tile,
+			scale_px_per_mm,
+			new_tile.photo_item == selected_photo_item,
+			new_tile.sub_asset_index == selected_sub_asset_index,
+			document_data.spacing_mm,
+			texture
+		)
+		if (
+			new_tile.photo_item == selected_photo_item
+			and new_tile.sub_asset_index == selected_sub_asset_index
+		):
 			selected_tile_view = new_tile_view
 		new_tile_view.on_tile_view_clicked.connect(_on_tile_view_clicked)
 		new_tile_view.on_tile_view_right_clicked.connect(_open_photo_tile_context_menu)
 
+	preview_debouce_timer.start()
 
 func _deselect_all_photo_items(update_properties: bool = true):
 	selected_photo_item = null
@@ -464,14 +508,19 @@ func _deselect_all_photo_items(update_properties: bool = true):
 	if update_properties:
 		on_photo_item_selected.emit(null, 0)
 
+
 func _select_photo_item(item: PhotoItemData):
 	_deselect_all_photo_items(false)
 	selected_photo_item = item
 	selected_sub_asset_index = 0
 	on_photo_item_selected.emit(item, 0)
 
+
 func _on_tile_view_clicked(tile: PhotoTileView):
-	if tile.photo_item == selected_photo_item and tile.photo_tile.sub_asset_index == selected_sub_asset_index:
+	if (
+		tile.photo_item == selected_photo_item
+		and tile.photo_tile.sub_asset_index == selected_sub_asset_index
+	):
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = false
@@ -484,7 +533,9 @@ func _on_tile_view_clicked(tile: PhotoTileView):
 		for tile_view: PhotoTileView in photo_tiles_container.get_children():
 			if tile_view.photo_item == tile.photo_item:
 				tile_view.is_selected = true
-				tile_view.is_selected_tile = tile_view.photo_tile.sub_asset_index == tile.photo_tile.sub_asset_index
+				tile_view.is_selected_tile = (
+					tile_view.photo_tile.sub_asset_index == tile.photo_tile.sub_asset_index
+				)
 				tile_view._update_tile_rect()
 		selected_tile_view = tile
 		selected_photo_item = tile.photo_item
@@ -526,6 +577,7 @@ func _sync_ui():
 	view_offset = _clamp_offset(view_offset)
 	update_scrollbars()
 
+
 func update_scrollbars():
 	var pad_x: float = offset_padding.x
 	var pad_y: float = offset_padding.y
@@ -536,20 +588,27 @@ func update_scrollbars():
 	var view_x: float = paper_container.size.x
 	var view_y: float = paper_container.size.y
 
-	var clamped_x: float = max(pad_x - (view_x - paper_x)/2,0)
-	var clamped_y: float = max(pad_y - (view_y - paper_y)/2,0)
+	var clamped_x: float = max(pad_x - (view_x - paper_x) / 2, 0)
+	var clamped_y: float = max(pad_y - (view_y - paper_y) / 2, 0)
 
 	paper_container_v_scrollbar.page = paper_y
 	paper_container_v_scrollbar.min_value = -clamped_y
 	paper_container_v_scrollbar.max_value = clamped_y + paper_y
 	paper_container_v_scrollbar.set_value_no_signal(-view_offset.y)
-	paper_container_v_scrollbar.visible = paper_container_v_scrollbar.max_value - paper_container_v_scrollbar.min_value > paper_container_v_scrollbar.page
+	paper_container_v_scrollbar.visible = (
+		paper_container_v_scrollbar.max_value - paper_container_v_scrollbar.min_value
+		> paper_container_v_scrollbar.page
+	)
 
 	paper_container_h_scrollbar.page = paper_x
 	paper_container_h_scrollbar.min_value = -clamped_x
 	paper_container_h_scrollbar.max_value = clamped_x + paper_x
-	paper_container_h_scrollbar.visible = paper_container_h_scrollbar.max_value - paper_container_h_scrollbar.min_value > paper_container_h_scrollbar.page
+	paper_container_h_scrollbar.visible = (
+		paper_container_h_scrollbar.max_value - paper_container_h_scrollbar.min_value
+		> paper_container_h_scrollbar.page
+	)
 	paper_container_h_scrollbar.set_value_no_signal(-view_offset.x)
+
 
 func _get_clamped() -> Vector2:
 	var pad_x: float = offset_padding.x
@@ -561,13 +620,13 @@ func _get_clamped() -> Vector2:
 	var view_x: float = paper_container.size.x
 	var view_y: float = paper_container.size.y
 
-	var clamped_x: float = max(pad_x - (view_x - paper_x)/2,0)
-	var clamped_y: float = max(pad_y - (view_y - paper_y)/2,0)
+	var clamped_x: float = max(pad_x - (view_x - paper_x) / 2, 0)
+	var clamped_y: float = max(pad_y - (view_y - paper_y) / 2, 0)
 
 	return Vector2(clamped_x, clamped_y)
 
-func _clamp_offset(offset: Vector2) -> Vector2:
 
+func _clamp_offset(offset: Vector2) -> Vector2:
 	var clamped: Vector2 = _get_clamped()
 
-	return offset.clamp(Vector2(-clamped.x, -clamped.y),Vector2(clamped.x, clamped.y))
+	return offset.clamp(Vector2(-clamped.x, -clamped.y), Vector2(clamped.x, clamped.y))

@@ -377,7 +377,7 @@ initial_position = 2
 size = Vector2i(415, 200)
 file_mode = 1
 access = 2
-filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
+filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File", "*.pdf ; PDF file")
 favorites_enabled = false
 recent_list_enabled = false
 script = ExtResource("9_wp0k4")
@@ -471,3 +471,10 @@ transient = true
 [node name="LicenseWindow" parent="." unique_id=1129714506 instance=ExtResource("16_cvmbd")]
 unique_name_in_owner = true
 visible = false
+
+[node name="TestRect" type="TextureRect" parent="." unique_id=1136103596]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0

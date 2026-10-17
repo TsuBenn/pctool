@@ -19,7 +19,6 @@ boot_splash/stretch_mode=0
 boot_splash/use_filter=false
 boot_splash/image="uid://6jibnpjrwdjq"
 config/icon="uid://tw4e3ylqee76"
-boot_splash/minimum_display_time=1000
 
 [autoload]
 
@@ -43,7 +42,6 @@ theme/custom="uid://dlfosfauj3rqr"
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-renderer/rendering_method="gl_compatibility"
 textures/lossless_compression/force_png=true
 textures/default_filters/use_nearest_mipmap_filter=true
 textures/decals/filter=0

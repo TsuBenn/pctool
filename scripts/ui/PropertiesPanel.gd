@@ -139,8 +139,10 @@ func _ready() -> void:
 			match new:
 				PRESET_3_BY_4:
 					photo_item.size_mm = Vector2(30.0,40.0)
+					photo_item.commit_size()
 				PRESET_4_BY_6:
 					photo_item.size_mm = Vector2(40.0,60.0)
+					photo_item.commit_size()
 	)
 	properties_width_spin_box.value_commit.connect(
 		func(_new):
@@ -160,13 +162,6 @@ func _ready() -> void:
 			if aspect == 0:
 				lock_ratio_check_button.button_pressed = false
 			photo_item.size_mm = Vector2(new, (new / aspect) if lock_ratio else photo_item.size_mm.y)
-			match photo_item.size_mm:
-				Vector2(30.0,40.0):
-					properties_presets_option_button.selected = PRESET_3_BY_4
-				Vector2(40.0,60.0):
-					properties_presets_option_button.selected = PRESET_4_BY_6
-				_:
-					properties_presets_option_button.selected = PRESET_CUSTOM
 	)
 	properties_height_spin_box.value_changed.connect(
 		func(new):

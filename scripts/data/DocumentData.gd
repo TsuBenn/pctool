@@ -101,7 +101,7 @@ func add_photo_item(photo_item: PhotoItemData, signal_changed: bool = true, pos:
 
 func duplicate_photo_item(photo_item: PhotoItemData, signal_changed: bool = true) -> PhotoItemData:
 	var copy: PhotoItemData = photo_item.duplicate()
-	var copy_framings: Dictionary[int, PhotoItemData.Framing] = photo_item.framings.duplicate(true)
+	var copy_framings: Array[PhotoItemData.Framing] = photo_item.framings.duplicate(true)
 	copy.framings = copy_framings
 	add_photo_item(copy, signal_changed)
 

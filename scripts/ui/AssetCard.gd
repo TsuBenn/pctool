@@ -60,6 +60,7 @@ func _ready() -> void:
 
 var _pressed_while_selected: bool = false
 
+
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.is_pressed():
@@ -84,8 +85,8 @@ func _gui_input(event: InputEvent) -> void:
 				accept_event()
 		elif event.is_released():
 			if event.button_index == MOUSE_BUTTON_LEFT and _pressed_while_selected:
-					card_clicked.emit(self, false, false)
-					_pressed_while_selected = false
+				card_clicked.emit(self, false, false)
+				_pressed_while_selected = false
 			accept_event()
 
 
@@ -98,12 +99,14 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview_control.add_child(preview_instance)
 
 	preview_instance.display_name = asset_data.display_name
-	preview_instance.texture = asset_data.get_preview_texture(0)
-	preview_instance.texture_size = Vector2i(32 + 32*grid_scale, 32 + 32*grid_scale)
+	preview_instance.texture_size = Vector2i(32 + 32 * grid_scale, 32 + 32 * grid_scale)
+	preview_instance.texture = asset_data.get_thumbnail(0)
 	var assets_panel: AssetsPanel = find_parent("AssetsPanel")
 	var asset_data_group: Array[AssetData] = []
 	if assets_panel:
-		asset_data_group.assign(assets_panel.selected_asset_cards.map(func(asset_card): return asset_card.asset_data))
+		asset_data_group.assign(
+			assets_panel.selected_asset_cards.map(func(asset_card): return asset_card.asset_data)
+		)
 		preview_instance.stack_count = assets_panel.selected_asset_cards.size()
 	else:
 		push_error("AssetCard: Failed to find AssetsPanel!")
@@ -128,7 +131,7 @@ func update_view_mode(mode: ViewMode):
 			var thumbnail_size: int = 32 + 32 * grid_scale
 			box_container.vertical = true
 			if asset_data:
-				texture_rect.texture = asset_data.get_preview_texture(0)
+				texture_rect.texture = asset_data.get_thumbnail(0)
 				if asset_data is GroupAssetData:
 					group_indicator.visible = true
 					label.theme_type_variation = "MiniEmphasisLabel"

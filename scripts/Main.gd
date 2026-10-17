@@ -54,27 +54,24 @@ var current_workspace: WorkspaceInstance:
 @onready var help_menu: MenuButton = %HelpMenu
 
 enum {
-		FILE_NEW,
-		FILE_OPEN,
-		FILE_OPEN_RECENT,
-		FILE_SAVE,
-		FILE_SAVE_AS,
-		FILE_IMPORT_ASSETS,
-		FILE_EXPORT_PDF,
-		FILE_EXPORT_IMAGE,
-	}
+	FILE_NEW,
+	FILE_OPEN,
+	FILE_OPEN_RECENT,
+	FILE_SAVE,
+	FILE_SAVE_AS,
+	FILE_IMPORT_ASSETS,
+	FILE_EXPORT_PDF,
+	FILE_EXPORT_IMAGE,
+}
 
 enum {
-		VIEW_FIT,
-		VIEW_CENTER,
-		VIEW_ZOOM_IN,
-		VIEW_ZOOM_OUT,
-	}
+	VIEW_FIT,
+	VIEW_CENTER,
+	VIEW_ZOOM_IN,
+	VIEW_ZOOM_OUT,
+}
 
-enum {
-		HELP_ABOUT,
-		HELP_LICENSE
-	}
+enum { HELP_ABOUT, HELP_LICENSE }
 
 var export_mode: int = ExportEngine.EXPORT_PNG
 
@@ -82,32 +79,16 @@ var export_mode: int = ExportEngine.EXPORT_PNG
 
 var active_document: DocumentData = null
 
-func _ready() -> void:
+@onready var test_rect: TextureRect = %TestRect
 
-	new_button.pressed.connect(
-		func():
-			document_panel.open_document(null)
-	)
-	open_button.pressed.connect(
-		func():
-			open_document_dialog.popup_centered(Vector2i(600,400))
-	)
-	import_button.pressed.connect(
-		func():
-			image_import_dialog.popup_centered(Vector2i(600,400))
-	)
-	save_button.pressed.connect(
-		func():
-			_on_file_menu_pressed(FILE_SAVE)
-	)
-	export_button.pressed.connect(
-		func():
-			_on_file_menu_pressed(FILE_EXPORT_PDF)
-	)
-	print_button.pressed.connect(
-		func():
-			pass
-	)
+
+func _ready() -> void:
+	new_button.pressed.connect(func(): document_panel.open_document(null))
+	open_button.pressed.connect(func(): open_document_dialog.popup_centered(Vector2i(600, 400)))
+	import_button.pressed.connect(func(): image_import_dialog.popup_centered(Vector2i(600, 400)))
+	save_button.pressed.connect(func(): _on_file_menu_pressed(FILE_SAVE))
+	export_button.pressed.connect(func(): _on_file_menu_pressed(FILE_EXPORT_PDF))
+	print_button.pressed.connect(func(): pass)
 	update_checker.check_for_updates()
 
 	get_window().min_size = Vector2i(800, 600)
@@ -132,14 +113,14 @@ func _ready() -> void:
 			var current_dir: String = Global.get_config("file_dialog_dir", "import")
 			if DirAccess.dir_exists_absolute(current_dir):
 				image_import_dialog.current_dir = current_dir
-			image_import_dialog.popup_centered(Vector2i(600,400))
+			image_import_dialog.popup_centered(Vector2i(600, 400))
 	)
 	document_panel.open_document_requested.connect(
 		func():
 			var current_dir: String = Global.get_config("file_dialog_dir", "open")
 			if DirAccess.dir_exists_absolute(current_dir):
 				open_document_dialog.current_dir = current_dir
-			open_document_dialog.popup_centered(Vector2i(600,400))
+			open_document_dialog.popup_centered(Vector2i(600, 400))
 	)
 	document_panel.open_recent_requested.connect(
 		func(file):
@@ -155,12 +136,26 @@ func _ready() -> void:
 			print_button.disabled = yes
 			if current_workspace:
 				if current_workspace.document_data:
-					if active_document and Global.undo_redo.has(active_document) and Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
-						Global.undo_redo[active_document].version_changed.disconnect(_update_undo_redo)
+					if (
+						active_document
+						and Global.undo_redo.has(active_document)
+						and Global.undo_redo[active_document].version_changed.is_connected(
+							_update_undo_redo
+						)
+					):
+						Global.undo_redo[active_document].version_changed.disconnect(
+							_update_undo_redo
+						)
 
 					active_document = current_workspace.document_data
 
-					if active_document and Global.undo_redo.has(active_document) and not Global.undo_redo[active_document].version_changed.is_connected(_update_undo_redo):
+					if (
+						active_document
+						and Global.undo_redo.has(active_document)
+						and not Global.undo_redo[active_document].version_changed.is_connected(
+							_update_undo_redo
+						)
+					):
 						Global.undo_redo[active_document].version_changed.connect(_update_undo_redo)
 
 					_update_undo_redo()
@@ -171,14 +166,14 @@ func _ready() -> void:
 	undo_button.pressed.connect(
 		func():
 			if active_document and Global.undo_redo.has(active_document):
-					Global.undo_redo[active_document].undo()
-					_update_undo_redo()
+				Global.undo_redo[active_document].undo()
+				_update_undo_redo()
 	)
 	redo_button.pressed.connect(
 		func():
 			if active_document and Global.undo_redo.has(active_document):
-					Global.undo_redo[active_document].redo()
-					_update_undo_redo()
+				Global.undo_redo[active_document].redo()
+				_update_undo_redo()
 	)
 
 	export_dialog.file_selected.connect(_export_file)
@@ -195,21 +190,25 @@ func _ready() -> void:
 	_apply_nearest_filter(get_tree().root)
 	_apply_custom_cursor()
 
+
 func _update_undo_redo():
 	if active_document and Global.undo_redo.has(active_document):
-			undo_button.disabled = not Global.undo_redo[active_document].has_undo()
-			redo_button.disabled = not Global.undo_redo[active_document].has_redo()
+		undo_button.disabled = not Global.undo_redo[active_document].has_undo()
+		redo_button.disabled = not Global.undo_redo[active_document].has_redo()
+
 
 func _export_file(file_path: String):
 	if current_workspace:
 		var open_on_finished: bool = export_dialog.get_selected_options()["Open on Finished"]
-		ExportEngine.export_document(current_workspace.document_data, file_path, export_mode, open_on_finished)
+		ExportEngine.export_document(
+			current_workspace.document_data, file_path, export_mode, open_on_finished
+		)
+
 
 func _open_documents(files: PackedStringArray):
 	for file in files:
-
 		if not FileAccess.file_exists(file):
-			Global.notice("Recent Files", "File at path: \n\"%s\"\n is no longer exists" % file)
+			Global.notice("Recent Files", 'File at path: \n"%s"\n is no longer exists' % file)
 			var recent: Array = Global.get_config("recent", "files")
 			if recent.has(file):
 				recent.erase(file)
@@ -217,7 +216,7 @@ func _open_documents(files: PackedStringArray):
 			Global.save_config()
 			continue
 
-		var doc : DocumentData = await DocumentManager.open_document(file)
+		var doc: DocumentData = await DocumentManager.open_document(file)
 		if not doc == null:
 			doc.save_path = file
 
@@ -231,6 +230,7 @@ func _open_documents(files: PackedStringArray):
 
 			document_panel.open_document(doc)
 
+
 func _on_file_dropped(files: PackedStringArray) -> void:
 	var image_files: PackedStringArray = []
 	var document_files: PackedStringArray = []
@@ -242,20 +242,22 @@ func _on_file_dropped(files: PackedStringArray) -> void:
 
 		var ext = file.get_extension().to_lower()
 
-		if ["png", "jpg", "jpeg", "webp"].has(ext):
+		if ["png", "jpg", "jpeg", "webp", "pdf"].has(ext):
 			image_files.append(file)
 			continue
 		elif ext == DocumentManager.EXTENSION:
 			document_files.append(file)
 			continue
 
-		Global.notice("File Unsupported", 'Unsupported file format "%s" of path %s' % [file.get_extension(),file])
+		Global.notice(
+			"File Unsupported",
+			'Unsupported file format "%s" of path %s' % [file.get_extension(), file]
+		)
 		return
-
 
 	if not image_files.is_empty():
 		if current_workspace:
-			current_workspace._on_image_files_selected(image_files)
+			current_workspace._on_files_selected(image_files)
 			return
 		else:
 			document_panel.open_document(null, files)
@@ -278,6 +280,7 @@ func _file_menu_setup():
 		popup.set_item_disabled(popup.get_item_index(FILE_EXPORT_PDF), false)
 		popup.set_item_disabled(popup.get_item_index(FILE_EXPORT_IMAGE), false)
 
+
 func _view_menu_setup():
 	var popup = view_menu.get_popup()
 	if current_workspace == null:
@@ -291,12 +294,13 @@ func _view_menu_setup():
 		popup.set_item_disabled(popup.get_item_index(VIEW_ZOOM_IN), false)
 		popup.set_item_disabled(popup.get_item_index(VIEW_ZOOM_OUT), false)
 
+
 func _on_file_menu_pressed(id: int):
 	match id:
 		FILE_NEW:
 			document_panel.open_document()
 		FILE_OPEN:
-			open_document_dialog.popup_centered(Vector2i(600,400))
+			open_document_dialog.popup_centered(Vector2i(600, 400))
 		FILE_SAVE:
 			if current_workspace:
 				current_workspace.request_save_document()
@@ -309,12 +313,16 @@ func _on_file_menu_pressed(id: int):
 			if current_workspace:
 				export_mode = ExportEngine.EXPORT_PDF
 				export_dialog.title = "Export to PDF"
-				export_dialog.get_line_edit().text = current_workspace.name.to_lower().replace(" ", "-") + ".pdf"
+				export_dialog.get_line_edit().text = (
+					current_workspace.name.to_lower().replace(" ", "-") + ".pdf"
+				)
 				if current_workspace.document_data.export_path.is_empty():
 					if current_workspace.document_data.save_path.is_empty():
 						export_dialog.current_dir = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS)
 					else:
-						export_dialog.current_dir = current_workspace.document_data.save_path.get_base_dir()
+						export_dialog.current_dir = (
+							current_workspace.document_data.save_path.get_base_dir()
+						)
 				else:
 					export_dialog.current_dir = current_workspace.document_data.export_path
 				export_dialog.popup_centered(Vector2(600, 400))
@@ -322,8 +330,11 @@ func _on_file_menu_pressed(id: int):
 			if current_workspace:
 				export_mode = ExportEngine.EXPORT_PNG
 				export_dialog.title = "Export to PNG(s)"
-				export_dialog.get_line_edit().text = current_workspace.name.to_lower().replace(" ", "-") + ".png"
+				export_dialog.get_line_edit().text = (
+					current_workspace.name.to_lower().replace(" ", "-") + ".png"
+				)
 				export_dialog.popup_centered(Vector2(600, 400))
+
 
 func _on_view_menu_pressed(id: int):
 	if current_workspace:
@@ -333,6 +344,7 @@ func _on_view_menu_pressed(id: int):
 func _request_export_document(mode: int = ExportEngine.EXPORT_PNG):
 	export_mode = mode
 	export_dialog.popup_centered(Vector2(600, 400))
+
 
 func _show_notice_dialog(title: String, message: String, ok_button_text: String):
 	notice_dialog.title = title

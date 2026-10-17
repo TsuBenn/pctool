@@ -6,10 +6,11 @@ extends Resource
 @export var source_path: String
 
 @abstract func get_count() -> int
-@abstract func get_preview_texture(index: int) -> Texture2D
-@abstract func get_image(index: int) -> Image
+@abstract func get_thumbnail(index: int) -> Texture2D
+@abstract func get_image(index: int, size: Vector2i) -> Image
 
 @abstract func clean() -> void
+
 
 static func get_id() -> String:
 	var crypto = Crypto.new()

@@ -50,6 +50,7 @@ func _on_tab_close_pressed(tab_idx: int) -> void:
 		var doc:DocumentData = tab_to_close.document_data
 		if Global.undo_redo.has(doc):
 			Global.undo_redo.erase(doc)
+		doc.clean_up()
 		tab_to_close.queue_free()
 		_update_view_state()
 

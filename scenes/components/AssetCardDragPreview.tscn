@@ -22,7 +22,7 @@ func _ready() -> void:
 	texture_rect.texture = texture
 	texture_rect.custom_minimum_size = texture_size
 	texture_rect.custom_maximum_size = texture_size
-	stack_counter.text = \" \" + str(stack_count) + \" \"
+	stack_counter.text = str(stack_count)
 	stack_counter.visible = stack_count > 1
 	multi_assets_indicator.visible = stack_count > 1
 	
@@ -92,9 +92,10 @@ ellipsis_char = "-"
 
 [node name="StackCounter" type="Button" parent="." unique_id=1810381142]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 0)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 offset_transform_enabled = true
 mouse_filter = 2
-text = " 2 "
+text = "2"

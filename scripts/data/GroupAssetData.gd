@@ -3,6 +3,7 @@ extends AssetData
 
 var children: Array[AssetData] = []
 
+
 func _init(
 	new_id: String,
 	new_display_name: String,
@@ -13,20 +14,26 @@ func _init(
 	source_path = ""
 	children = new_children
 
+
 func get_count() -> int:
 	return children.size()
 
-func get_image(index: int) -> Image:
-	return children[index].get_image(0)
 
-func get_preview_texture(index: int) -> Texture2D:
-	return children[index].get_preview_texture(0)
+func get_image(index: int, size: Vector2i) -> Image:
+	return children[index].get_image(0, size)
+
+func get_child(index: int) -> AssetData:
+	return children.get(index)
+
+func get_thumbnail(index: int) -> Texture2D:
+	return children[index].get_thumbnail(index)
 
 func clean() -> void:
 	for child in children:
 		child.clean()
 
 	children.clear()
+
 
 func flatten() -> Array[AssetData]:
 	var flattened_group: Array[AssetData] = []
@@ -40,9 +47,11 @@ func flatten() -> Array[AssetData]:
 
 	return flattened_group
 
+
 func remove_child(index: int):
 	children.remove_at(index)
 	emit_changed()
+
 
 static func create_from_assets(assets: Array[AssetData], name: String) -> GroupAssetData:
 	if assets.size() <= 1:

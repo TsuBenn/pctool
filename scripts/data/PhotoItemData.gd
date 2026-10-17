@@ -2,15 +2,19 @@ class_name PhotoItemData
 extends Resource
 
 # DATA
-var _document_data: DocumentData # Used for tracking Undo Redo in the appropriate _document_data
+var _document_data: DocumentData  # Used for tracking Undo Redo in the appropriate _document_data
 
-var _commit : bool = true
+var _commit: bool = true
 
 @export var asset: AssetData:
 	set(new):
 		if asset and asset.changed.is_connected(emit_changed):
 			asset.changed.disconnect(emit_changed)
 		asset = new
+		framings.clear()
+		framings.resize(asset.get_count())
+		for i in range(framings.size()):
+			framings[i] = Framing.new()
 		asset.changed.connect(emit_changed)
 		emit_changed()
 
@@ -21,26 +25,30 @@ enum Rotation {
 	ROTATE_270,
 }
 
-class Framing extends Resource:
+
+class Framing:
+	extends Resource
 	var scale: float = 1
 	var offset: Vector2 = Vector2.ZERO
 
-	var top_left_corner: Vector2 = Vector2(0,0)
-	var top_right_corner: Vector2 = Vector2(1,0)
-	var bottom_left_corner: Vector2 = Vector2(0,1)
-	var bottom_right_corner: Vector2 = Vector2(1,1)
+	var top_left_corner: Vector2 = Vector2(0, 0)
+	var top_right_corner: Vector2 = Vector2(1, 0)
+	var bottom_left_corner: Vector2 = Vector2(0, 1)
+	var bottom_right_corner: Vector2 = Vector2(1, 1)
 
 	var fitting_mode: FittingMode = FittingMode.FILL
+
 
 # TRANSFORMS
 @export var size_mm: Vector2 = Vector2(30.0, 40.0):
 	set(new):
 		if size_mm_last_changed == Vector2.INF:
 			size_mm_last_changed = size_mm
-		size_mm = new
+		size_mm = new.clamp(Vector2(5.0, 5.0), Vector2.INF)
 		emit_changed()
 
 var size_mm_last_changed: Vector2 = Vector2.INF
+
 
 func commit_size():
 	if _commit and _document_data:
@@ -63,6 +71,7 @@ func commit_size():
 		)
 		Global.undo_redo[_document_data].commit_action(false)
 
+
 # @export var rotation: Rotation = Rotation.ROTATE_0:
 # 	set(new):
 # 		rotation = new
@@ -83,7 +92,9 @@ func commit_size():
 		if _commit and _document_data:
 			var old: bool = isolate_row
 			var old_page: bool = isolate_page
-			Global.undo_redo[_document_data].create_action("%s Photo Item's Row Isolation" % "Enabled" if new else "Disabled")
+			Global.undo_redo[_document_data].create_action(
+				"%s Photo Item's Row Isolation" % "Enabled" if new else "Disabled"
+			)
 			Global.undo_redo[_document_data].add_do_method(
 				func():
 					_commit = false
@@ -114,7 +125,9 @@ func commit_size():
 		if _commit and _document_data:
 			var old_row: bool = isolate_row
 			var old: bool = isolate_page
-			Global.undo_redo[_document_data].create_action("%s Photo Item's Page Isolation" % "Enabled" if new else "Disabled")
+			Global.undo_redo[_document_data].create_action(
+				"%s Photo Item's Page Isolation" % "Enabled" if new else "Disabled"
+			)
 			Global.undo_redo[_document_data].add_do_method(
 				func():
 					_commit = false
@@ -147,11 +160,13 @@ enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 	set(new):
 		if _commit and _document_data:
 			var old: int = quantity
-			Global.undo_redo[_document_data].create_action("Changed Photo Item's Quantity [%d]" % new)
+			Global.undo_redo[_document_data].create_action(
+				"Changed Photo Item's Quantity [%d]" % new
+			)
 			Global.undo_redo[_document_data].add_do_method(
 				func():
 					_commit = false
-					quantity = max(new,1)
+					quantity = max(new, 1)
 					_commit = true
 			)
 			Global.undo_redo[_document_data].add_undo_method(
@@ -162,7 +177,7 @@ enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 			)
 			Global.undo_redo[_document_data].commit_action(false)
 
-		quantity = max(new,1)
+		quantity = max(new, 1)
 		emit_changed()
 
 # FRAMINGS INCLUDES SCALE, OFFSETS AND FITTING MODE AS DICTS
@@ -171,17 +186,18 @@ enum FittingMode { FILL, FIT, STRETCH, DISTORT }
 #     offset: Vector2, <- in percentage
 #     fitting_mode: FittingMode,
 # }
-var framings: Dictionary[int, Framing] = {}
-var framings_last_changed: Dictionary[int, Framing] = {}
+var framings: Array[Framing] = []
+var framings_last_changed: Array[Framing] = []
+
 
 func commit_framings():
 	if framings_last_changed.is_empty():
 		return
 
-	var new: Dictionary = framings.duplicate()
-	var old: Dictionary = framings_last_changed.duplicate()
+	var new: Array[Framing] = framings.duplicate()
+	var old: Array[Framing] = framings_last_changed.duplicate()
 
-	framings_last_changed = {}
+	framings_last_changed.clear()
 
 	Global.undo_redo[_document_data].create_action("Changed Photo Item's Framings")
 	Global.undo_redo[_document_data].add_do_method(
@@ -200,12 +216,15 @@ func commit_framings():
 	)
 	Global.undo_redo[_document_data].commit_action(false)
 
+
 # EFFECTS
 @export var border_enabled: bool = true:
 	set(new):
 		if _commit and _document_data:
 			var old: bool = border_enabled
-			Global.undo_redo[_document_data].create_action("%s Photo Item's Border" % "Enabled" if new else "Disabled")
+			Global.undo_redo[_document_data].create_action(
+				"%s Photo Item's Border" % "Enabled" if new else "Disabled"
+			)
 			Global.undo_redo[_document_data].add_do_method(
 				func():
 					_commit = false
@@ -223,15 +242,15 @@ func commit_framings():
 		border_enabled = new
 		emit_changed()
 
-
-@export var border_width_last_changed: float = -1;
+@export var border_width_last_changed: float = -1
 
 @export var border_width: float = 0.2:
 	set(new):
 		if border_width_last_changed == -1:
 			border_width_last_changed = border_width
-		border_width = max(0.1,new)
+		border_width = max(0.1, new)
 		emit_changed()
+
 
 func commit_border_width():
 	if border_width_last_changed == -1:
@@ -255,6 +274,7 @@ func commit_border_width():
 	)
 	Global.undo_redo[_document_data].commit_action(false)
 
+
 @export var border_color: Color = Color.BLACK:
 	set(new):
 		border_color = new
@@ -262,36 +282,71 @@ func commit_border_width():
 
 
 func apply_framing_to_all(base_index: int):
-	for f in framings.keys():
+	for f in range(framings.size()):
 		if f == base_index:
 			continue
 		framings[f] = framings[base_index].duplicate()
 	emit_changed()
 
-func set_framing(index: int, new_scale: float, new_offset: Vector2, new_fitting_mode: FittingMode, top_left: Vector2, top_right: Vector2, bottom_right: Vector2, bottom_left: Vector2):
+
+func set_framing(
+	index: int,
+	new_scale: float,
+	new_offset: Vector2,
+	new_fitting_mode: FittingMode,
+	top_left: Vector2,
+	top_right: Vector2,
+	bottom_right: Vector2,
+	bottom_left: Vector2
+):
 	if framings_last_changed.is_empty():
 		framings_last_changed = framings.duplicate()
 	var new_framing = Framing.new()
-	new_framing.scale = max(new_scale,1)
-	new_framing.offset = new_offset.clamp(Vector2(-1,-1), Vector2( 1, 1))
+	new_framing.scale = max(new_scale, 1)
+	new_framing.offset = new_offset.clamp(Vector2(-1, -1), Vector2(1, 1))
 	new_framing.fitting_mode = new_fitting_mode
-	new_framing.top_left_corner = top_left.clamp(Vector2(0,0),Vector2(1,1))
-	new_framing.top_right_corner = top_right.clamp(Vector2(new_framing.top_left_corner.x, 0), Vector2(1, new_framing.bottom_right_corner.y))
-	new_framing.bottom_right_corner = bottom_right.clamp(Vector2(new_framing.bottom_left_corner.x, new_framing.top_right_corner.y), Vector2(1, 1))
-	new_framing.bottom_left_corner = bottom_left.clamp(Vector2(0, new_framing.top_left_corner.y), Vector2(1, 1))
+	new_framing.top_left_corner = top_left.clamp(Vector2(0, 0), Vector2(1, 1))
+	new_framing.top_right_corner = top_right.clamp(
+		Vector2(new_framing.top_left_corner.x, 0), Vector2(1, new_framing.bottom_right_corner.y)
+	)
+	new_framing.bottom_right_corner = bottom_right.clamp(
+		Vector2(new_framing.bottom_left_corner.x, new_framing.top_right_corner.y), Vector2(1, 1)
+	)
+	new_framing.bottom_left_corner = bottom_left.clamp(
+		Vector2(0, new_framing.top_left_corner.y), Vector2(1, 1)
+	)
 	framings[index] = new_framing
 	emit_changed()
+
 
 func set_framing_scale(index: int, new: float, ratio: bool = false):
 	var f = get_framing(index)
 	var old_scale = f.scale
-	set_framing(index, new, f.offset, f.fitting_mode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+	set_framing(
+		index,
+		new,
+		f.offset,
+		f.fitting_mode,
+		f.top_left_corner,
+		f.top_right_corner,
+		f.bottom_right_corner,
+		f.bottom_left_corner
+	)
 	if ratio:
 		var new_rect = get_image_rect_mm(index)
-		var max_offset = (new_rect.size - size_mm)
-		var offset_aspect_x = (new_rect.size.x - size_mm.x/(old_scale/new))/max_offset.x if max_offset.x > 0 else 0
-		var offset_aspect_y = (new_rect.size.y - size_mm.y/(old_scale/new))/max_offset.y if max_offset.y > 0 else 0
-		set_framing_offset(index, f.offset * Vector2(offset_aspect_x,offset_aspect_y))
+		var max_offset = new_rect.size - size_mm
+		var offset_aspect_x = (
+			(new_rect.size.x - size_mm.x / (old_scale / new)) / max_offset.x
+			if max_offset.x > 0
+			else 0
+		)
+		var offset_aspect_y = (
+			(new_rect.size.y - size_mm.y / (old_scale / new)) / max_offset.y
+			if max_offset.y > 0
+			else 0
+		)
+		set_framing_offset(index, f.offset * Vector2(offset_aspect_x, offset_aspect_y))
+
 
 func set_framing_offset(index: int, new: Vector2):
 	var f = get_framing(index)
@@ -300,41 +355,102 @@ func set_framing_offset(index: int, new: Vector2):
 	var zero_x = image_rect.size.x - size_mm.x == 0
 	var zero_y = image_rect.size.y - size_mm.y == 0
 
-	set_framing(index, f.scale, Vector2(0.0 if zero_x else new.x, 0.0 if zero_y else new.y), f.fitting_mode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+	set_framing(
+		index,
+		f.scale,
+		Vector2(0.0 if zero_x else new.x, 0.0 if zero_y else new.y),
+		f.fitting_mode,
+		f.top_left_corner,
+		f.top_right_corner,
+		f.bottom_right_corner,
+		f.bottom_left_corner
+	)
+
 
 func set_framing_offset_x(index: int, new: float):
 	var f = get_framing(index)
 	set_framing_offset(index, Vector2(new, f.offset.y))
 
+
 func set_framing_offset_y(index: int, new: float):
 	var f = get_framing(index)
 	set_framing_offset(index, Vector2(f.offset.x, new))
 
+
 func set_framing_fitting_mode(index: int, new: int):
 	var f = get_framing(index)
-	set_framing(index, f.scale, f.offset, new as FittingMode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+	set_framing(
+		index,
+		f.scale,
+		f.offset,
+		new as FittingMode,
+		f.top_left_corner,
+		f.top_right_corner,
+		f.bottom_right_corner,
+		f.bottom_left_corner
+	)
 	commit_framings()
+
 
 func set_framing_top_left(index: int, new: Vector2):
 	var f = get_framing(index)
-	set_framing(index, f.scale, f.offset, f.fitting_mode, new, f.top_right_corner, f.bottom_right_corner, f.bottom_left_corner)
+	set_framing(
+		index,
+		f.scale,
+		f.offset,
+		f.fitting_mode,
+		new,
+		f.top_right_corner,
+		f.bottom_right_corner,
+		f.bottom_left_corner
+	)
+
 
 func set_framing_top_right(index: int, new: Vector2):
 	var f = get_framing(index)
-	set_framing(index, f.scale, f.offset, f.fitting_mode, f.top_left_corner, new, f.bottom_right_corner, f.bottom_left_corner)
+	set_framing(
+		index,
+		f.scale,
+		f.offset,
+		f.fitting_mode,
+		f.top_left_corner,
+		new,
+		f.bottom_right_corner,
+		f.bottom_left_corner
+	)
+
 
 func set_framing_bottom_right(index: int, new: Vector2):
 	var f = get_framing(index)
-	set_framing(index, f.scale, f.offset, f.fitting_mode, f.top_left_corner, f.top_right_corner, new, f.bottom_left_corner)
+	set_framing(
+		index,
+		f.scale,
+		f.offset,
+		f.fitting_mode,
+		f.top_left_corner,
+		f.top_right_corner,
+		new,
+		f.bottom_left_corner
+	)
+
 
 func set_framing_bottom_left(index: int, new: Vector2):
 	var f = get_framing(index)
-	set_framing(index, f.scale, f.offset, f.fitting_mode, f.top_left_corner, f.top_right_corner, f.bottom_right_corner, new)
+	set_framing(
+		index,
+		f.scale,
+		f.offset,
+		f.fitting_mode,
+		f.top_left_corner,
+		f.top_right_corner,
+		f.bottom_right_corner,
+		new
+	)
+
 
 func get_framing(index: int) -> Framing:
-	if framings.has(index):
-		return framings[index]
-	return Framing.new()
+	return framings[index]
+
 
 func get_distort_matrix(index: int) -> Basis:
 	var framing: Framing = get_framing(index)
@@ -344,7 +460,8 @@ func get_distort_matrix(index: int) -> Basis:
 	var p2: Vector2 = framing.bottom_right_corner
 	var p3: Vector2 = framing.bottom_left_corner
 
-	return PerspectiveMath.get_homogenous_matrix(p0,p1,p2,p3)
+	return PerspectiveMath.get_homogenous_matrix(p0, p1, p2, p3)
+
 
 func get_distort_ratio(index: int, image_aspect: float) -> float:
 	var framing: Framing = get_framing(index)
@@ -354,7 +471,8 @@ func get_distort_ratio(index: int, image_aspect: float) -> float:
 	var p2: Vector2 = framing.bottom_right_corner
 	var p3: Vector2 = framing.bottom_left_corner
 
-	return PerspectiveMath.calculate_aspect_ratio(p0,p1,p2,p3, image_aspect)
+	return PerspectiveMath.calculate_aspect_ratio(p0, p1, p2, p3, image_aspect)
+
 
 func get_image_rect_mm(index: int) -> Rect2:
 	if asset == null:
@@ -367,7 +485,7 @@ func get_image_rect_mm(index: int) -> Rect2:
 	var fitting_mode = framing.fitting_mode
 
 	# 1. Fetch aspect ratio safely (e.g. from preview texture or cached dimensions)
-	var preview_tex = asset.get_preview_texture(index)
+	var preview_tex = asset.get_thumbnail(index)
 	if preview_tex == null:
 		return Rect2(Vector2.ZERO, size_mm)
 
@@ -384,11 +502,11 @@ func get_image_rect_mm(index: int) -> Rect2:
 			if size_mm.aspect() > image_aspect:
 				h = size_mm.y
 				w = size_mm.y * image_aspect
-				x = (size_mm.x - w) * (0.5 + 0.5*offset.x)
+				x = (size_mm.x - w) * (1 + 1 * offset.x) * 0.5
 			else:
 				w = size_mm.x
 				h = size_mm.x / image_aspect
-				y = (size_mm.y - h) * (0.5 - 0.5*offset.y)
+				y = (size_mm.y - h) * (1 - 1 * offset.y) * 0.5
 		FittingMode.FILL:
 			if size_mm.aspect() > image_aspect:
 				w = size_mm.x * scale

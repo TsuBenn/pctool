@@ -2,22 +2,27 @@ class_name ExportEngine
 extends RefCounted
 
 enum ExportMode {
-		EXPORT_PNG,
-		EXPORT_PDF,
-	}
+	EXPORT_PNG,
+	EXPORT_PDF,
+}
 
 const EXPORT_PNG = ExportMode.EXPORT_PNG
 const EXPORT_PDF = ExportMode.EXPORT_PDF
 
 static var start_time: float
 
+
 static func start_timer():
 	start_time = Time.get_ticks_usec()
 
-static func end_timer():
-	print("Export time: %.2fms" % ((Time.get_ticks_usec() - start_time)/1000))
 
-static func export_document(document_data: DocumentData, output_path: String, export_type: int, open_on_finished: bool) -> Error:
+static func end_timer():
+	print("Export time: %.2fms" % ((Time.get_ticks_usec() - start_time) / 1000))
+
+
+static func export_document(
+	document_data: DocumentData, output_path: String, export_type: int, open_on_finished: bool
+) -> Error:
 	if not document_data:
 		Global.notice("Export Failed", "No Document Data has been provided!")
 		push_error("ExportEngine: No Document Data has been provided!")
@@ -41,14 +46,21 @@ static func export_document(document_data: DocumentData, output_path: String, ex
 
 	return OK
 
-static func _export_as_pdf(document_data: DocumentData, layout: PrintLayout , output_path: String, open_on_finished) -> Error:
+
+static func _export_as_pdf(
+	document_data: DocumentData, layout: PrintLayout, output_path: String, open_on_finished
+) -> Error:
 	Global.progress_started("Export to PDF")
 	print("----- Started Exporting -----")
-	return await PdfWriter.save_pdf_to_file(document_data,layout,output_path, open_on_finished)
+	return await PdfWriter.save_pdf_to_file(document_data, layout, output_path, open_on_finished)
 
-static func _export_as_png(document_data: DocumentData, layout: PrintLayout , output_path: String) -> Error:
+
+static func _export_as_png(
+	document_data: DocumentData, layout: PrintLayout, output_path: String
+) -> Error:
 	Global.progress_started("Export to PNG")
-	return await PngWriter.save_png_to_files(document_data,layout,output_path)
+	return await PngWriter.save_png_to_files(document_data, layout, output_path)
+
 
 static func get_tile_indices(document_data: DocumentData) -> Array[Array]:
 	var tile_indices: Array[Array] = []
@@ -56,6 +68,7 @@ static func get_tile_indices(document_data: DocumentData) -> Array[Array]:
 		for index in item.asset.get_count():
 			tile_indices.append([item, index])
 	return tile_indices
+
 
 static func get_tiles_position(tile_indices: Array[Array]) -> Dictionary:
 	var positions: Dictionary = {}
@@ -65,21 +78,24 @@ static func get_tiles_position(tile_indices: Array[Array]) -> Dictionary:
 		position += 1
 	return positions
 
+
 static func get_tiles_tracker(tile_indices: Array[Array]) -> Dictionary:
 	var tracker: Dictionary = {}
 	for tile in tile_indices:
 		tracker[tile] = false
 	return tracker
 
-static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_tiles: int = 0) -> Dictionary:
 
+static func bake_tile_images(
+	tile_indices: Array[Array], dpi: int, processed_tiles: int = 0
+) -> Dictionary:
 	print("----- Baking Tile Images -----")
 	Global.print_memory_usage()
 	Global.print_video_memory_usage()
 	print("------------------------------")
 
-	var MAX_RAM_MB: float = min(Global.get_available_os_memory_mb()*0.5, 1000)
-	var MAX_VRAM_MB: float =  min(Global.get_available_os_memory_mb()*0.25, 1000)
+	var MAX_RAM_MB: float = min(Global.get_available_os_memory_mb() * 0.5, 1000)
+	var MAX_VRAM_MB: float = min(Global.get_available_os_memory_mb() * 0.25, 1000)
 
 	# var MAX_RAM_MB: float = 0
 	# var MAX_VRAM_MB: float = 0
@@ -87,15 +103,15 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 	var baked_map: Dictionary = {}
 	var render_tasks: Array[Dictionary] = []
 
-	var px_per_mm: float = (dpi/25.4)
+	var px_per_mm: float = dpi / 25.4
 
 	var milestone: float = Time.get_ticks_msec()
 
-	var temp_mat : Array[ShaderMaterial] = []
+	var temp_mat: Array[ShaderMaterial] = []
 
 	var total_tiles: int = tile_indices.size()
 
-	var texture_map: Dictionary = {} # [item, index] -> Texture2D
+	var texture_map: Dictionary = {}  # [item, index] -> Texture2D
 
 	var mutex: Mutex = Mutex.new()
 	var shared_counter: Dictionary = {
@@ -113,7 +129,17 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 			return
 		if shared_counter["mb"] > MAX_VRAM_MB:
 			if not shared_counter["logged"]:
-				print.call_deferred("Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)" % [shared_counter["mb"], MAX_VRAM_MB, shared_counter["current"] + processed_tiles, total_tiles + processed_tiles])
+				print.call_deferred(
+					(
+						"Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)"
+						% [
+							shared_counter["mb"],
+							MAX_VRAM_MB,
+							shared_counter["current"] + processed_tiles,
+							total_tiles + processed_tiles
+						]
+					)
+				)
 				shared_counter["logged"] = true
 				shared_counter["canceled"] = true
 			mutex.unlock()
@@ -123,34 +149,48 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 		var tile = tile_indices[i]
 		var item: PhotoItemData = tile[0]
 		var index: int = tile[1]
-		var raw_img: Image = item.asset.get_image(index)
+		var raw_img: Image = item.asset.get_image(index, item.size_mm * px_per_mm)
 		# var raw_tex: ImageTexture = ImageTexture.create_from_image(raw_img)
 
 		mutex.lock()
 		if shared_counter["mb"] > MAX_VRAM_MB:
 			if not shared_counter["logged"]:
-				print.call_deferred("Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)" % [shared_counter["mb"], MAX_VRAM_MB, shared_counter["current"] + processed_tiles, total_tiles + processed_tiles])
+				print.call_deferred(
+					(
+						"Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)"
+						% [
+							shared_counter["mb"],
+							MAX_VRAM_MB,
+							shared_counter["current"] + processed_tiles,
+							total_tiles + processed_tiles
+						]
+					)
+				)
 				shared_counter["logged"] = true
 				shared_counter["canceled"] = true
 			mutex.unlock()
 			return
-		shared_counter["mb"] += ((raw_img.get_size().x*raw_img.get_size().y*4)/(1024.0*1024.0)) * 1.3333
+		shared_counter["mb"] += (
+			((raw_img.get_size().x * raw_img.get_size().y * 4) / (1024.0 * 1024.0)) * 1.3333
+		)
 		shared_counter["current"] += 1
 		texture_map[tile] = raw_img
 		mutex.unlock()
 
 	var group_id: int = WorkerThreadPool.add_group_task(
-		create_texture,
-		total_tiles,
-		-1,
-		true,
-		"CREATING_TEXTURE"
+		create_texture, total_tiles, -1, true, "CREATING_TEXTURE"
 	)
 
-	while (shared_counter["current"] < shared_counter["total"] and not shared_counter["canceled"]):
+	while shared_counter["current"] < shared_counter["total"] and not shared_counter["canceled"]:
 		if Global.progress_flag:
 			return {}
-		Global.progress_update("Decoding Tiles (%d/%d)" % [shared_counter["current"] + processed_tiles, total_tiles + processed_tiles], float(shared_counter["current"] + processed_tiles)/(total_tiles + processed_tiles))
+		Global.progress_update(
+			(
+				"Decoding Tiles (%d/%d)"
+				% [shared_counter["current"] + processed_tiles, total_tiles + processed_tiles]
+			),
+			float(shared_counter["current"] + processed_tiles) / (total_tiles + processed_tiles)
+		)
 		await Engine.get_main_loop().process_frame
 
 	WorkerThreadPool.wait_for_group_task_completion(group_id)
@@ -185,7 +225,10 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 
 	var tile_calls: int = 0
 
-	while ((Global.get_memory_usage_mb() <= MAX_RAM_MB) and tile_calls < total_tiles) or tile_calls == 0:
+	while (
+		((Global.get_memory_usage_mb() <= MAX_RAM_MB) and tile_calls < total_tiles)
+		or tile_calls == 0
+	):
 		for tile in texture_map.keys():
 			var item: PhotoItemData = tile[0]
 			var index: int = tile[1]
@@ -211,7 +254,14 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 			temp_mat.append(mat)
 
 			var homography_mat: Basis = item.get_distort_matrix(index)
-			mat.set_shader_parameter("u_homography_matrix", homography_mat if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
+			mat.set_shader_parameter(
+				"u_homography_matrix",
+				(
+					homography_mat
+					if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT
+					else Basis.IDENTITY
+				)
+			)
 			mat.set_shader_parameter("out_bound_opacity", 1)
 
 			var viewport_rid: RID = RenderingServer.viewport_create()
@@ -220,28 +270,40 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 			var texture_rid: RID = raw_tex.get_rid()
 			var material_rid: RID = mat.get_rid()
 
-
-			RenderingServer.viewport_set_size(viewport_rid, round(item.size_mm.x * px_per_mm), round(item.size_mm.y * px_per_mm))
+			RenderingServer.viewport_set_size(
+				viewport_rid, round(item.size_mm.x * px_per_mm), round(item.size_mm.y * px_per_mm)
+			)
 			RenderingServer.viewport_set_transparent_background(viewport_rid, true)
 			RenderingServer.viewport_attach_canvas(viewport_rid, canvas_rid)
 			RenderingServer.viewport_set_active(viewport_rid, true)
-			RenderingServer.viewport_set_update_mode(viewport_rid, RenderingServer.VIEWPORT_UPDATE_ONCE)
+			RenderingServer.viewport_set_update_mode(
+				viewport_rid, RenderingServer.VIEWPORT_UPDATE_ONCE
+			)
 
 			RenderingServer.canvas_item_set_parent(canvas_item_rid, canvas_rid)
 			RenderingServer.canvas_item_set_material(canvas_item_rid, material_rid)
-			RenderingServer.canvas_item_set_default_texture_filter(canvas_item_rid, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR)
+			RenderingServer.canvas_item_set_default_texture_filter(
+				canvas_item_rid, RenderingServer.CANVAS_ITEM_TEXTURE_FILTER_LINEAR
+			)
 
-			var dest_rect: Rect2 = Rect2(image_rect.position*px_per_mm, image_rect.size*px_per_mm)
+			var dest_rect: Rect2 = Rect2(
+				image_rect.position * px_per_mm, image_rect.size * px_per_mm
+			)
 			RenderingServer.canvas_item_add_rect(canvas_item_rid, dest_rect, Color.WHITE)
 			RenderingServer.canvas_item_add_texture_rect(canvas_item_rid, dest_rect, texture_rid)
 
-			render_tasks.append({
-				"item": item,
-				"index": index,
-				"viewport": viewport_rid,
-				"canvas": canvas_rid,
-				"canvas_item": canvas_item_rid,
-			})
+			(
+				render_tasks
+				. append(
+					{
+						"item": item,
+						"index": index,
+						"viewport": viewport_rid,
+						"canvas": canvas_rid,
+						"canvas_item": canvas_item_rid,
+					}
+				)
+			)
 
 			if Global.progress_flag:
 				break
@@ -252,12 +314,28 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 			# 	print("Exeeded %.2f/%.2f MB of VRAM, offloading... (%d/%d)" % [Global.get_video_memory_usage_mb(), MAX_VRAM_MB, tile_calls + processed_tiles, total_tiles + processed_tiles])
 			# 	break
 			if Global.get_memory_usage_mb() > MAX_RAM_MB:
-				print("Exeeded %.2f/%.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), MAX_RAM_MB,tile_calls + processed_tiles, total_tiles + processed_tiles])
+				print(
+					(
+						"Exeeded %.2f/%.2f MB of RAM, offloading... (%d/%d)"
+						% [
+							Global.get_memory_usage_mb(),
+							MAX_RAM_MB,
+							tile_calls + processed_tiles,
+							total_tiles + processed_tiles
+						]
+					)
+				)
 				break
 
 			if Time.get_ticks_msec() - milestone > 100:
 				milestone = Time.get_ticks_msec()
-				Global.progress_update("Preparing Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles], float(tile_calls + processed_tiles)/total_tiles + processed_tiles)
+				Global.progress_update(
+					(
+						"Preparing Tiles (%d/%d)"
+						% [tile_calls + processed_tiles, total_tiles + processed_tiles]
+					),
+					float(tile_calls + processed_tiles) / total_tiles + processed_tiles
+				)
 				await Engine.get_main_loop().process_frame
 
 		if render_tasks.is_empty():
@@ -279,7 +357,10 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 		Global.progress_update("Rendering %d Tiles" % total_tiles, 1)
 		await Engine.get_main_loop().process_frame
 
-		Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles], float(tile_calls)/total_tiles)
+		Global.progress_update(
+			"Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles],
+			float(tile_calls) / total_tiles
+		)
 		await Engine.get_main_loop().process_frame
 
 		milestone = Time.get_ticks_msec()
@@ -305,19 +386,36 @@ static func bake_tile_images(tile_indices: Array[Array], dpi: int, processed_til
 
 			if Time.get_ticks_msec() - milestone > 100:
 				milestone = Time.get_ticks_msec()
-				Global.progress_update("Baking Tiles (%d/%d)" % [tile_calls + processed_tiles, total_tiles + processed_tiles], float(tile_calls + processed_tiles)/total_tiles + processed_tiles)
+				Global.progress_update(
+					(
+						"Baking Tiles (%d/%d)"
+						% [tile_calls + processed_tiles, total_tiles + processed_tiles]
+					),
+					float(tile_calls + processed_tiles) / total_tiles + processed_tiles
+				)
 				await Engine.get_main_loop().process_frame
 
 		render_tasks.clear()
 
-	if (Global.get_memory_usage_mb() > MAX_RAM_MB):
-		print("Exeeded %.2f/%.2f MB of RAM, offloading... (%d/%d)" % [Global.get_memory_usage_mb(), MAX_RAM_MB,tile_calls + processed_tiles, total_tiles + processed_tiles])
+	if Global.get_memory_usage_mb() > MAX_RAM_MB:
+		print(
+			(
+				"Exeeded %.2f/%.2f MB of RAM, offloading... (%d/%d)"
+				% [
+					Global.get_memory_usage_mb(),
+					MAX_RAM_MB,
+					tile_calls + processed_tiles,
+					total_tiles + processed_tiles
+				]
+			)
+		)
 
 	print("----- Finished Baking Tiles -----")
 	Global.print_memory_usage()
 	Global.print_video_memory_usage()
 
 	return baked_map
+
 
 static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 	var layout: PrintLayout = PrintLayout.new()
@@ -332,7 +430,6 @@ static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 	var current_y: float = start_y
 	var row_height: float = 0.0
 	var current_page: int = 0
-
 
 	for photo_item: PhotoItemData in document_data.photo_items:
 		var tile_size = photo_item.size_mm

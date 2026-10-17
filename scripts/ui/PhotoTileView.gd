@@ -29,17 +29,28 @@ var photo_item: PhotoItemData:
 	get:
 		return photo_tile.photo_item
 
+var preview_texture: Texture2D
+
 var view_scale: float = 1.0:  # (MM TO PIXEL) * VIEWPORT_SCALE providied by CanvasPanel
 	set(new):
 		view_scale = new
 		_update_tile_rect()
 
-func setup(tile: PhotoTile, scale_px_per_mm: float, selected: bool = false, selected_tile: bool = false, padding: float = 0):
+
+func setup(
+	tile: PhotoTile,
+	scale_px_per_mm: float,
+	selected: bool = false,
+	selected_tile: bool = false,
+	padding: float = 0,
+	tex: Texture2D = null,
+):
 	view_scale = scale_px_per_mm
 	photo_tile = tile
 	is_selected = selected
 	is_selected_tile = selected_tile
 	selection_padding = padding
+	preview_texture = tex
 	if is_node_ready():
 		_update_tile_rect()
 
@@ -47,6 +58,7 @@ func setup(tile: PhotoTile, scale_px_per_mm: float, selected: bool = false, sele
 func _ready() -> void:
 	_update_tile_rect()
 	pass
+
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -57,12 +69,14 @@ func _gui_input(event: InputEvent) -> void:
 			on_tile_view_right_clicked.emit(self)
 			accept_event()
 
+
 func _update_image_rect():
-	if photo_item and photo_item.asset:
-		image_texture.texture = photo_item.asset.get_preview_texture(photo_tile.sub_asset_index)
+	if not photo_item or not photo_item.asset:
+		return
 
 	var image_rect_mm: Rect2 = photo_item.get_image_rect_mm(photo_tile.sub_asset_index)
 	image_texture.size = image_rect_mm.size * view_scale
+	image_texture.texture = preview_texture
 	image_texture.position = image_rect_mm.position * view_scale
 	image_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
@@ -70,9 +84,15 @@ func _update_image_rect():
 
 	var mat: ShaderMaterial = image_texture.material
 	if mat:
-		mat.set_shader_parameter("u_homography_matrix", photo_item.get_distort_matrix(photo_tile.sub_asset_index) if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT else Basis.IDENTITY)
-		mat.set_shader_parameter("opacity", 1.0 if is_selected_tile or not is_selected else 0.5)
-
+		mat.set_shader_parameter(
+			"u_homography_matrix",
+			(
+				photo_item.get_distort_matrix(photo_tile.sub_asset_index)
+				if framing.fitting_mode == PhotoItemData.FittingMode.DISTORT
+				else Basis.IDENTITY
+			)
+		)
+		mat.set_shader_parameter("opacity", 1.0 if is_selected_tile or not is_selected else 0.8)
 
 
 func _update_tile_rect():
@@ -82,7 +102,7 @@ func _update_tile_rect():
 	size = tile_rect_mm.size * view_scale
 	position = tile_rect_mm.position * view_scale
 
-	var padding: float = selection_padding*view_scale/2
+	var padding: float = selection_padding * view_scale / 2
 
 	if selection_padding <= 1:
 		base_selection.visible = true
@@ -101,6 +121,8 @@ func _update_tile_rect():
 
 	if photo_item:
 		border.visible = photo_item.border_enabled
-		border.border_width = snapped(max(photo_item.border_width * view_scale,1/get_window().content_scale_factor),1)
+		border.border_width = snapped(
+			max(photo_item.border_width * view_scale, 1 / get_window().content_scale_factor), 1
+		)
 
 	_update_image_rect()

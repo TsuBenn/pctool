@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://b48x8pokkdf1m" path="res://scenes/modules/LabeledOptionButton.tscn" id="1_n10jr"]
 [ext_resource type="PackedScene" uid="uid://doot08emp6rvu" path="res://scenes/modules/LabeledSpinBox.tscn" id="2_gdvak"]
 [ext_resource type="Script" uid="uid://bpmjh0dvj0fqx" path="res://scripts/ui/Toolbar.gd" id="3_ckklh"]
-[ext_resource type="PackedScene" uid="uid://ewicow2ui0ag" path="res://scenes/modules/PanelHeader.tscn" id="3_jlrve"]
 [ext_resource type="Script" uid="uid://crn7756aj8kgi" path="res://scripts/ui/WorkspaceInstance.gd" id="3_omfjr"]
 [ext_resource type="Script" uid="uid://coko7mp2773mb" path="res://scripts/ui/AssetsPanel.gd" id="5_uxgfi"]
 [ext_resource type="FontVariation" uid="uid://clmmhydjeiwtm" path="res://assets/fonts/theme_font_bold.tres" id="8_k0bj0"]
@@ -316,13 +315,6 @@ layout_mode = 2
 label = "Show file names:"
 button_pressed = true
 
-[node name="AssetsStatusFooter" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel" unique_id=1111947540 instance=ExtResource("3_jlrve")]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"OutlinePanelContainer"
-title = "0 Assets"
-title_alignment = "Left"
-
 [node name="AssetCardContextMenu" type="PopupMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel" unique_id=1127747373]
 unique_name_in_owner = true
 oversampling_override = 1.0
@@ -580,11 +572,45 @@ title = "Duplicate Assets"
 [node name="CanvasContextMenu" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=1036242746 instance=ExtResource("14_k0bj0")]
 unique_name_in_owner = true
 visible = false
+exclusive = true
+item_count = 7
+item_0/text = "Fit to Window"
+item_0/id = 0
+item_1/text = "Center to Window"
+item_1/id = 1
+item_2/id = -1
+item_2/separator = true
+item_3/text = "Zoom In"
+item_3/id = 2
+item_4/text = "Zoom Out"
+item_4/id = 3
+item_5/id = -1
+item_5/separator = true
+item_6/text = "Switch to Landscape"
+item_6/id = 4
 items = Array[String](["Fit to Window", "Center to Window", "-", "Zoom In", "Zoom Out", "-", "Switch to Landscape"])
 
 [node name="PhotoTileContextMenu" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=2060811951 instance=ExtResource("14_k0bj0")]
 unique_name_in_owner = true
 visible = false
+exclusive = true
+item_count = 8
+item_0/text = "Add A Copy"
+item_0/id = 0
+item_1/text = "Remove A Copy"
+item_1/id = 1
+item_2/id = -1
+item_2/separator = true
+item_3/text = "Copy Properties"
+item_3/id = 2
+item_4/text = "Paste Properties"
+item_4/id = 3
+item_5/id = -1
+item_5/separator = true
+item_6/text = "Duplicate"
+item_6/id = 4
+item_7/text = "Remove"
+item_7/id = 5
 items = Array[String](["Add A Copy", "Remove A Copy", "-", "Copy Properties", "Paste Properties", "-", "Duplicate", "Remove"])
 
 [node name="PropertiesPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace" unique_id=562294387]
@@ -900,7 +926,7 @@ initial_position = 2
 size = Vector2i(300, 200)
 file_mode = 1
 access = 2
-filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File")
+filters = PackedStringArray("*.png, *.jpg, *.jpeg, *webp ; Image File", "*.pdf ; PDF file")
 favorites_enabled = false
 recent_list_enabled = false
 script = ExtResource("11_okkpv")

@@ -19,13 +19,12 @@ signal request_import_dialog
 @onready var grid_scale_slider: LabeledSlider = %GridScaleSlider
 @onready var show_file_names_check_button: LabeledCheckButton = %ShowFileNamesCheckButton
 
-@onready var assets_status_footer: PanelHeader = %AssetsStatusFooter
-
 @onready var assets_scroll_container: ScrollContainer = %AssetsScrollContainer
 
 @onready var asset_card_context_menu: PopupMenu = %AssetCardContextMenu
 @onready var assets_container_context_menu: PopupMenu = %AssetsContainerContextMenu
-@onready var assets_removal_confirmation_dialog: ConfirmationDialog = %AssetsRemovalConfirmationDialog
+@onready
+var assets_removal_confirmation_dialog: ConfirmationDialog = %AssetsRemovalConfirmationDialog
 
 var document_data: DocumentData
 var selected_asset_cards: Array[AssetCard] = []
@@ -48,6 +47,7 @@ func setup(data: DocumentData):
 		for asset in document_data.assets:
 			instantiate_asset_card(asset)
 
+
 func _ready() -> void:
 	view_option_button.item_selected.connect(_update_view_mode)
 
@@ -67,8 +67,8 @@ func _ready() -> void:
 
 	assets_search.text_changed.connect(_assets_search)
 
-	_update_status_footer()
 	_update_view_mode(view_option_button.selected)
+
 
 func _assets_search(query: String):
 	query = Global.flatten_string(query)
@@ -91,6 +91,7 @@ func _assets_search(query: String):
 				var card_name: String = Global.flatten_string(card.asset_data.display_name)
 				if not query.is_subsequence_of(card_name):
 					card.visible = true
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed:
@@ -116,27 +117,6 @@ func _on_import_button_pressed() -> void:
 	assets_search.text = ""
 	assets_search.text_changed.emit("")
 	request_import_dialog.emit()
-
-
-func _update_status_footer():
-	var count = (
-		"%d assets"
-		% (
-			grid_assets_container.get_child_count()
-			if view_mode == "grid"
-			else list_assets_container.get_child_count()
-		)
-	)
-	var selected = ""
-	var dimensions = ""
-	if selected_asset_cards.size() > 0:
-		selected = "* %d selected" % selected_asset_cards.size()
-		var last_selected_image = selected_asset_cards.back().asset_data.get_image(0)
-		dimensions = (
-			"(%dx%d px)" % [last_selected_image.get_width(), last_selected_image.get_height()]
-		)
-	assets_status_footer.title = count + " " + selected + ("\n" + dimensions if dimensions else "")
-
 
 func _on_resized():
 	var card_width = 32 + 32 * grid_scale_slider.value
@@ -194,6 +174,7 @@ func _deselect_all_asset_cards():
 	selected_asset_cards.clear()
 	last_selected_asset_card = null
 
+
 func _select_all_asset_cards():
 	_deselect_all_asset_cards()
 	match view_mode:
@@ -207,7 +188,7 @@ func _select_all_asset_cards():
 				selected_asset_cards.append(card)
 				card.is_selected = true
 				last_selected_asset_card = card
-	_update_status_footer()
+
 
 func _on_card_clicked(card: AssetCard, ctrl_pressed: bool, shift_pressed: bool):
 	if not ctrl_pressed and not shift_pressed:
@@ -250,7 +231,6 @@ func _on_card_clicked(card: AssetCard, ctrl_pressed: bool, shift_pressed: bool):
 						selected_asset_cards.append(current_card)
 						current_card.is_selected = true
 
-	_update_status_footer()
 	pass
 
 
@@ -296,8 +276,7 @@ func _show_container_context_menu(global_mouse_pos: Vector2i):
 	_deselect_all_asset_cards()
 
 	assets_container_context_menu.set_item_text(
-		3,
-		"View as List" if view_mode == "grid" else "View as Grid"
+		3, "View as List" if view_mode == "grid" else "View as Grid"
 	)
 
 	assets_container_context_menu.position = global_mouse_pos
@@ -309,11 +288,15 @@ func _on_card_context_menu_pressed(id: int):
 	match id:
 		CardContextMenuAction.ADD_TO_SHEET:
 			var asset_datas: Array[AssetData] = []
-			asset_datas.assign(selected_asset_cards.map(func(asset_card): return asset_card.asset_data))
+			asset_datas.assign(
+				selected_asset_cards.map(func(asset_card): return asset_card.asset_data)
+			)
 			add_asset_to_sheet.emit(asset_datas)
 		CardContextMenuAction.GROUP_SELECTED:
 			var asset_datas: Array[AssetData] = []
-			asset_datas.assign(selected_asset_cards.map(func(asset_card): return asset_card.asset_data))
+			asset_datas.assign(
+				selected_asset_cards.map(func(asset_card): return asset_card.asset_data)
+			)
 			var new_group: GroupAssetData = GroupAssetData.create_from_assets(asset_datas, "GROUP")
 			if new_group:
 				instantiate_asset_card(new_group)
@@ -325,7 +308,9 @@ func _on_card_context_menu_pressed(id: int):
 			Global.notice("Feature Not Implemented", "Assets Renaming has not been implemented!")
 			pass
 		CardContextMenuAction.OPEN_LOCATION:
-			Global.notice("Feature Not Implemented", "Opening Assets Location has not been implemented!")
+			Global.notice(
+				"Feature Not Implemented", "Opening Assets Location has not been implemented!"
+			)
 			pass
 		CardContextMenuAction.REMOVE:
 			_remove_selected_assets()
@@ -357,6 +342,7 @@ func _on_container_context_menu_pressed(id: int):
 					view_option_button.selected = 0
 					_update_view_mode(0)
 
+
 func _remove_selected_assets(force_remove: bool = false) -> void:
 	if selected_asset_cards.is_empty():
 		return
@@ -385,7 +371,7 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 
 	# 4. EXECUTE REMOVAL: Clean up canvas items first
 	for item in placed_items_to_remove:
-		document_data.remove_photo_item(item, false) # false = don't emit yet
+		document_data.remove_photo_item(item, false)  # false = don't emit yet
 
 	# 5. Clean up asset data
 	for asset in assets_to_delete:
@@ -403,11 +389,13 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 
 	# 7. Notify Canvas to redraw & update UI state
 	document_data.emit_changed()
-	_update_status_footer()
 
 	# Show empty placeholder if no cards remain
-	var total_cards = grid_assets_container.get_child_count() + list_assets_container.get_child_count()
+	var total_cards = (
+		grid_assets_container.get_child_count() + list_assets_container.get_child_count()
+	)
 	assets_empty_state_label.visible = (total_cards == 0)
+
 
 func instantiate_asset_card(asset_data: AssetData) -> void:
 	var new_asset_card: AssetCard = asset_card_instance.instantiate()
@@ -431,7 +419,6 @@ func instantiate_asset_card(asset_data: AssetData) -> void:
 			grid_assets_container.visible = false
 			list_assets_container.visible = true
 
-	_update_status_footer()
 	new_asset_card.setup(asset_data)
 
 	new_asset_card.card_clicked.connect(_on_card_clicked)

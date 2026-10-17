@@ -56,10 +56,17 @@ func save_config() -> Error:
 	return err
 
 func _ready() -> void:
+
+	print("Autoload ready at: ", Time.get_ticks_msec(), " ms")
+	get_tree().root.ready.connect(_on_root_ready)
+
 	var err := _config.load(_config_path)
 
 	if err != OK:
 		push_warning("ConfigFile: Had trouble loading _config file at %s" % _config_path)
+
+func _on_root_ready():
+	print("Main scene ready at: ", Time.get_ticks_msec(), " ms")
 
 func notice(title: String, message: String, ok_button_text: String = "OK"):
 	on_noticed.emit(title, message, ok_button_text)
