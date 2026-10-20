@@ -32,6 +32,11 @@ func _init(
 func get_count() -> int:
 	return 1
 
+func get_size(_index: int) -> Vector2i:
+	return pixel_dimensions
+
+func get_bytes() -> PackedByteArray:
+	return raw_file_buffer
 
 func get_image(_index: int, _size: Vector2i = Vector2i.ZERO) -> Image:
 	var img: Image = Image.new()
@@ -110,6 +115,12 @@ static func create_from_buffer(
 		ImageType.PNG:
 			err = img.load_png_from_buffer(buffer)
 			ext = "png"
+			match img.detect_alpha():
+				Image.ALPHA_NONE:
+					buffer = img.save_jpg_to_buffer(0.5)
+				_:
+					buffer = img.save_webp_to_buffer(false, 0.5)
+			# buffer = img.save_webp_to_buffer(true, 1)
 		ImageType.WEBP:
 			err = img.load_webp_from_buffer(buffer)
 			ext = "webp"
@@ -121,19 +132,27 @@ static func create_from_buffer(
 		push_error('ImageAssetData: Image from path "%s" is unsupported or corrupted' % path)
 		return null
 
-	var scale: float = 200.0/img.get_size().x
+	var scale: float = 256.0/img.get_size().x
+	var dim = img.get_size()
 	img.resize(
 		round(img.get_size().x * scale), round(img.get_size().y * scale), Image.INTERPOLATE_NEAREST
 	)
 	var tex: Texture2D = ImageTexture.create_from_image(img) if include_texture else null
 	# print("original:" + str(img.get_size()))
 	# print("lower   :" + str(lower_img.get_size()))
-	var dim = Vector2i(img.get_width(), img.get_height())
 	var file_name = path.get_file()
 	var new_id = AssetData.get_id()
 
 	if include_texture:
 		img = null
+
+	# match get_image_type(buffer):
+	# 	ImageType.JPEG:
+	# 		print("jpeg")
+	# 	ImageType.PNG:
+	# 		print("png")
+	# 	ImageType.WEBP:
+	# 		print("webp")
 
 	var asset: ImageAssetData = ImageAssetData.new(
 		new_id, file_name, path, tex, dim, buffer, img, ext

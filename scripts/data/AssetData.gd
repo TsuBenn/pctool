@@ -8,6 +8,8 @@ extends Resource
 @abstract func get_count() -> int
 @abstract func get_thumbnail(index: int) -> Texture2D
 @abstract func get_image(index: int, size: Vector2i) -> Image
+@abstract func get_bytes() -> PackedByteArray
+@abstract func get_size(index: int) -> Vector2i
 
 @abstract func clean() -> void
 

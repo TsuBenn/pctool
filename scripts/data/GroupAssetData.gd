@@ -18,9 +18,14 @@ func _init(
 func get_count() -> int:
 	return children.size()
 
+func get_bytes() -> PackedByteArray:
+	return []
 
 func get_image(index: int, size: Vector2i) -> Image:
 	return children[index].get_image(0, size)
+
+func get_size(index: int) -> Vector2i:
+	return children[index].get_size(0)
 
 func get_child(index: int) -> AssetData:
 	return children.get(index)

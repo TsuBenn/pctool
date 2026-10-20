@@ -1,86 +1,47 @@
 class_name PreviewTextureEngine
 extends RefCounted
 
-class CacheTexture:
-	var texture: Texture2D
-	var ref_count: int
-	var last_used_frame: int
-	var size_bytes: int
+var engine: RsPreviewTextureEngine = RsPreviewTextureEngine.new()
 
-	func _init(tex: Texture2D, ref: int, last: int, size: int) -> void:
-		texture = tex
-		ref_count = ref
-		last_used_frame = last
-		size_bytes = size
-
-var batch_id: int
-
-# [AssetData, Page index]
-var caches: Dictionary[Array, CacheTexture] = {}
-var cache_size: int = 0
-
-var misses: Array[PhotoTile]
-
-var resize: Array[PhotoTile]
-
-var rs_engine: RsPreviewTextureEngine = RsPreviewTextureEngine.new()
-
-const CACHE_MAX = 512*(1024**2)
-
-# Get texture from key
-# If report is on and the key is missing then note down
-func request(tile: PhotoTile, report: bool) -> Texture2D:
-	var asset = tile.photo_item.asset
-	var index = tile.sub_asset_index
-
-	if asset is PdfAssetData:
-		return null
+func request(tile: PhotoTile, px_per_mm: float, report: bool):
+	var asset: AssetData = tile.photo_item.asset
+	var index: int = tile.sub_asset_index
+	var type: String
 
 	if asset is GroupAssetData:
 		asset = asset.get_child(index)
-		if asset is ImageAssetData:
-			index = 0
+		index = 0;
 
-	if caches.has([asset, index]):
-		caches[[asset, index]].ref_count += 1
-		return caches[[asset, index]].texture
+	if asset is ImageAssetData:
+		type = "image"
+	elif asset is PdfAssetData:
+		type = "pdf"
 
-	if report and not misses.has(tile):
-		misses.append(tile)
-
-	return null
-
-# Start sending workload to Rust
-# Wrap tiles into a struct Rust understands
-func provide():
-	pass
-
-#
-func cache_check():
-	if cache_size < CACHE_MAX:
-		print("Cache count: %d" % caches.size())
-		print("Cache size: %d MB" % (cache_size/(1024**2.0)))
-		return
-
-	var removal_candidates: Array[Array] = []
-	for cache in caches:
-		if caches[cache].ref_count == 0:
-			removal_candidates.append(cache)
-
-	removal_candidates.sort_custom(
-		func(a,b):
-			if caches[a].last_used_frame > caches[b].last_used_frame:
-				return true
-			return false
+	return engine.request(
+		asset.id,
+		index,
+		type,
+		asset.get_bytes(),
+		min(int(tile.photo_item.get_image_rect_mm(index).size.x * px_per_mm), int(asset.get_size(index).x)),
+		report
 	)
 
-	while cache_size > (CACHE_MAX*0.8):
-		var to_remove = removal_candidates.pop_back()
-		if to_remove:
-			cache_size -= caches[to_remove].size_bytes
-			caches.erase(to_remove)
-		else:
-			break
+func has_misses() -> bool:
+	return engine.has_misses()
 
-	print("Cache count: %d" % caches.size())
-	print("Cache size: %d MB" % (cache_size/(1024**2.0)))
+func poll() -> bool:
+	var results: Array[GdTileResult] = engine.poll()
+	if results.is_empty():
+		return false
+	for tile: GdTileResult in results:
+		var width = tile.width
+		var height = tile.height
+		var pixels = tile.pixel_bytes
+		var image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, pixels)
+		var tex = ImageTexture.create_from_image(image)
+		engine.cache(tile.asset_id, tile.asset_index, tile.size_tier, Engine.get_frames_drawn(), tex)
+	return true
+
+func provide():
+	engine.provide()
+

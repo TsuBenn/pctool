@@ -7,5 +7,10 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
+ahash = "0.8.12"
+dashmap = "6.2.1"
 godot = "0.5.5"
+image = "0.25.10"
 pdfium-render = "0.9.4"
+turbojpeg = { version = "1.5.1", features = ["image"] }
+webpx = "0.4.0"
