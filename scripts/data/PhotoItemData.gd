@@ -484,12 +484,7 @@ func get_image_rect_mm(index: int) -> Rect2:
 	var offset = framing.offset
 	var fitting_mode = framing.fitting_mode
 
-	# 1. Fetch aspect ratio safely (e.g. from preview texture or cached dimensions)
-	var preview_tex = asset.get_thumbnail(index)
-	if preview_tex == null:
-		return Rect2(Vector2.ZERO, size_mm)
-
-	var tex_size: Vector2 = preview_tex.get_size()
+	var tex_size: Vector2 = asset.get_size(index)
 	var image_aspect: float = tex_size.aspect()
 
 	var h: float = 0

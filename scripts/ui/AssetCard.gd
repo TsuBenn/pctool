@@ -53,7 +53,6 @@ var show_file_name: bool = true:
 
 @onready var button: Button = %Button
 
-
 func _ready() -> void:
 	update_view_mode(view_mode)
 
@@ -131,6 +130,13 @@ func update_view_mode(mode: ViewMode):
 			var thumbnail_size: int = 32 + 32 * grid_scale
 			box_container.vertical = true
 			if asset_data:
+				var texture = asset_data.get_thumbnail(0)
+
+				if texture == null and not PreviewTextureEngine.cache_updated.is_connected(_ready):
+					PreviewTextureEngine.cache_updated.connect(_ready)
+				elif texture != null and PreviewTextureEngine.cache_updated.is_connected(_ready):
+					PreviewTextureEngine.cache_updated.disconnect(_ready)
+
 				texture_rect.texture = asset_data.get_thumbnail(0)
 				if asset_data is GroupAssetData:
 					group_indicator.visible = true

@@ -2,15 +2,16 @@ class_name PdfAssetData
 extends AssetData
 
 var raw_file_buf: PackedByteArray
-var thumnails: Dictionary[int, Texture2D]
+var sizes: Array[Vector2i]
 var page_count: int
 
-func _init(new_id: String, file_name: String, path: String, buf: PackedByteArray, pages: int) -> void:
+func _init(new_id: String, file_name: String, path: String, buf: PackedByteArray, pages: int, page_sizes: Array[Vector2i]) -> void:
 	id = new_id
 	display_name = file_name
 	source_path = path
 	raw_file_buf = buf
 	page_count = pages
+	sizes = page_sizes
 
 
 func get_count() -> int:
@@ -19,19 +20,11 @@ func get_count() -> int:
 func get_bytes() -> PackedByteArray:
 	return raw_file_buf
 
-func get_size(_index: int) -> Vector2i:
-	return Vector2i.MAX
+func get_size(index: int) -> Vector2i:
+	return sizes[index]
 
 func get_thumbnail(index: int) -> Texture2D:
-	if thumnails.has(index):
-		return thumnails[index]
-
-	var image = get_image(index, Vector2i(256,256))
-	var texture = ImageTexture.create_from_image(image)
-
-	thumnails[index] = texture
-
-	return texture
+	return PreviewTextureEngine.request(self, index, 256, true)
 
 func get_image(index: int, size: Vector2i) -> Image:
 
@@ -50,15 +43,19 @@ func get_image(index: int, size: Vector2i) -> Image:
 	return image
 
 func clean() -> void:
-	thumnails.clear()
+	raw_file_buf.clear()
 	pass
 
 
 static func create_from_file(path: String, buf: PackedByteArray) -> PdfAssetData:
-	var pages = PdfEngine.get_pdf_page_count(path)
+	var start = Time.get_ticks_usec()
+	var pages = PdfEngine.get_pdf_infos(path)
 	if not pages["error"].is_empty():
 		push_error(pages["error"])
-	return PdfAssetData.new(AssetData.get_id(), path.get_file(), path, buf, pages["count"])
+		return null
+	var end = Time.get_ticks_usec()
+	print((end - start)/1000.0)
+	return PdfAssetData.new(AssetData.get_id(), path.get_file(), path, buf, pages["count"], pages["sizes"])
 
 
 static func is_valid_pdf(file_path: String) -> bool:

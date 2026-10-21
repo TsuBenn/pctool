@@ -64,7 +64,7 @@ func get_image(_index: int, _size: Vector2i = Vector2i.ZERO) -> Image:
 	return img
 
 func get_thumbnail(_index: int) -> Texture2D:
-	return thumbnail
+	return PreviewTextureEngine.request(self, 0, 256, true)
 
 func clean() -> void:
 	raw_file_buffer.clear()

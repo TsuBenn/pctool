@@ -23,6 +23,7 @@ config/icon="uid://tw4e3ylqee76"
 [autoload]
 
 Global="*uid://dvsq2i70xgdn7"
+PreviewTextureEngine="*uid://cwst2k3ay66eu"
 
 [display]
 

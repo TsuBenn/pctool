@@ -1,4 +1,4 @@
-use std::{io::Cursor, sync::OnceLock};
+use std::{io::Cursor, sync::OnceLock, time::Instant};
 
 use godot::{classes::ProjectSettings, prelude::*};
 use image::ImageReader;
@@ -39,22 +39,34 @@ impl PdfEngine {
     }
 
     #[func]
-    pub fn get_pdf_page_count(pdf_path: GString) -> Dictionary<GString, Variant> {
+    pub fn get_pdf_infos(path: String) -> Dictionary<GString, Variant> {
         let mut result = Dictionary::new();
 
-        let page_count = (|| -> Result<i64, String> {
+        let page_infos = (|| -> Result<(i64, Vec<Vector2i>), String> {
             let pdfium = get_pdfium()?;
 
             let document = pdfium
-                .load_pdf_from_file(&pdf_path.to_string(), None)
+                .load_pdf_from_file(&path, None)
                 .map_err(|e| e.to_string())?;
 
-            Ok(document.pages().len() as i64)
+            let page_count = document.pages().len();
+            let page_sizes: Vec<Vector2i> = document
+                .pages()
+                .iter()
+                .map(|p| {
+                    Vector2i::new(
+                        (p.width().to_inches() * 300.0) as i32,
+                        (p.height().to_inches() * 300.0) as i32,
+                    )
+                })
+                .collect();
+            Ok((page_count as i64, page_sizes))
         })();
 
-        match page_count {
-            Ok(i) => {
-                result.set("count", i);
+        match page_infos {
+            Ok((count, sizes)) => {
+                result.set("count", count);
+                result.set("sizes", sizes);
                 result.set("error", &GString::new());
             }
             Err(error) => result.set("error", &GString::from(error.as_str())),
@@ -142,20 +154,26 @@ pub struct ImageEngine {
 impl ImageEngine {
     pub fn render_image(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
         if ImageEngine::is_jpeg(bytes) {
-            return ImageEngine::decode_jpeg(bytes, target_width)
+            return ImageEngine::decode_jpeg(bytes, target_width);
         } else if ImageEngine::is_webp(bytes) {
-            return ImageEngine::decode_webp(bytes, target_width)
+            return ImageEngine::decode_webp(bytes, target_width);
         }
         Err("Can't render image!".to_owned())
     }
 
-    fn decode_webp(bytes: &[u8], target_width: u32)  -> Result<(Vec<u8>, u32, u32), String> {
+    fn decode_webp(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
         let decoder = webpx::Decoder::new(bytes).map_err(|e| e.to_string())?;
         let info = decoder.info();
         let width = info.width;
         let height = info.height;
 
-        decoder.scale(target_width, (height as f64/width as f64 * target_width as f64) as u32).decode_rgba_raw().map_err(|e| e.to_string())
+        decoder
+            .scale(
+                target_width,
+                (height as f64 / width as f64 * target_width as f64) as u32,
+            )
+            .decode_rgba_raw()
+            .map_err(|e| e.to_string())
     }
 
     fn decode_jpeg(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
@@ -170,10 +188,13 @@ impl ImageEngine {
             .min_by_key(|sf| {
                 let scaled_w = (width as f32 * sf.num() as f32 / sf.denom() as f32) as i32;
                 (scaled_w - target_width as i32).abs()
-            }).copied()
-            .unwrap_or(turbojpeg::ScalingFactor::new(1,1));
+            })
+            .copied()
+            .unwrap_or(turbojpeg::ScalingFactor::new(1, 1));
 
-        decompresser.set_scaling_factor(best_scaling).map_err(|e| e.to_string())?;
+        decompresser
+            .set_scaling_factor(best_scaling)
+            .map_err(|e| e.to_string())?;
 
         let scaled_header = header.scaled(best_scaling);
 
@@ -182,16 +203,18 @@ impl ImageEngine {
             width: scaled_header.width,
             height: scaled_header.height,
             pitch: 4 * scaled_header.width,
-            format: turbojpeg::PixelFormat::RGBA
+            format: turbojpeg::PixelFormat::RGBA,
         };
 
-        decompresser.decompress(bytes, output.as_deref_mut()).map_err(|e| e.to_string())?;
+        decompresser
+            .decompress(bytes, output.as_deref_mut())
+            .map_err(|e| e.to_string())?;
 
         Ok((output.pixels, output.width as u32, output.height as u32))
     }
 
     fn is_jpeg(bytes: &[u8]) -> bool {
-        bytes.starts_with(&[0xFF,0xD8,0xFF])
+        bytes.starts_with(&[0xFF, 0xD8, 0xFF])
     }
 
     fn is_webp(bytes: &[u8]) -> bool {

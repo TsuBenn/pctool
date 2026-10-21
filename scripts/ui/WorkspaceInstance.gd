@@ -152,6 +152,8 @@ func _import_pdf_files(buffers: Array[Array]):
 		document_data.assets.append(asset)
 		assets_panel.instantiate_asset_card(asset)
 
+	PreviewTextureEngine.provide()
+
 	Global.progress_finished()
 
 
@@ -240,6 +242,8 @@ func _import_image_files(buffers: Array[Array]):
 				shared_counter["current"] / float(shared_counter["total"])
 			)
 			await Engine.get_main_loop().process_frame
+
+	PreviewTextureEngine.provide()
 
 	Global.progress_finished()
 	pass

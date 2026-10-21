@@ -1,10 +1,9 @@
 use std::{
     collections::{HashMap, HashSet},
     sync::{
-        Arc, Mutex,
+        Arc,
         mpsc::{Receiver, Sender},
-    },
-    time::Instant,
+    }
 };
 
 use dashmap::DashMap;
@@ -131,7 +130,7 @@ impl IRefCounted for RsPreviewTextureEngine {
                 }
 
                 let thread_count = std::thread::available_parallelism()
-                    .map(|n| n.get() / 2 - 1)
+                    .map(|n| n.get())
                     .unwrap_or(4)
                     .min(requests.len());
                 let load_per_thread = (requests.len() + thread_count - 1) / thread_count;
@@ -141,13 +140,12 @@ impl IRefCounted for RsPreviewTextureEngine {
                     .map(|chunk| chunk.to_vec())
                     .collect();
 
-                let result: Arc<Mutex<Vec<TileResult>>> =
-                    Arc::new(Mutex::new(vec![]));
+                // let result: Arc<Mutex<Vec<TileResult>>> = Arc::new(Mutex::new(vec![]));
 
                 let mut thread_handles = vec![];
 
-                for (i, loads) in thread_loads.into_iter().enumerate() {
-                    let result_reference = Arc::clone(&result);
+                for (_i, loads) in thread_loads.into_iter().enumerate() {
+                    // let result_reference = Arc::clone(&result);
                     let byte_cache_ref = Arc::clone(&byte_caches);
                     let prov_tx_ref = prov_tx.clone();
                     let handle = std::thread::spawn(move || {
@@ -157,8 +155,8 @@ impl IRefCounted for RsPreviewTextureEngine {
                             return;
                         }
                         let mut this_results = vec![];
-                        let start = Instant::now();
-                        godot_print!("thread {}, load: {}", i, loads.len());
+                        // let start = Instant::now();
+                        // godot_print!("thread {}, load: {}", i, loads.len());
                         for load in &loads {
                             if &load.asset_type == "pdf" {
                                 let (pixel_bytes, width, height) = PdfEngine::render_page(
@@ -221,11 +219,11 @@ impl IRefCounted for RsPreviewTextureEngine {
                         if !this_results.is_empty() {
                             prov_tx.send(this_results).unwrap();
                         }
-                        godot_print!(
-                            "thread {}, Elapsed: {:.2} ms",
-                            i,
-                            start.elapsed().as_millis()
-                        );
+                        // godot_print!(
+                        //     "thread {}, Elapsed: {:.2} ms",
+                        //     i,
+                        //     start.elapsed().as_millis()
+                        // );
                     });
                     thread_handles.push(handle);
                 }
@@ -234,11 +232,11 @@ impl IRefCounted for RsPreviewTextureEngine {
                     handle.join().unwrap_or_else(|_| return);
                 }
 
-                let result_mutex = Arc::try_unwrap(result).unwrap();
-                let final_result = result_mutex.into_inner().unwrap();
-                if !final_result.is_empty() {
-                    prov_tx.send(final_result).unwrap();
-                }
+                // let result_mutex = Arc::try_unwrap(result).unwrap();
+                // let final_result = result_mutex.into_inner().unwrap();
+                // if !final_result.is_empty() {
+                //     prov_tx.send(final_result).unwrap();
+                // }
             }
         });
 

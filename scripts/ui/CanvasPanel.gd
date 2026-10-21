@@ -11,7 +11,6 @@ enum ZoomPreset {
 	CUSTOM,
 }
 
-var preview_texture_engine: PreviewTextureEngine = PreviewTextureEngine.new()
 var preview_debouce_timer: Timer = Timer.new()
 
 var selected_tile_view: PhotoTileView = null
@@ -109,6 +108,7 @@ func setup_preview_texture_engine():
 	preview_debouce_timer.one_shot = true
 	add_child(preview_debouce_timer)
 	preview_debouce_timer.timeout.connect(func(): update_tiles(true))
+	PreviewTextureEngine.cache_updated.connect(func(): _sync_ui(false))
 
 var in_view_margin: int = 0
 
@@ -117,30 +117,21 @@ func update_tiles(report: bool = false):
 	var anchor_pos = paper_anchor.position + view_offset
 	var paper_size = paper_sheet.size/2
 	var paper_to_panel = anchor_pos - paper_size
-	var clear = false
 
 	for tile: PhotoTileView in photo_tiles_container.get_children():
 		var tile_min_to_panel = tile.position + paper_to_panel
 		var tile_max_to_panel = tile_min_to_panel + tile.size
 		var in_view = (tile_max_to_panel.x >= in_view_margin && tile_max_to_panel.y >= in_view_margin) && (tile_min_to_panel.x < paper_container.size.x - in_view_margin && tile_min_to_panel.y < paper_container.size.y - in_view_margin)
-		var texture = preview_texture_engine.request(tile.photo_tile, px_per_mm, report && in_view)
-		if texture == null:
-			tile.preview_texture = tile.photo_item.asset.get_thumbnail(tile.photo_tile.sub_asset_index)
-		else:
-			tile.preview_texture = texture
+		tile.preview_texture = PreviewTextureEngine.request_tile(tile.photo_tile, px_per_mm, report && in_view)
 		tile.view_scale = px_per_mm
 		tile._update_tile_rect()
 
 
-	if report or clear:
-		preview_texture_engine.provide()
+	if report:
+		PreviewTextureEngine.provide()
 
 	if not report:
 		preview_debouce_timer.start()
-
-func _process(_delta: float):
-	if preview_debouce_timer.is_stopped() and preview_texture_engine.poll():
-		_sync_ui(false)
 
 func _ready() -> void:
 	setup_preview_texture_engine()
@@ -496,11 +487,8 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 
 	var new_tiles: Array[PhotoTile] = print_layout.get_page_tiles(current_page_index)
 
-	var start = Time.get_ticks_usec()
 	for new_tile in new_tiles:
-		var texture = preview_texture_engine.request(new_tile, scale_px_per_mm, false)
-		if texture == null:
-			texture = new_tile.photo_item.asset.get_thumbnail(new_tile.sub_asset_index)
+		var texture = PreviewTextureEngine.request_tile(new_tile, scale_px_per_mm, false)
 		var new_tile_view = photo_tile_view_instance.instantiate()
 		photo_tiles_container.add_child(new_tile_view)
 		new_tile_view.setup(
@@ -518,9 +506,6 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 			selected_tile_view = new_tile_view
 		new_tile_view.on_tile_view_clicked.connect(_on_tile_view_clicked)
 		new_tile_view.on_tile_view_right_clicked.connect(_open_photo_tile_context_menu)
-	var end = Time.get_ticks_usec()
-
-	print((end - start)/1000.0)
 
 	preview_debouce_timer.start()
 
