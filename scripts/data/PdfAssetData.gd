@@ -23,9 +23,6 @@ func get_bytes() -> PackedByteArray:
 func get_size(index: int) -> Vector2i:
 	return sizes[index]
 
-func get_thumbnail(index: int) -> Texture2D:
-	return PreviewTextureEngine.request(self, index, 256, true)
-
 func get_image(index: int, size: Vector2i) -> Image:
 
 	var x = size.x

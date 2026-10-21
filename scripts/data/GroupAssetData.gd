@@ -30,9 +30,6 @@ func get_size(index: int) -> Vector2i:
 func get_child(index: int) -> AssetData:
 	return children.get(index)
 
-func get_thumbnail(index: int) -> Texture2D:
-	return children[index].get_thumbnail(index)
-
 func clean() -> void:
 	for child in children:
 		child.clean()

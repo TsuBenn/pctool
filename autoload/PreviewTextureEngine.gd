@@ -61,7 +61,8 @@ func poll() -> bool:
 		var pixels = tile.pixel_bytes
 		var image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, pixels)
 		var tex = ImageTexture.create_from_image(image)
-		engine.cache(tile.asset_id, tile.asset_index, tile.size_tier, Engine.get_frames_drawn(), tex)
+		engine.cache(tile.asset_id, tile.asset_index, tile.size_tier, tex)
+	engine.cache_check()
 	cache_updated.emit()
 	return true
 

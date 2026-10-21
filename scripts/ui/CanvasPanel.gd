@@ -110,7 +110,9 @@ func setup_preview_texture_engine():
 	preview_debouce_timer.timeout.connect(func(): update_tiles(true))
 	PreviewTextureEngine.cache_updated.connect(func(): _sync_ui(false))
 
-var in_view_margin: int = 0
+var in_view_margin: int:
+	get:
+		return int(paper_padding*view_scale)
 
 func update_tiles(report: bool = false):
 	var px_per_mm: float = _get_px_per_mm_scale()

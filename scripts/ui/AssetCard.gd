@@ -99,7 +99,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 
 	preview_instance.display_name = asset_data.display_name
 	preview_instance.texture_size = Vector2i(32 + 32 * grid_scale, 32 + 32 * grid_scale)
-	preview_instance.texture = asset_data.get_thumbnail(0)
+	preview_instance.texture = PreviewTextureEngine.request_texture(asset_data, 0, preview_instance.texture_size.x)
 	var assets_panel: AssetsPanel = find_parent("AssetsPanel")
 	var asset_data_group: Array[AssetData] = []
 	if assets_panel:
@@ -130,14 +130,14 @@ func update_view_mode(mode: ViewMode):
 			var thumbnail_size: int = 32 + 32 * grid_scale
 			box_container.vertical = true
 			if asset_data:
-				var texture = asset_data.get_thumbnail(0)
+				var texture = PreviewTextureEngine.request(asset_data, 0, 32 + 32 * grid_scale, true)
 
 				if texture == null and not PreviewTextureEngine.cache_updated.is_connected(_ready):
 					PreviewTextureEngine.cache_updated.connect(_ready)
 				elif texture != null and PreviewTextureEngine.cache_updated.is_connected(_ready):
 					PreviewTextureEngine.cache_updated.disconnect(_ready)
 
-				texture_rect.texture = asset_data.get_thumbnail(0)
+				texture_rect.texture = texture
 				if asset_data is GroupAssetData:
 					group_indicator.visible = true
 					label.theme_type_variation = "MiniEmphasisLabel"

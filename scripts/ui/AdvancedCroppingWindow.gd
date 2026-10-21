@@ -16,8 +16,6 @@ var photo_item: PhotoItemData:
 
 var sub_asset_index: int
 
-var preview_texture: Texture2D
-
 var old_framing: Array[PhotoItemData.Framing] = []:
 	set(new):
 		old_framing = new.duplicate()
@@ -98,6 +96,8 @@ var distort_handle_magnifier_image_preview: TextureRect = %DistortHandleMagnifie
 @onready var zoom_scale_spin_box: LabeledSpinBox = %ZoomScaleSpinBox
 @onready var zoom_scale_slider: HSlider = %ZoomScaleSlider
 
+func request_texture(item: PhotoItemData, index: int):
+	return PreviewTextureEngine.request_texture(item.asset, index, int(item.get_image_rect_mm(index).size.x*_get_scale()))
 
 func _ready() -> void:
 	magnify_scale_slider.value_changed.connect(func(new): distort_magnify_scale = new)
@@ -383,7 +383,7 @@ func request_open(item: PhotoItemData, index: int = 0):
 	if item:
 		photo_item = item
 		sub_asset_index = index
-		photo_item_image.texture = preview_texture
+		photo_item_image.texture = request_texture(item, index)
 		distortion_image_preview.texture = photo_item_image.texture
 		distort_handle_magnifier_image_preview.texture = photo_item_image.texture
 		old_framing = photo_item.framings
@@ -392,7 +392,7 @@ func request_open(item: PhotoItemData, index: int = 0):
 		_sync_ui()
 
 
-func _get_scale():
+func _get_scale() -> float:
 	var scale_x: float = (photo_item_panel.size.x - frame_margin * 2) / photo_item.size_mm.x
 	var scale_y: float = (photo_item_panel.size.y - frame_margin * 2) / photo_item.size_mm.y
 
@@ -401,10 +401,10 @@ func _get_scale():
 
 func _get_scale_distortion_panel():
 	var scale_x: float = (
-		(distortion_editor_panel.size.x - frame_margin * 2) / photo_item_image.texture.size.x
+		(distortion_editor_panel.size.x - frame_margin * 2) / photo_item_image.texture.get_size().x
 	)
 	var scale_y: float = (
-		(distortion_editor_panel.size.y - frame_margin * 2) / photo_item_image.texture.size.y
+		(distortion_editor_panel.size.y - frame_margin * 2) / photo_item_image.texture.get_size().y
 	)
 
 	return min(scale_x, scale_y)
@@ -437,7 +437,7 @@ func _sync_ui_distortion_magnifier(mouse_position: Vector2):
 
 	distort_handle_magnifier_image_preview.texture = photo_item_image.texture
 	distort_handle_magnifier_image_preview.size = (
-		photo_item_image.texture.size * _get_scale_distortion_panel() * distort_magnify_scale
+		photo_item_image.texture.get_size() * _get_scale_distortion_panel() * distort_magnify_scale
 	)
 	distort_handle_magnifier_image_preview.position = (
 		(dhm * distort_magnify_size - mouse_position * distort_magnify_scale)
@@ -481,7 +481,7 @@ func _sync_ui_distortion_panel(
 ):
 	distortion_image_preview.texture = photo_item_image.texture
 	distortion_image_preview.custom_minimum_size = (
-		photo_item_image.texture.size * _get_scale_distortion_panel()
+		photo_item_image.texture.get_size() * _get_scale_distortion_panel()
 	)
 
 	tl_handle.offset_left = -distort_handle_margins
@@ -631,7 +631,7 @@ func _sync_ui():
 	zoom_scale_slider.set_value_no_signal(zoom_scale)
 	zoom_scale_spin_box.set_value_no_signal(zoom_scale)
 
-	photo_item_image.texture = preview_texture
+	photo_item_image.texture = request_texture(photo_item, sub_asset_index)
 
 	photo_item_background.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale / 100.0)
 	photo_item_frame.custom_minimum_size = photo_item.size_mm * scale * (zoom_scale / 100.0)

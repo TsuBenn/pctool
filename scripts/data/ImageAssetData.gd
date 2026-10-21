@@ -1,7 +1,6 @@
 class_name ImageAssetData
 extends AssetData
 
-@export var thumbnail: Texture2D
 @export var pixel_dimensions: Vector2i
 @export var original_image: Image
 
@@ -13,19 +12,15 @@ func _init(
 	new_id: String = "",
 	file_name: String = "",
 	path: String = "",
-	tex: Texture2D = null,
 	dim: Vector2i = Vector2i.ZERO,
 	buffer: PackedByteArray = PackedByteArray(),
-	img: Image = null,
 	ext: String = "png"
 ) -> void:
 	id = new_id
 	display_name = file_name
 	source_path = path
-	thumbnail = tex
 	pixel_dimensions = dim
 	raw_file_buffer = buffer
-	original_image = img
 	file_extension = ext
 
 
@@ -63,12 +58,8 @@ func get_image(_index: int, _size: Vector2i = Vector2i.ZERO) -> Image:
 
 	return img
 
-func get_thumbnail(_index: int) -> Texture2D:
-	return PreviewTextureEngine.request(self, 0, 256, true)
-
 func clean() -> void:
 	raw_file_buffer.clear()
-	thumbnail = null
 
 
 static func create_from_file(path: String) -> ImageAssetData:
@@ -83,20 +74,8 @@ static func create_from_file(path: String) -> ImageAssetData:
 	return asset
 
 
-func generate_thumbnail():
-	if thumbnail:
-		return
-	if not original_image:
-		Global.notice("Cannot generate preview", "No Image found in asset")
-		push_error("ImageAssetData: Cannot generate preview texture because of no Image present")
-		return
-
-	thumbnail = ImageTexture.create_from_image(original_image)
-	original_image = null
-
-
 static func create_from_buffer(
-	buffer: PackedByteArray, path: String = "", include_texture: bool = true
+	buffer: PackedByteArray, path: String = ""
 ) -> ImageAssetData:
 	var img: Image = Image.new()
 	var err: Error = FAILED
@@ -132,19 +111,9 @@ static func create_from_buffer(
 		push_error('ImageAssetData: Image from path "%s" is unsupported or corrupted' % path)
 		return null
 
-	var scale: float = 256.0/img.get_size().x
-	var dim = img.get_size()
-	img.resize(
-		round(img.get_size().x * scale), round(img.get_size().y * scale), Image.INTERPOLATE_NEAREST
-	)
-	var tex: Texture2D = ImageTexture.create_from_image(img) if include_texture else null
-	# print("original:" + str(img.get_size()))
-	# print("lower   :" + str(lower_img.get_size()))
+	var dim = get_dimensions(buffer)
 	var file_name = path.get_file()
 	var new_id = AssetData.get_id()
-
-	if include_texture:
-		img = null
 
 	# match get_image_type(buffer):
 	# 	ImageType.JPEG:
@@ -155,7 +124,7 @@ static func create_from_buffer(
 	# 		print("webp")
 
 	var asset: ImageAssetData = ImageAssetData.new(
-		new_id, file_name, path, tex, dim, buffer, img, ext
+		new_id, file_name, path, dim, buffer, ext
 	)
 
 	return asset
