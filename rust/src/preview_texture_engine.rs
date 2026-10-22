@@ -288,11 +288,13 @@ impl RsPreviewTextureEngine {
             .drain()
             .filter(|req| {
                 let key = TextureKey::from_request(req);
+                if self.caches.contains_key(&key) {
+                    return false;
+                }
                 if !self.caching.contains(&key) {
                     self.caching.insert(key);
                     return true;
                 } else {
-                    godot_print!("Working on it! {}", key.asset_id);
                     return false;
                 }
             })
@@ -326,7 +328,7 @@ impl RsPreviewTextureEngine {
         texture: Gd<Texture2D>,
     ) {
         let texture_key = TextureKey {
-            asset_id: asset_id.into(),
+            asset_id: asset_id.clone().into(),
             asset_index,
             size_tier,
         };
@@ -338,18 +340,21 @@ impl RsPreviewTextureEngine {
             ref_count: 1,
             epoch: self.current_epoch,
         };
-        self.cache_byte_size += cache_texture.byte_size;
+        let new_byte_size = cache_texture.byte_size;
+
         match self.caches.insert(texture_key, cache_texture) {
-            Some(_) => godot_print!("already here!"),
-            _ => {}
+            Some(_) => {godot_warn!("Overlaping caches! Ignored {}", asset_id);},
+            _ => {self.cache_byte_size += new_byte_size}
         }
-        // godot_print!("Cache size: {}KB", self.cache_byte_size / 1024)
         self.cache_check();
     }
 
     #[func]
     fn cache_check(&mut self) {
         godot_print!("Cache bytes: {:.3}MB, Cache count: {}, Heaviest: {:.3}MB", self.cache_byte_size as f64/1024.0/1024.0, self.caches.len(), self.caches.iter().max_by_key(|x| x.1.byte_size).unwrap().1.byte_size as f64/1024.0/1024.0);
+        for cache in self.caches.iter().filter(|c| c.1.epoch == self.current_epoch) {
+            godot_print!("In use: {} at {}", cache.0.asset_id, cache.0.size_tier);
+        }
         if self.cache_byte_size < MAX_CACHE_SIZE_BYTES {
             return
         }
