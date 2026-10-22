@@ -69,7 +69,7 @@ var view_offset: Vector2 = Vector2.ZERO:
 		paper_anchor.offset_transform_enabled = true
 		paper_anchor.offset_transform_position = view_offset
 		update_scrollbars()
-		preview_debouce_timer.start()
+		preview_debouce_timer.start(0.5)
 
 var offset_padding: Vector2:
 	get:
@@ -104,7 +104,7 @@ func advance_page(delta: int) -> bool:
 	return false
 
 func setup_preview_texture_engine():
-	preview_debouce_timer.wait_time = 0.1
+	preview_debouce_timer.wait_time = 0.5
 	preview_debouce_timer.one_shot = true
 	add_child(preview_debouce_timer)
 	preview_debouce_timer.timeout.connect(func(): update_tiles(true))
@@ -114,7 +114,7 @@ var in_view_margin: int:
 	get:
 		return int(paper_padding*view_scale)
 
-func update_tiles(report: bool = false):
+func update_tiles(report: bool = false, wait_time: float = 0.1):
 	var px_per_mm: float = _get_px_per_mm_scale()
 	var anchor_pos = paper_anchor.position + view_offset
 	var paper_size = paper_sheet.size/2
@@ -123,8 +123,12 @@ func update_tiles(report: bool = false):
 	for tile: PhotoTileView in photo_tiles_container.get_children():
 		var tile_min_to_panel = tile.position + paper_to_panel
 		var tile_max_to_panel = tile_min_to_panel + tile.size
-		var in_view = (tile_max_to_panel.x >= in_view_margin && tile_max_to_panel.y >= in_view_margin) && (tile_min_to_panel.x < paper_container.size.x - in_view_margin && tile_min_to_panel.y < paper_container.size.y - in_view_margin)
-		tile.preview_texture = PreviewTextureEngine.request_tile(tile.photo_tile, px_per_mm, report && in_view)
+		var in_view = (tile_max_to_panel.x >= 0 && tile_max_to_panel.y >= 0) && (tile_min_to_panel.x < paper_container.size.x && tile_min_to_panel.y < paper_container.size.y)
+		var in_margin = (tile_max_to_panel.x >= in_view_margin && tile_max_to_panel.y >= in_view_margin) && (tile_min_to_panel.x < paper_container.size.x - in_view_margin && tile_min_to_panel.y < paper_container.size.y - in_view_margin)
+		if in_view:
+			tile.preview_texture = PreviewTextureEngine.request_tile(tile.photo_tile, px_per_mm, report or in_margin)
+		else:
+			tile.preview_texture = PreviewTextureEngine.request(tile.photo_item.asset, tile.photo_tile.sub_asset_index, 128, report or in_margin)
 		tile.view_scale = px_per_mm
 		tile._update_tile_rect()
 
@@ -133,7 +137,7 @@ func update_tiles(report: bool = false):
 		PreviewTextureEngine.provide()
 
 	if not report:
-		preview_debouce_timer.start()
+		preview_debouce_timer.start(wait_time)
 
 func _ready() -> void:
 	setup_preview_texture_engine()
@@ -509,7 +513,7 @@ func reinstantiate_photo_tile_views(scale_px_per_mm: float = _get_px_per_mm_scal
 		new_tile_view.on_tile_view_clicked.connect(_on_tile_view_clicked)
 		new_tile_view.on_tile_view_right_clicked.connect(_open_photo_tile_context_menu)
 
-	preview_debouce_timer.start()
+	preview_debouce_timer.start(0.1)
 
 func _deselect_all_photo_items(update_properties: bool = true):
 	selected_photo_item = null
@@ -568,7 +572,7 @@ func _sync_ui(reinstanciate: bool = true):
 	if reinstanciate:
 		reinstantiate_photo_tile_views(scale_px_per_mm)
 	else:
-		update_tiles()
+		update_tiles(false, 0.5)
 
 	margins_overlay.queue_redraw()
 

@@ -97,9 +97,13 @@ var distort_handle_magnifier_image_preview: TextureRect = %DistortHandleMagnifie
 @onready var zoom_scale_slider: HSlider = %ZoomScaleSlider
 
 func request_texture(item: PhotoItemData, index: int):
-	return PreviewTextureEngine.request_texture(item.asset, index, int(item.get_image_rect_mm(index).size.x*_get_scale()))
+	var texture = PreviewTextureEngine.request_texture(item.asset, index, int(item.get_image_rect_mm(index).size.x*_get_scale()))
+	return texture
 
 func _ready() -> void:
+	PreviewTextureEngine.cache_updated.connect(func():
+		_sync_ui()
+	)
 	magnify_scale_slider.value_changed.connect(func(new): distort_magnify_scale = new)
 	magnify_scale_slider.set_value_no_signal(distort_magnify_scale)
 	auto_distort_button.pressed.connect(

@@ -188,7 +188,7 @@ static func save_pdf_to_file(
 	for i in range(total_images):
 		var obj_id: int = first_img_obj_id + i
 		var jpg_buffer: PackedByteArray = jpg_buffers[i]
-		var img_size: Vector2i = ImageAssetData.get_dimensions(jpg_buffer)
+		var img_size: Vector2i = Vector2i(50,50)
 
 		xobject_resource_dict += "/Im%d %d 0 R " % [i, obj_id]
 

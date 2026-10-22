@@ -1,16 +1,12 @@
 @abstract class_name AssetData
-extends Resource
+extends RefCounted
 
-@export var id: String
-@export var display_name: String
-@export var source_path: String
+var id: String
+var display_name: String
+var source_path: String
 
 @abstract func get_count() -> int
-@abstract func get_image(index: int, size: Vector2i) -> Image
-@abstract func get_bytes() -> PackedByteArray
 @abstract func get_size(index: int) -> Vector2i
-
-@abstract func clean() -> void
 
 
 static func get_id() -> String:

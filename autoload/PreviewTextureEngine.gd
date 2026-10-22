@@ -5,12 +5,23 @@ signal cache_updated
 var engine: RsPreviewTextureEngine = RsPreviewTextureEngine.new()
 
 var request_timeout: Timer = Timer.new()
+var cache_cleanup_timeout: Timer = Timer.new()
 
 func _ready() -> void:
 	request_timeout.wait_time = 0.5
-	request_timeout.one_shot = 0.5
+	request_timeout.one_shot = true
 	request_timeout.timeout.connect(provide)
+
+	cache_cleanup_timeout.wait_time = 10
+	cache_cleanup_timeout.one_shot = true
+	cache_cleanup_timeout.timeout.connect(occasional_cleanup)
+
 	add_child(request_timeout)
+	add_child(cache_cleanup_timeout)
+
+func occasional_cleanup():
+	engine.cache_cleanup()
+	RenderingServer.force_draw()
 
 func _process(_delta: float) -> void:
 	poll()
@@ -46,7 +57,7 @@ func request(asset: AssetData, index: int, target_width: int, report: bool) -> T
 		asset.id,
 		index,
 		type,
-		asset.get_bytes(),
+		asset.source_path,
 		min(target_width, int(asset.get_size(index).x)),
 		report
 	)
@@ -63,6 +74,7 @@ func poll() -> bool:
 		var tex = ImageTexture.create_from_image(image)
 		engine.cache(tile.asset_id, tile.asset_index, tile.size_tier, tex)
 	# engine.cache_check()
+	cache_cleanup_timeout.start()
 	cache_updated.emit()
 	return true
 
@@ -70,3 +82,5 @@ func provide():
 	request_timeout.stop()
 	engine.provide()
 
+func release(asset: AssetData):
+	engine.release_asset_cache(asset.id)

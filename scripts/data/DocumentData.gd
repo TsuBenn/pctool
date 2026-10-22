@@ -1,19 +1,19 @@
 class_name DocumentData
 extends Resource
 
-@export var paper_size_mm: Vector2 = Vector2(210, 297):
+var paper_size_mm: Vector2 = Vector2(210, 297):
 	set(new):
 		if paper_size_mm != new:
 			paper_size_mm = new
 			emit_changed()
 
-@export var dpi: int = 300:
+var dpi: int = 300:
 	set(new):
 		if dpi != new:
 			dpi = new
 			emit_changed()
 
-@export var is_landscape: bool = false:
+var is_landscape: bool = false:
 	set(new):
 		if is_landscape != new:
 			is_landscape = new
@@ -23,31 +23,31 @@ extends Resource
 				paper_size_mm = Vector2(min(paper_size_mm.x, paper_size_mm.y), max(paper_size_mm.x, paper_size_mm.y))
 			emit_changed()
 
-@export var margins_mm: float = 5.0:
+var margins_mm: float = 5.0:
 	set(new):
 		if margins_mm != new:
 			margins_mm = new
 			emit_changed()
 
-@export var spacing_mm: float = 5.0:
+var spacing_mm: float = 5.0:
 	set(new):
 		if spacing_mm != new:
 			spacing_mm = new
 			emit_changed()
 
-@export var assets: Array[AssetData] = []:
+var assets: Array[AssetData] = []:
 	set(new):
 		if assets != new:
 			assets = new
 			emit_changed()
 
-@export var photo_items: Array[PhotoItemData] = []:
+var photo_items: Array[PhotoItemData] = []:
 	set(new):
 		photo_items = new
 		emit_changed()
 
-@export var save_path: String = ""
-@export var export_path: String = ""
+var save_path: String = ""
+var export_path: String = ""
 
 func _init() -> void:
 	if not Global.undo_redo.has(self):

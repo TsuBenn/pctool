@@ -6,16 +6,13 @@ var _document_data: DocumentData  # Used for tracking Undo Redo in the appropria
 
 var _commit: bool = true
 
-@export var asset: AssetData:
+var asset: AssetData:
 	set(new):
-		if asset and asset.changed.is_connected(emit_changed):
-			asset.changed.disconnect(emit_changed)
 		asset = new
 		framings.clear()
 		framings.resize(asset.get_count())
 		for i in range(framings.size()):
 			framings[i] = Framing.new()
-		asset.changed.connect(emit_changed)
 		emit_changed()
 
 enum Rotation {
@@ -40,7 +37,7 @@ class Framing:
 
 
 # TRANSFORMS
-@export var size_mm: Vector2 = Vector2(30.0, 40.0):
+var size_mm: Vector2 = Vector2(30.0, 40.0):
 	set(new):
 		if size_mm_last_changed == Vector2.INF:
 			size_mm_last_changed = size_mm
@@ -449,6 +446,8 @@ func set_framing_bottom_left(index: int, new: Vector2):
 
 
 func get_framing(index: int) -> Framing:
+	if index >= framings.size():
+		return framings[framings.size() - 1]
 	return framings[index]
 
 

@@ -498,7 +498,7 @@ static func get_image_asset_data(asset_dict: Dictionary, img_bytes: PackedByteAr
 	var internal_name: String = asset_dict.get("file_name", "")
 	var archive_img_path: String = "assets/%s" % internal_name
 
-	var asset_obj: ImageAssetData = ImageAssetData.create_from_buffer(img_bytes, archive_img_path)
+	var asset_obj: ImageAssetData = null
 
 	asset_obj.id = asset_id
 	asset_obj.display_name = asset_dict.get("display_name", asset_id)

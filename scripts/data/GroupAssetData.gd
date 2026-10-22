@@ -3,7 +3,6 @@ extends AssetData
 
 var children: Array[AssetData] = []
 
-
 func _init(
 	new_id: String,
 	new_display_name: String,
@@ -52,7 +51,6 @@ func flatten() -> Array[AssetData]:
 
 func remove_child(index: int):
 	children.remove_at(index)
-	emit_changed()
 
 
 static func create_from_assets(assets: Array[AssetData], name: String) -> GroupAssetData:

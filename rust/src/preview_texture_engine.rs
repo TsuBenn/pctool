@@ -1,14 +1,14 @@
 use std::{
-    collections::{HashMap, HashSet}, fmt::Display, sync::{
+    collections::{HashMap, HashSet, hash_map::Entry}, fmt::Display, sync::{
         Arc,
         mpsc::{Receiver, Sender},
-    }
+    }, time::Instant,
 };
 
 use dashmap::DashMap;
 use godot::{classes::Texture2D, prelude::*};
 
-use crate::render_engine::{ImageEngine, PdfEngine};
+use crate::{render_engine::{ImageEngine, PdfEngine}, util::ImageUtil};
 
 // use crate::render_engine::RsPdfEngine;
 
@@ -30,7 +30,7 @@ struct RsPreviewTextureEngine {
     provider_channel: Receiver<Vec<TileResult>>,
 }
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Hash, Eq, PartialEq, Clone, Debug)]
 struct TextureKey {
     asset_id: String,
     asset_index: i64,
@@ -50,6 +50,7 @@ impl TextureKey {
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]
 struct TileRequest {
     asset_id: String,
+    source_path: String,
     asset_index: i64,
     asset_type: String,
     size_tier: i64,
@@ -100,18 +101,28 @@ impl GdTileResult {
 
 struct CacheTexture {
     texture: Gd<Texture2D>,
-    ref_count: i64,
     size_tier: i64,
     epoch: u64,
     byte_size: i64,
 }
 
-impl Display for CacheTexture {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(size_tier: {}, hit: {}, size_mb: {:.3}MB, epoch: {})", self.size_tier, self.ref_count, (self.byte_size as f64)/1024.0/1024.0, self.epoch)
+impl CacheTexture {
+    fn is_used(&self) -> bool {
+        self.texture.get_reference_count() > 1
     }
 }
 
+impl Display for CacheTexture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "(size_tier: {}, size_mb: {:.3}MB, epoch: {})",
+            self.size_tier,
+            (self.byte_size as f64) / 1024.0 / 1024.0,
+            self.epoch
+        )
+    }
+}
 
 #[godot_api]
 impl IRefCounted for RsPreviewTextureEngine {
@@ -159,8 +170,9 @@ impl IRefCounted for RsPreviewTextureEngine {
                         let mut this_results = vec![];
                         for load in &loads {
                             if &load.asset_type == "pdf" {
+                                let bytes = byte_cache_ref.entry(load.asset_id.clone()).or_insert_with(|| std::fs::read(&load.source_path).unwrap().into());
                                 let (pixel_bytes, width, height) = PdfEngine::render_page(
-                                    &(*byte_cache_ref.get(&load.asset_id).unwrap()),
+                                    &(*bytes),
                                     load.asset_index,
                                     load.size_tier,
                                 )
@@ -174,8 +186,9 @@ impl IRefCounted for RsPreviewTextureEngine {
                                     pixel_bytes,
                                 });
                             } else if &load.asset_type == "image" {
+                                let bytes = byte_cache_ref.entry(load.asset_id.clone()).or_insert_with(|| ImageUtil::get_bytes(&load.source_path).unwrap().0.into());
                                 let (pixel_bytes, width, height) = ImageEngine::render_image(
-                                    &(*byte_cache_ref.get(&load.asset_id).unwrap()),
+                                    &(*bytes),
                                     load.size_tier as u32,
                                 )
                                 .unwrap();
@@ -216,7 +229,7 @@ impl IRefCounted for RsPreviewTextureEngine {
     }
 }
 
-const MAX_CACHE_SIZE_BYTES: i64 = 300*1024*1024; // 300 MB
+const MAX_CACHE_SIZE_BYTES: i64 = 300 * 1024 * 1024; // 300 MB
 const SIZE_TIER: &[i64] = &[128, 256, 512, 1024, 2048, 4096];
 
 #[godot_api]
@@ -227,7 +240,7 @@ impl RsPreviewTextureEngine {
         asset_id: String,
         asset_index: i64,
         asset_type: String,
-        asset_bytes: PackedByteArray,
+        source_path: String,
         target_px_width: i64,
         report: bool,
     ) -> Option<Gd<Texture2D>> {
@@ -242,30 +255,26 @@ impl RsPreviewTextureEngine {
             asset_index,
             size_tier: SIZE_TIER[tier as usize],
         };
-        if !self.byte_caches.contains_key(&asset_id) {
-            let bytes: Arc<[u8]> = asset_bytes.to_vec().into();
-            self.byte_caches.insert(asset_id.clone(), Arc::clone(&bytes));
-        }
         loop {
             match self.caches.get_mut(&texture_key) {
                 Some(cache) => {
-                    cache.ref_count += 1;
-                    cache.epoch = self.current_epoch;
                     return Some(cache.texture.clone());
                 }
                 None => {
                     if report {
                         self.cache_misses.insert(TileRequest {
                             asset_id: asset_id.clone(),
+                            source_path,
                             asset_index,
                             asset_type: asset_type,
                             size_tier: SIZE_TIER[tier as usize],
                         });
                     }
-                    if let Some(lower_tier) = self.caches
+                    if let Some(lower_tier) = self
+                        .caches
                         .iter()
                         .filter(|x| x.0.asset_id == asset_id && x.0.asset_index == asset_index)
-                        .min_by_key(|x| x.0.size_tier)
+                        .max_by_key(|x| x.0.size_tier)
                     {
                         return Some(lower_tier.1.texture.clone());
                     }
@@ -299,9 +308,19 @@ impl RsPreviewTextureEngine {
                 }
             })
             .collect();
+        self.current_epoch += 1;
+        for cache in &mut self.caches {
+            if cache.1.texture.get_reference_count() > 1 {
+                cache.1.epoch = self.current_epoch;
+            }
+        }
+        if requests.is_empty() {
+            self.cache_check();
+            return;
+        }
         match self.request_channel.send(requests) {
             Err(e) => godot_print!("{}", e.to_string()),
-            Ok(()) => {self.current_epoch += 1}
+            Ok(()) => {}
         };
     }
 
@@ -337,26 +356,81 @@ impl RsPreviewTextureEngine {
             byte_size: (texture.get_width() * texture.get_height() * 4) as i64,
             texture,
             size_tier,
-            ref_count: 1,
             epoch: self.current_epoch,
         };
         let new_byte_size = cache_texture.byte_size;
-
-        match self.caches.insert(texture_key, cache_texture) {
-            Some(_) => {godot_warn!("Overlaping caches! Ignored {}", asset_id);},
-            _ => {self.cache_byte_size += new_byte_size}
+        match self.caches.entry(texture_key) {
+            Entry::Vacant(v) => {
+                self.cache_byte_size += new_byte_size;
+                v.insert(cache_texture);
+            }
+            _ => {}
         }
         self.cache_check();
     }
 
     #[func]
     fn cache_check(&mut self) {
-        godot_print!("Cache bytes: {:.3}MB, Cache count: {}, Heaviest: {:.3}MB", self.cache_byte_size as f64/1024.0/1024.0, self.caches.len(), self.caches.iter().max_by_key(|x| x.1.byte_size).unwrap().1.byte_size as f64/1024.0/1024.0);
-        for cache in self.caches.iter().filter(|c| c.1.epoch == self.current_epoch) {
-            godot_print!("In use: {} at {}", cache.0.asset_id, cache.0.size_tier);
+        // for cache in self.caches.iter() {
+        //     godot_print!("In use: {} at {} (is_used: {}; epoch: {})", cache.0.asset_id, cache.0.size_tier, cache.1.is_used(), cache.1.epoch);
+        // }
+        if self.cache_byte_size >= MAX_CACHE_SIZE_BYTES {
+            let mut remove_candidate: Vec<(&TextureKey, &CacheTexture)> =
+                self.caches.iter().filter(|i| !i.1.is_used()).collect();
+            remove_candidate.sort_by(|a, b| {
+                b.1.epoch
+                    .cmp(&a.1.epoch)
+                    .then_with(|| a.1.byte_size.cmp(&b.1.byte_size))
+            });
+            let mut to_remove: Vec<TextureKey> = vec![];
+            while self.cache_byte_size >= (MAX_CACHE_SIZE_BYTES as f64 * 0.8) as i64 {
+                match remove_candidate.pop() {
+                    Some((key, value)) => {
+                        self.cache_byte_size -= value.byte_size;
+                        to_remove.push(key.clone())
+                    }
+                    None => break,
+                }
+            }
+            for key in to_remove {
+                self.caches.remove(&key);
+            }
         }
-        if self.cache_byte_size < MAX_CACHE_SIZE_BYTES {
-            return
+        godot_print!(
+            "Cache size: {:.3}MB, cache count: {}, byte cache: {:.3}MB",
+            self.cache_byte_size as f64 / 1024.0 / 1024.0,
+            self.caches.len(),
+            self.byte_caches.iter().map(|b| b.value().len()).sum::<usize>() as f64/ 1024.0/ 1024.0
+        );
+    }
+
+    #[func]
+    fn release_asset_cache(&mut self, asset_id: String) {
+        let to_remove: Vec<TextureKey> = self.caches.iter().filter(|a| a.0.asset_id == asset_id).map(|a| a.0.clone()).collect();
+        for key in to_remove {
+            self.cache_byte_size -= self.caches.get(&key).unwrap().byte_size;
+            self.caches.remove(&key);
+            self.byte_caches.remove(&key.asset_id);
         }
+    }
+
+    #[func]
+    fn cache_cleanup(&mut self) {
+        let to_remove: Vec<TextureKey> = self
+            .caches
+            .iter()
+            .filter(|i| !i.1.is_used())
+            .map(|i| i.0.clone())
+            .collect();
+        for key in to_remove {
+            self.cache_byte_size -= self.caches.get(&key).unwrap().byte_size;
+            self.caches.remove(&key);
+        }
+        godot_print!(
+            "Cache size: {:.3}MB, cache count: {}, byte cache: {:.3}MB",
+            self.cache_byte_size as f64 / 1024.0 / 1024.0,
+            self.caches.len(),
+            self.byte_caches.iter().map(|b| b.value().len()).sum::<usize>() as f64/ 1024.0/ 1024.0
+        );
     }
 }

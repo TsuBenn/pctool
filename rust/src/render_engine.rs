@@ -1,10 +1,11 @@
-use std::{io::Cursor, sync::OnceLock, time::Instant};
+use std::{fs, sync::OnceLock};
 
+use fast_image_resize::{ResizeOptions, Resizer, images::Image};
 use godot::{classes::ProjectSettings, prelude::*};
 use image::ImageReader;
 use pdfium_render::prelude::*;
 
-static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
+pub static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 
 #[derive(GodotClass)]
 #[class(init, base=RefCounted)]
@@ -12,7 +13,7 @@ pub struct PdfEngine {
     base: Base<RefCounted>,
 }
 
-fn get_pdfium() -> Result<&'static Pdfium, String> {
+pub fn get_pdfium() -> Result<&'static Pdfium, String> {
     if let Some(pdfium) = PDFIUM.get() {
         return Ok(pdfium);
     }
@@ -30,51 +31,6 @@ fn get_pdfium() -> Result<&'static Pdfium, String> {
 
 #[godot_api]
 impl PdfEngine {
-    #[func]
-    pub fn check_pdfium(library_path: GString) -> GString {
-        match Pdfium::bind_to_library(library_path.to_string()) {
-            Ok(_bindings) => "Pdfium loaded successfully!".into(),
-            _ => "Failed to load Pdfium!".into(),
-        }
-    }
-
-    #[func]
-    pub fn get_pdf_infos(path: String) -> Dictionary<GString, Variant> {
-        let mut result = Dictionary::new();
-
-        let page_infos = (|| -> Result<(i64, Vec<Vector2i>), String> {
-            let pdfium = get_pdfium()?;
-
-            let document = pdfium
-                .load_pdf_from_file(&path, None)
-                .map_err(|e| e.to_string())?;
-
-            let page_count = document.pages().len();
-            let page_sizes: Vec<Vector2i> = document
-                .pages()
-                .iter()
-                .map(|p| {
-                    Vector2i::new(
-                        (p.width().to_inches() * 300.0) as i32,
-                        (p.height().to_inches() * 300.0) as i32,
-                    )
-                })
-                .collect();
-            Ok((page_count as i64, page_sizes))
-        })();
-
-        match page_infos {
-            Ok((count, sizes)) => {
-                result.set("count", count);
-                result.set("sizes", sizes);
-                result.set("error", &GString::new());
-            }
-            Err(error) => result.set("error", &GString::from(error.as_str())),
-        }
-
-        result
-    }
-
     pub fn render_page(
         pdf_bytes: &[u8],
         page_index: i64,
@@ -114,12 +70,13 @@ impl PdfEngine {
 
     #[func]
     pub fn render_page_gd(
-        pdf_bytes: PackedByteArray,
+        pdf_path: String,
         page_index: i64,
         target_width: i64,
     ) -> Dictionary<GString, Variant> {
         let mut result = Dictionary::new();
 
+        let pdf_bytes = fs::read(pdf_path).unwrap();
         let rendered = PdfEngine::render_page(pdf_bytes.as_slice(), page_index, target_width);
 
         match rendered {

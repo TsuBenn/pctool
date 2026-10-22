@@ -112,78 +112,141 @@ func _on_files_selected(files: PackedStringArray) -> void:
 		var ext: String = file.get_extension().to_lower()
 
 		if ["png", "jpeg", "jpg", "webp"].has(ext):
-			match ImageAssetData.get_image_type_from_file(file):
-				ImageAssetData.ImageType.UNKNOWN:
-					push_error("Cannot import image file at %s (Reason: Not an Image file)" % file)
-					continue
-				_:
-					var bytes: PackedByteArray = FileAccess.get_file_as_bytes(file)
-					valid_image_files.append([file, bytes])
-					continue
+			var info = ImageUtil.get_image_info(file)
+			if not info.error.is_empty():
+				push_error(info.error)
+				continue
+			valid_image_files.append([file, info])
 
 		if "pdf" == ext:
-			if PdfAssetData.is_valid_pdf(file):
-				var bytes: PackedByteArray = FileAccess.get_file_as_bytes(file)
-				valid_pdf_files.append([file, bytes])
-			else:
-				push_error("Cannot import Pdf file at %s (Reason: Not a Pdf file)" % file)
+			var info = PdfUtil.get_pdf_info(file)
+			if not info.error.is_empty():
+				push_error(info.error)
 				continue
+			valid_pdf_files.append([file, info])
 
-	_import_image_files(valid_image_files)
-	_import_pdf_files(valid_pdf_files)
-
+	if not valid_image_files.is_empty():
+		_import_image_files(valid_image_files)
+	if not valid_pdf_files.is_empty():
+		_import_pdf_files(valid_pdf_files)
 
 # [
 #     [path, buffer],
 #     [path, buffer],
 #     [path, buffer]
 # ]
-func _import_pdf_files(buffers: Array[Array]):
+func _import_pdf_files(files: Array[Array]):
 	Global.progress_started("Importing PDFs")
 
-	var imported_assets: Array = []
+	if files.is_empty():
+		push_error("Empty files while importing Pdf files")
+		return
 
-	for buffer in buffers:
-		var asset = PdfAssetData.create_from_file(buffer[0], buffer[1])
+	Global.set_config("file_dialog_dir", "import", files[0][0].get_base_dir())
+	Global.save_config()
+
+	var total_files = files.size()
+
+	var imported_assets: Array[AssetData] = []
+	imported_assets.resize(total_files)
+
+	var mutex: Mutex = Mutex.new()
+	var shared_counter: Dictionary = {
+		"current": 0,
+		"total": total_files,
+	}
+
+	Global.progress_update(
+		"Creating Pdf assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+		shared_counter["current"] / float(shared_counter["total"])
+	)
+	await Engine.get_main_loop().process_frame
+
+	var create_asset = func(i: int):
+		var file: String = files[i][0]
+		var info: PdfInfo = files[i][1]
+		var asset: AssetData = PdfAssetData.create_from_file(file, info)
 		if asset:
-			imported_assets.append(asset)
+			imported_assets[i] = asset
+		mutex.lock()
+		shared_counter["current"] += 1
+		mutex.unlock()
+
+	# var group_id: int = WorkerThreadPool.add_group_task(
+	# 	create_asset, total_files, -1, true, "IMPORT_ASSETS"
+	# )
+
+	# while shared_counter["current"] < shared_counter["total"]:
+	# 	Global.progress_update(
+	# 		"Creating Image assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+	# 		shared_counter["current"] / float(shared_counter["total"])
+	# 	)
+	# 	await Engine.get_main_loop().process_frame
+
+	# WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+	for i in range(total_files):
+		create_asset.call(i)
+		Global.progress_update(
+			"Creating Pdf assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+			shared_counter["current"] / float(shared_counter["total"])
+		)
+		await Engine.get_main_loop().process_frame
+
+	shared_counter["current"] = 0
+
+	var milestone: int = Time.get_ticks_msec()
+
+	Global.progress_update(
+		"Importing Pdf files (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+		shared_counter["current"] / float(shared_counter["total"])
+	)
+	await Engine.get_main_loop().process_frame
 
 	for asset in imported_assets:
 		document_data.assets.append(asset)
 		assets_panel.instantiate_asset_card(asset)
+
+		shared_counter["current"] += 1
+		if Time.get_ticks_msec() - milestone > 100:
+			milestone = Time.get_ticks_msec()
+			Global.progress_update(
+				(
+					"Importing Image files (%d/%d)"
+					% [shared_counter["current"], shared_counter["total"]]
+				),
+				shared_counter["current"] / float(shared_counter["total"])
+			)
+			await Engine.get_main_loop().process_frame
+
+	PreviewTextureEngine.provide()
+
+	Global.progress_finished()
 
 	PreviewTextureEngine.provide()
 
 	Global.progress_finished()
 
 
-func _import_image_files(buffers: Array[Array]):
+func _import_image_files(files: Array[Array]):
 	Global.progress_started("Importing Images")
 
-	var asset_buffer_map: Dictionary = {}
-	var asset_buffer_keys: Array = []
+	if files.is_empty():
+		push_error("Empty files while importing images files")
+		return
 
-	var imported_buffers: int = 0
-
-	for buffer in buffers:
-		if buffer[1].is_empty():
-			push_error("Cannot import image file at %s (Reason: Empty)" % buffer)
-			continue
-		asset_buffer_map[buffer[0]] = buffer[1]
-		Global.set_config("file_dialog_dir", "import", buffer[0].get_base_dir())
-		imported_buffers += 1
-
+	Global.set_config("file_dialog_dir", "import", files[0][0].get_base_dir())
 	Global.save_config()
 
-	asset_buffer_keys = asset_buffer_map.keys()
+	var total_files = files.size()
 
-	var imported_assets: Array = []
-	imported_assets.resize(imported_buffers)
+	var imported_assets: Array[AssetData] = []
+	imported_assets.resize(total_files)
 
 	var mutex: Mutex = Mutex.new()
 	var shared_counter: Dictionary = {
 		"current": 0,
-		"total": imported_buffers,
+		"total": total_files,
 	}
 
 	Global.progress_update(
@@ -193,29 +256,35 @@ func _import_image_files(buffers: Array[Array]):
 	await Engine.get_main_loop().process_frame
 
 	var create_asset = func(i: int):
-		var file: String = asset_buffer_keys[i]
-		var buffer: PackedByteArray = asset_buffer_map[file]
-		var asset: AssetData = ImageAssetData.create_from_buffer(buffer, file)
+		var file: String = files[i][0]
+		var info: ImageInfo = files[i][1]
+		var asset: AssetData = ImageAssetData.create_from_file(file, info)
 		if asset:
 			imported_assets[i] = asset
-			# document_data.assets.append(asset)
-			# assets_panel.instantiate_asset_card.call_deferred(asset)
 		mutex.lock()
 		shared_counter["current"] += 1
 		mutex.unlock()
 
-	var group_id: int = WorkerThreadPool.add_group_task(
-		create_asset, imported_buffers, -1, true, "IMPORT_ASSETS"
-	)
+	# var group_id: int = WorkerThreadPool.add_group_task(
+	# 	create_asset, total_files, -1, true, "IMPORT_ASSETS"
+	# )
 
-	while shared_counter["current"] < shared_counter["total"]:
+	# while shared_counter["current"] < shared_counter["total"]:
+	# 	Global.progress_update(
+	# 		"Creating Image assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
+	# 		shared_counter["current"] / float(shared_counter["total"])
+	# 	)
+	# 	await Engine.get_main_loop().process_frame
+
+	# WorkerThreadPool.wait_for_group_task_completion(group_id)
+
+	for i in range(total_files):
+		create_asset.call(i)
 		Global.progress_update(
 			"Creating Image assets (%d/%d)" % [shared_counter["current"], shared_counter["total"]],
 			shared_counter["current"] / float(shared_counter["total"])
 		)
 		await Engine.get_main_loop().process_frame
-
-	WorkerThreadPool.wait_for_group_task_completion(group_id)
 
 	shared_counter["current"] = 0
 
@@ -246,7 +315,6 @@ func _import_image_files(buffers: Array[Array]):
 	PreviewTextureEngine.provide()
 
 	Global.progress_finished()
-	pass
 
 
 func _on_import_dialog_requested() -> void:

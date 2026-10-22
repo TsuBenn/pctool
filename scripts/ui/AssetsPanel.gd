@@ -71,8 +71,8 @@ func _ready() -> void:
 	show_file_names_check_button.toggled.connect(_update_file_names_visibility)
 
 	assets_scroll_container.gui_input.connect(_on_assets_container_pressed)
-	# assets_scroll_container.get_v_scroll_bar().value_changed.connect(func(_none): preview_texture_debounce_timer.start())
 	# PreviewTextureEngine.cache_updated.connect(update_cards)
+	# assets_scroll_container.get_v_scroll_bar().value_changed.connect(func(_none): preview_texture_debounce_timer.start())
 	# preview_texture_debounce_timer.wait_time = 0.1
 	# preview_texture_debounce_timer.one_shot = true
 	# preview_texture_debounce_timer.timeout.connect(update_cards)
@@ -396,6 +396,7 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 
 	# 5. Clean up asset data
 	for asset in assets_to_delete:
+		PreviewTextureEngine.release(asset)
 		document_data.assets.erase(asset)
 
 	# 6. Clean up UI cards (iterate over duplicate to avoid iteration bugs)
