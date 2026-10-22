@@ -130,7 +130,7 @@ func update_view_mode(mode: ViewMode):
 			var thumbnail_size: int = 32 + 32 * grid_scale
 			box_container.vertical = true
 			if asset_data:
-				var texture = PreviewTextureEngine.request(asset_data, 0, 32 + 32 * grid_scale, true)
+				var texture = PreviewTextureEngine.request(asset_data, 0, 128, true)
 
 				if texture == null and not PreviewTextureEngine.cache_updated.is_connected(_ready):
 					PreviewTextureEngine.cache_updated.connect(_ready)

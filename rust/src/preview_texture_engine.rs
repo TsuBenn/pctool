@@ -6,7 +6,7 @@ use std::{
 };
 
 use dashmap::DashMap;
-use godot::{classes::{Engine, Texture2D}, prelude::*};
+use godot::{classes::Texture2D, prelude::*};
 
 use crate::render_engine::{ImageEngine, PdfEngine};
 
@@ -100,7 +100,7 @@ impl GdTileResult {
 
 struct CacheTexture {
     texture: Gd<Texture2D>,
-    hit_count: i64,
+    ref_count: i64,
     size_tier: i64,
     epoch: u64,
     byte_size: i64,
@@ -108,7 +108,7 @@ struct CacheTexture {
 
 impl Display for CacheTexture {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(size_tier: {}, hit: {}, size_mb: {:.3}MB, epoch: {})", self.size_tier, self.hit_count, (self.byte_size as f64)/1024.0/1024.0, self.epoch)
+        write!(f, "(size_tier: {}, hit: {}, size_mb: {:.3}MB, epoch: {})", self.size_tier, self.ref_count, (self.byte_size as f64)/1024.0/1024.0, self.epoch)
     }
 }
 
@@ -217,7 +217,7 @@ impl IRefCounted for RsPreviewTextureEngine {
 }
 
 const MAX_CACHE_SIZE_BYTES: i64 = 300*1024*1024; // 300 MB
-const SIZE_TIER: [i64; 9] = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+const SIZE_TIER: &[i64] = &[128, 256, 512, 1024, 2048, 4096];
 
 #[godot_api]
 impl RsPreviewTextureEngine {
@@ -237,46 +237,37 @@ impl RsPreviewTextureEngine {
             .position(|s| s >= (target_px_width as f64 * 2 as f64) as i64)
             .unwrap_or(SIZE_TIER.len() - 1) as i64;
 
-        let mut texture_key = TextureKey {
+        let texture_key = TextureKey {
             asset_id: asset_id.clone().into(),
             asset_index,
             size_tier: SIZE_TIER[tier as usize],
         };
-        let mut i = 0;
         if !self.byte_caches.contains_key(&asset_id) {
             let bytes: Arc<[u8]> = asset_bytes.to_vec().into();
             self.byte_caches.insert(asset_id.clone(), Arc::clone(&bytes));
         }
         loop {
-            if (tier - i) >= 0 {
-                texture_key.size_tier = SIZE_TIER[(tier - i) as usize];
-            }
             match self.caches.get_mut(&texture_key) {
                 Some(cache) => {
-                    if i > 0 && report {
-                        self.cache_misses.insert(TileRequest {
-                            asset_id: asset_id,
-                            asset_index,
-                            asset_type: asset_type,
-                            size_tier: SIZE_TIER[tier as usize],
-                        });
-                    }
-                    cache.hit_count += 1;
+                    cache.ref_count += 1;
                     cache.epoch = self.current_epoch;
                     return Some(cache.texture.clone());
                 }
                 None => {
-                    if (tier - i) >= 0 {
-                        i += 1;
-                        continue;
-                    }
                     if report {
                         self.cache_misses.insert(TileRequest {
-                            asset_id: asset_id,
+                            asset_id: asset_id.clone(),
                             asset_index,
                             asset_type: asset_type,
                             size_tier: SIZE_TIER[tier as usize],
                         });
+                    }
+                    if let Some(lower_tier) = self.caches
+                        .iter()
+                        .filter(|x| x.0.asset_id == asset_id && x.0.asset_index == asset_index)
+                        .min_by_key(|x| x.0.size_tier)
+                    {
+                        return Some(lower_tier.1.texture.clone());
                     }
                     break;
                 }
@@ -301,13 +292,14 @@ impl RsPreviewTextureEngine {
                     self.caching.insert(key);
                     return true;
                 } else {
+                    godot_print!("Working on it! {}", key.asset_id);
                     return false;
                 }
             })
             .collect();
         match self.request_channel.send(requests) {
             Err(e) => godot_print!("{}", e.to_string()),
-            Ok(()) => {}
+            Ok(()) => {self.current_epoch += 1}
         };
     }
 
@@ -343,21 +335,21 @@ impl RsPreviewTextureEngine {
             byte_size: (texture.get_width() * texture.get_height() * 4) as i64,
             texture,
             size_tier,
-            hit_count: 1,
+            ref_count: 1,
             epoch: self.current_epoch,
         };
         self.cache_byte_size += cache_texture.byte_size;
-        self.caches.insert(texture_key, cache_texture);
-        godot_print!("Cache size: {}KB", self.cache_byte_size / 1024)
+        match self.caches.insert(texture_key, cache_texture) {
+            Some(_) => godot_print!("already here!"),
+            _ => {}
+        }
+        // godot_print!("Cache size: {}KB", self.cache_byte_size / 1024)
+        self.cache_check();
     }
 
     #[func]
     fn cache_check(&mut self) {
-        godot_print!("{{");
-        for (key, cache) in (&self.caches).iter() {
-            godot_print!("    \"{}\" -> {}", key.asset_id, cache)
-        }
-        godot_print!("}}");
+        godot_print!("Cache bytes: {:.3}MB, Cache count: {}, Heaviest: {:.3}MB", self.cache_byte_size as f64/1024.0/1024.0, self.caches.len(), self.caches.iter().max_by_key(|x| x.1.byte_size).unwrap().1.byte_size as f64/1024.0/1024.0);
         if self.cache_byte_size < MAX_CACHE_SIZE_BYTES {
             return
         }

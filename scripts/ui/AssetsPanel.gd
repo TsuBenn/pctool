@@ -29,6 +29,7 @@ var assets_removal_confirmation_dialog: ConfirmationDialog = %AssetsRemovalConfi
 var document_data: DocumentData
 var selected_asset_cards: Array[AssetCard] = []
 var last_selected_asset_card: AssetCard = null
+var preview_texture_debounce_timer: Timer = Timer.new()
 
 var view_mode: String:
 	get:
@@ -47,6 +48,19 @@ func setup(data: DocumentData):
 		for asset in document_data.assets:
 			instantiate_asset_card(asset)
 
+# func update_cards():
+# 	# var y_offset = assets_scroll_container.scroll_vertical
+# 	# var max_height = assets_scroll_container.size.y - 12
+
+# 	match view_mode:
+# 		"grid":
+# 			for card: AssetCard in grid_assets_container.get_children():
+# 				# var in_view = ((card.position.y - y_offset + card.size.y) >= 0 && (card.position.y  - y_offset) <= max_height)
+# 				card.texture_rect.texture = PreviewTextureEngine.request(card.asset_data, 0, 128, true)
+# 		"list":
+# 			for card in list_assets_container.get_children():
+# 				# var in_view = ((card.position.y - y_offset) >= 0 && (card.position.y - y_offset) <= max_height)
+# 				card.texture_rect.texture = PreviewTextureEngine.request(card.asset_data, 0, 128, true)
 
 func _ready() -> void:
 	view_option_button.item_selected.connect(_update_view_mode)
@@ -57,6 +71,13 @@ func _ready() -> void:
 	show_file_names_check_button.toggled.connect(_update_file_names_visibility)
 
 	assets_scroll_container.gui_input.connect(_on_assets_container_pressed)
+	# assets_scroll_container.get_v_scroll_bar().value_changed.connect(func(_none): preview_texture_debounce_timer.start())
+	# PreviewTextureEngine.cache_updated.connect(update_cards)
+	# preview_texture_debounce_timer.wait_time = 0.1
+	# preview_texture_debounce_timer.one_shot = true
+	# preview_texture_debounce_timer.timeout.connect(update_cards)
+	# add_child(preview_texture_debounce_timer)
+
 
 	asset_card_context_menu.id_pressed.connect(_on_card_context_menu_pressed)
 	assets_container_context_menu.id_pressed.connect(_on_container_context_menu_pressed)
@@ -424,3 +445,4 @@ func instantiate_asset_card(asset_data: AssetData) -> void:
 	new_asset_card.card_clicked.connect(_on_card_clicked)
 	new_asset_card.card_double_clicked.connect(_on_card_double_clicked)
 	new_asset_card.context_menu_requested.connect(_show_card_context_menu)
+	# update_cards()

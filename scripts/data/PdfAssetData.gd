@@ -45,13 +45,13 @@ func clean() -> void:
 
 
 static func create_from_file(path: String, buf: PackedByteArray) -> PdfAssetData:
-	var start = Time.get_ticks_usec()
+	# var start = Time.get_ticks_usec()
 	var pages = PdfEngine.get_pdf_infos(path)
 	if not pages["error"].is_empty():
 		push_error(pages["error"])
 		return null
-	var end = Time.get_ticks_usec()
-	print((end - start)/1000.0)
+	# var end = Time.get_ticks_usec()
+	# print((end - start)/1000.0)
 	return PdfAssetData.new(AssetData.get_id(), path.get_file(), path, buf, pages["count"], pages["sizes"])
 
 
