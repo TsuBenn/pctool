@@ -107,6 +107,7 @@ func _on_files_selected(files: PackedStringArray) -> void:
 	# ]
 	var valid_image_files: Array[Array] = []
 	var valid_pdf_files: Array[Array] = []
+	var invalid_files: Array[String] = []
 
 	for file in files:
 		var ext: String = file.get_extension().to_lower()
@@ -115,21 +116,28 @@ func _on_files_selected(files: PackedStringArray) -> void:
 			var info = ImageUtil.get_image_info(file)
 			if not info.error.is_empty():
 				push_error(info.error)
+				invalid_files.append(file)
 				continue
 			valid_image_files.append([file, info])
 
-		if "pdf" == ext:
+		elif "pdf" == ext:
 			var info = PdfUtil.get_pdf_info(file)
 			if not info.error.is_empty():
 				push_error(info.error)
+				invalid_files.append(file)
 				continue
 			valid_pdf_files.append([file, info])
+
+		else:
+			invalid_files.append(file)
 
 	if not valid_image_files.is_empty():
 		_import_image_files(valid_image_files)
 	if not valid_pdf_files.is_empty():
 		_import_pdf_files(valid_pdf_files)
 
+	if not invalid_files.is_empty():
+		Global.notice("Invalid file(s)", "These files are unsupported or corrupted:\n" + "\n".join(invalid_files))
 # [
 #     [path, buffer],
 #     [path, buffer],

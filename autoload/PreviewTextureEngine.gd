@@ -4,6 +4,7 @@ signal cache_updated
 
 var engine: RsPreviewTextureEngine = RsPreviewTextureEngine.new()
 
+var poll_timer: Timer = Timer.new()
 var request_timeout: Timer = Timer.new()
 var cache_cleanup_timeout: Timer = Timer.new()
 
@@ -16,15 +17,22 @@ func _ready() -> void:
 	cache_cleanup_timeout.one_shot = true
 	cache_cleanup_timeout.timeout.connect(occasional_cleanup)
 
+	poll_timer.wait_time = 0.1
+	request_timeout.one_shot = false
+	poll_timer.timeout.connect(poll)
+
+	add_child(poll_timer)
 	add_child(request_timeout)
 	add_child(cache_cleanup_timeout)
+
+	poll_timer.start()
 
 func occasional_cleanup():
 	engine.cache_cleanup()
 	RenderingServer.force_draw()
 
-func _process(_delta: float) -> void:
-	poll()
+# func _process(_delta: float) -> void:
+# 	poll()
 
 func request_texture(asset: AssetData, index: int, target_width: int) -> Texture2D:
 	var texture = request(asset, index, target_width, true)
@@ -47,7 +55,8 @@ func request(asset: AssetData, index: int, target_width: int, report: bool) -> T
 
 	if asset is ImageAssetData:
 		type = "image"
-	elif asset is PdfAssetData:
+		index = 0
+	if asset is PdfAssetData:
 		type = "pdf"
 
 	if report:

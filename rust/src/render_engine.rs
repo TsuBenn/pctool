@@ -1,9 +1,13 @@
-use std::{fs, sync::OnceLock};
+use std::{fs, io::Cursor, sync::OnceLock};
 
-use fast_image_resize::{ResizeOptions, Resizer, images::Image};
-use godot::{classes::ProjectSettings, prelude::*};
-use image::ImageReader;
+use fast_image_resize::Resizer;
+use godot::classes::{Os, ProjectSettings};
+use godot::prelude::*;
+
+use image::{ImageFormat, ImageReader};
 use pdfium_render::prelude::*;
+
+use crate::util::ImageUtil;
 
 pub static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 
@@ -18,7 +22,18 @@ pub fn get_pdfium() -> Result<&'static Pdfium, String> {
         return Ok(pdfium);
     }
 
-    let path = ProjectSettings::singleton().globalize_path("res://bin/linux/libpdfium.so");
+    let os = Os::singleton().get_name();
+    let path = if os == "Linux" {
+        Some(ProjectSettings::singleton().globalize_path("user://libpdfium.so"))
+    } else if os == "Windows" {
+        Some(ProjectSettings::singleton().globalize_path("user://pdfium.dll"))
+    } else {
+        None
+    };
+
+    let Some(path) = path else {
+        return Err("Pdf Engine is not supported on this platform!".to_owned());
+    };
 
     let bindings = Pdfium::bind_to_library(path.to_string()).map_err(|e| e.to_string())?;
 
@@ -76,7 +91,13 @@ impl PdfEngine {
     ) -> Dictionary<GString, Variant> {
         let mut result = Dictionary::new();
 
-        let pdf_bytes = fs::read(pdf_path).unwrap();
+        let pdf_bytes = match fs::read(pdf_path) {
+            Ok(bytes) => bytes,
+            Err(error) => {
+                result.set("error", &GString::from(&error.to_string()));
+                return result;
+            }
+        };
         let rendered = PdfEngine::render_page(pdf_bytes.as_slice(), page_index, target_width);
 
         match rendered {
@@ -109,31 +130,72 @@ pub struct ImageEngine {
 
 #[godot_api]
 impl ImageEngine {
-    pub fn render_image(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
-        if ImageEngine::is_jpeg(bytes) {
-            return ImageEngine::decode_jpeg(bytes, target_width);
-        } else if ImageEngine::is_webp(bytes) {
-            return ImageEngine::decode_webp(bytes, target_width);
+    pub fn render_image(
+        bytes: &[u8],
+        target_width: u32,
+        format: Option<ImageFormat>,
+    ) -> Result<(Vec<u8>, u32, u32), String> {
+        let format = match format {
+            Some(f) => Some(f),
+            _ => ImageUtil::get_format_from_bytes(bytes),
+        };
+        match format {
+            Some(ImageFormat::Jpeg) => ImageEngine::decode_jpeg(bytes, target_width),
+            Some(ImageFormat::WebP) => ImageEngine::decode_webp(bytes, target_width),
+            Some(ImageFormat::Png) => ImageEngine::decode_png(bytes, target_width),
+            _ => Err("Can't render image!".to_owned()),
         }
-        Err("Can't render image!".to_owned())
+    }
+
+    fn decode_png(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
+        // let start = Instant::now();
+
+        let mut reader = ImageReader::new(Cursor::new(bytes));
+        reader.set_format(ImageFormat::Png);
+        let img = reader.decode().map_err(|e| e.to_string())?.into_rgba8();
+
+        let (w, h) = img.dimensions();
+        let (dw, dh) = (
+            target_width,
+            (target_width as f64 * h as f64 / w as f64) as u32,
+        );
+        let mut dst =
+            fast_image_resize::images::Image::new(dw, dh, fast_image_resize::PixelType::U8x4);
+
+        let mut resizer = Resizer::new();
+        resizer
+            .resize(&img, &mut dst, None)
+            .map_err(|e| e.to_string())?;
+
+        // godot_print!("PNG: {}ms", start.elapsed().as_millis());
+
+        Ok((dst.into_vec(), dw, dh))
     }
 
     fn decode_webp(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
+        // let start = Instant::now();
+
         let decoder = webpx::Decoder::new(bytes).map_err(|e| e.to_string())?;
         let info = decoder.info();
         let width = info.width;
         let height = info.height;
 
-        decoder
+        let result = decoder
             .scale(
                 target_width,
                 (height as f64 / width as f64 * target_width as f64) as u32,
             )
             .decode_rgba_raw()
-            .map_err(|e| e.to_string())
+            .map_err(|e| e.to_string());
+
+        // godot_print!("WEBP: {}ms", start.elapsed().as_millis());
+
+        result
     }
 
     fn decode_jpeg(bytes: &[u8], target_width: u32) -> Result<(Vec<u8>, u32, u32), String> {
+        // let start = Instant::now();
+
         let mut decompresser = turbojpeg::Decompressor::new().map_err(|e| e.to_string())?;
 
         let header = decompresser.read_header(bytes).map_err(|e| e.to_string())?;
@@ -167,14 +229,8 @@ impl ImageEngine {
             .decompress(bytes, output.as_deref_mut())
             .map_err(|e| e.to_string())?;
 
+        // godot_print!("JPEG: {}ms", start.elapsed().as_millis());
+
         Ok((output.pixels, output.width as u32, output.height as u32))
-    }
-
-    fn is_jpeg(bytes: &[u8]) -> bool {
-        bytes.starts_with(&[0xFF, 0xD8, 0xFF])
-    }
-
-    fn is_webp(bytes: &[u8]) -> bool {
-        bytes.len() > 12 && &bytes[0..4] == b"RIFF" && &bytes[8..12] == b"WEBP"
     }
 }

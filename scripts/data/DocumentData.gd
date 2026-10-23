@@ -139,8 +139,6 @@ func clear_photo_items(signal_changed: bool = true):
 		emit_changed()
 
 func clear_assets():
-	for asset in assets:
-		asset.clean()
 	assets.clear()
 
 func clean_up():

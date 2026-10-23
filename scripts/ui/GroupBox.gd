@@ -44,6 +44,7 @@ class_name GroupBox
 	set(new):
 		collapse_enabled = new
 		if is_node_ready():
+			button.focus_mode = Control.FOCUS_NONE if not new else Control.FOCUS_ALL
 			_update_position()
 
 @export var collapse_folded: bool = false:
@@ -104,6 +105,7 @@ func _notification(what: int) -> void:
 func _ready() -> void:
 	# add_child(internal_control, false, INTERNAL_MODE_FRONT)
 	label.text = title
+	button.focus_mode = Control.FOCUS_NONE if not collapse_enabled else Control.FOCUS_ALL
 	button.toggled.connect(
 		func(new):
 			collapse_folded = new
@@ -133,6 +135,7 @@ func _update_position():
 	panel_container.self_modulate = Color.WHITE if show_border else Color.TRANSPARENT
 	label.theme_type_variation = "EmphasisLabel" if emphasized else ""
 
+	button.focus_mode = Control.FOCUS_NONE if not collapse_enabled else Control.FOCUS_ALL
 	button.disabled = not collapse_enabled
 	button.button_pressed = collapse_enabled and collapse_folded
 	collapse_button.visible = collapse_enabled
@@ -176,4 +179,3 @@ func _update_position():
 			var content_w = panel_container.size.x - (margin_left + margin_right)
 			var content_h = panel_container.size.y - (margin_top + margin_bottom) - 6
 			fit_child_in_rect(child, Rect2(content_x, content_y, content_w, content_h))
-

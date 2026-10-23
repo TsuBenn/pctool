@@ -1,14 +1,16 @@
 use std::{
-    collections::{HashMap, HashSet, hash_map::Entry}, fmt::Display, sync::{
+    collections::{HashMap, HashSet, hash_map::Entry},
+    fmt::Display,
+    sync::{
         Arc,
         mpsc::{Receiver, Sender},
-    }, time::Instant,
+    },
 };
 
 use dashmap::DashMap;
 use godot::{classes::Texture2D, prelude::*};
 
-use crate::{render_engine::{ImageEngine, PdfEngine}, util::ImageUtil};
+use crate::render_engine::{ImageEngine, PdfEngine};
 
 // use crate::render_engine::RsPdfEngine;
 
@@ -169,14 +171,45 @@ impl IRefCounted for RsPreviewTextureEngine {
                         }
                         let mut this_results = vec![];
                         for load in &loads {
+                            let bytes = {
+                                if byte_cache_ref.contains_key(&load.asset_id) {
+                                    byte_cache_ref.get(&load.asset_id).unwrap()
+                                } else {
+                                    let bytes = match std::fs::read(&load.source_path) {
+                                        Ok(b) => b,
+                                        Err(e) => {
+                                            godot_error!(
+                                                "Failed to cache asset bytes via source path: {} (Error: {})",
+                                                load.source_path,
+                                                e.to_string()
+                                            );
+                                            continue;
+                                        }
+                                    };
+                                    byte_cache_ref.insert(load.asset_id.clone(), bytes.into());
+                                    byte_cache_ref.get(&load.asset_id).unwrap()
+                                }
+                            };
                             if &load.asset_type == "pdf" {
-                                let bytes = byte_cache_ref.entry(load.asset_id.clone()).or_insert_with(|| std::fs::read(&load.source_path).unwrap().into());
-                                let (pixel_bytes, width, height) = PdfEngine::render_page(
+                                let render = PdfEngine::render_page(
                                     &(*bytes),
                                     load.asset_index,
                                     load.size_tier,
-                                )
-                                .unwrap();
+                                );
+                                let (pixel_bytes, width, height) = match render {
+                                    Ok((pixel_bytes, width, height)) => {
+                                        (pixel_bytes, width, height)
+                                    }
+                                    Err(e) => {
+                                        godot_error!(
+                                            "Failed to Render PDF (asset_id: {}, page: {}, error: {})!",
+                                            load.asset_id,
+                                            load.asset_index,
+                                            e
+                                        );
+                                        continue;
+                                    }
+                                };
                                 this_results.push(TileResult {
                                     asset_id: load.asset_id.clone(),
                                     asset_index: load.asset_index,
@@ -186,12 +219,17 @@ impl IRefCounted for RsPreviewTextureEngine {
                                     pixel_bytes,
                                 });
                             } else if &load.asset_type == "image" {
-                                let bytes = byte_cache_ref.entry(load.asset_id.clone()).or_insert_with(|| ImageUtil::get_bytes(&load.source_path).unwrap().0.into());
-                                let (pixel_bytes, width, height) = ImageEngine::render_image(
+                                let Ok((pixel_bytes, width, height)) = ImageEngine::render_image(
                                     &(*bytes),
                                     load.size_tier as u32,
-                                )
-                                .unwrap();
+                                    None,
+                                ) else {
+                                    godot_error!(
+                                        "Failed to Render Image (asset_id: {})!",
+                                        load.asset_id
+                                    );
+                                    continue;
+                                };
                                 this_results.push(TileResult {
                                     asset_id: load.asset_id.clone(),
                                     asset_index: load.asset_index,
@@ -203,14 +241,28 @@ impl IRefCounted for RsPreviewTextureEngine {
                             }
                         }
                         if !this_results.is_empty() {
-                            prov_tx.send(this_results).unwrap();
+                            match prov_tx.send(this_results) {
+                                Err(e) => {
+                                    godot_print!(
+                                        "Failed to send tile results to provider channel! (Error: {})",
+                                        e.to_string()
+                                    );
+                                }
+                                _ => {}
+                            };
                         }
                     });
                     thread_handles.push(handle);
                 }
 
                 for handle in thread_handles {
-                    handle.join().unwrap_or_else(|_| return);
+                    match handle.join() {
+                        Err(_) => {
+                            godot_print!("Failed to join threads!");
+                            return;
+                        }
+                        _ => {}
+                    }
                 }
             }
         });
@@ -255,6 +307,9 @@ impl RsPreviewTextureEngine {
             asset_index,
             size_tier: SIZE_TIER[tier as usize],
         };
+        // if !self.byte_caches.contains_key(&asset_id) {
+        //     self.byte_caches.insert(asset_id.clone(), std::fs::read(&source_path).unwrap().into());
+        // }
         loop {
             match self.caches.get_mut(&texture_key) {
                 Some(cache) => {
@@ -396,17 +451,22 @@ impl RsPreviewTextureEngine {
                 self.caches.remove(&key);
             }
         }
-        godot_print!(
-            "Cache size: {:.3}MB, cache count: {}, byte cache: {:.3}MB",
-            self.cache_byte_size as f64 / 1024.0 / 1024.0,
-            self.caches.len(),
-            self.byte_caches.iter().map(|b| b.value().len()).sum::<usize>() as f64/ 1024.0/ 1024.0
-        );
+        // godot_print!(
+        //     "Cache size: {:.3}MB, cache count: {}, byte cache: {:.3}MB",
+        //     self.cache_byte_size as f64 / 1024.0 / 1024.0,
+        //     self.caches.len(),
+        //     self.byte_caches.iter().map(|b| b.value().len()).sum::<usize>() as f64/ 1024.0/ 1024.0
+        // );
     }
 
     #[func]
     fn release_asset_cache(&mut self, asset_id: String) {
-        let to_remove: Vec<TextureKey> = self.caches.iter().filter(|a| a.0.asset_id == asset_id).map(|a| a.0.clone()).collect();
+        let to_remove: Vec<TextureKey> = self
+            .caches
+            .iter()
+            .filter(|a| a.0.asset_id == asset_id)
+            .map(|a| a.0.clone())
+            .collect();
         for key in to_remove {
             self.cache_byte_size -= self.caches.get(&key).unwrap().byte_size;
             self.caches.remove(&key);
@@ -419,18 +479,18 @@ impl RsPreviewTextureEngine {
         let to_remove: Vec<TextureKey> = self
             .caches
             .iter()
-            .filter(|i| !i.1.is_used())
+            .filter(|i| !i.1.is_used() || i.1.size_tier != 128)
             .map(|i| i.0.clone())
             .collect();
         for key in to_remove {
             self.cache_byte_size -= self.caches.get(&key).unwrap().byte_size;
             self.caches.remove(&key);
         }
-        godot_print!(
-            "Cache size: {:.3}MB, cache count: {}, byte cache: {:.3}MB",
-            self.cache_byte_size as f64 / 1024.0 / 1024.0,
-            self.caches.len(),
-            self.byte_caches.iter().map(|b| b.value().len()).sum::<usize>() as f64/ 1024.0/ 1024.0
-        );
+        // godot_print!(
+        //     "Cache size: {:.3}MB, cache count: {}, byte cache: {:.3}MB",
+        //     self.cache_byte_size as f64 / 1024.0 / 1024.0,
+        //     self.caches.len(),
+        //     self.byte_caches.iter().map(|b| b.value().len()).sum::<usize>() as f64/ 1024.0/ 1024.0
+        // );
     }
 }

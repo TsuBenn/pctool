@@ -55,7 +55,36 @@ func save_config() -> Error:
 		push_error("ConfigFile: Failed to write _config to disk: %d" % err)
 	return err
 
+func extract_pdfium_binary():
+	var target_path
+	var source_path
+	if OS.get_name() == "Windows":
+		target_path = "user://pdfium.dll"
+		source_path = "res://bin/windows/pdfium.dll"
+	elif OS.get_name() == "Linux":
+		target_path = "user://libpdfium.so"
+		source_path = "res://bin/linux/libpdfium.so"
+	else:
+		notice("Unsupported Platform", "Pdf functionality is not supported on this platform.")
+		return
+
+	if not FileAccess.file_exists(target_path):
+		var source_file = FileAccess.open(source_path, FileAccess.READ)
+		if source_file:
+			var bytes = source_file.get_buffer(source_file.get_length())
+			var target_file = FileAccess.open(target_path, FileAccess.WRITE)
+			if target_file:
+				target_file.store_buffer(bytes)
+				target_file.close()
+			else:
+				push_error(FileAccess.get_open_error())
+			source_file.close()
+		else:
+			print("bruh")
+
 func _ready() -> void:
+
+	extract_pdfium_binary()
 
 	print("Autoload ready at: ", Time.get_ticks_msec(), " ms")
 	get_tree().root.ready.connect(_on_root_ready)

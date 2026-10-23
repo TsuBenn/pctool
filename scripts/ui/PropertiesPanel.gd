@@ -40,8 +40,8 @@ enum {
 
 @onready var lock_ratio_check_button: CheckBox = %LockRatioCheckButton
 
-@onready var properties_width_spin_box: LabeledSpinBox = %PropertiesWidthSpinBox
-@onready var properties_height_spin_box: LabeledSpinBox = %PropertiesHeightSpinBox
+@onready var properties_width_drag_box: DragBox = %PropertiesWidthDragBox
+@onready var properties_height_drag_box: DragBox = %PropertiesHeightDragBox
 
 @onready var properties_presets_option_button: LabeledOptionButton = %PropertiesPresetsOptionButton
 
@@ -49,7 +49,7 @@ enum {
 @onready var isolate_page_check_button: LabeledCheckButton = %IsolatePageCheckButton
 
 @onready var decrement_quantity_button: Button = %DecrementQuantityButton
-@onready var quantity_spin_box: LabeledSpinBox = %QuantitySpinBox
+@onready var quantity_drag_box: DragBox = %QuantityDragBox
 @onready var increment_quantity_button: Button = %IncrementQuantityButton
 
 @onready var selected_page_label: Label = %SelectedPageLabel
@@ -60,7 +60,7 @@ enum {
 @onready var advanced_cropping_button: Button = %AdvancedCroppingButton
 
 @onready var border_enabled_check_button: LabeledCheckButton = %BorderEnabledCheckButton
-@onready var border_thickness_spin_box: LabeledSpinBox = %BorderThicknessSpinBox
+@onready var border_thickness_drag_box: DragBox = %BorderThicknessDragBox
 
 @onready var properties_copy_button: Button = %PropertiesCopyButton
 @onready var properties_paste_button: Button = %PropertiesPasteButton
@@ -108,12 +108,12 @@ func _ready() -> void:
 		func(new):
 			photo_item.border_enabled = new
 	)
-	border_thickness_spin_box.value_commit.connect(
+	border_thickness_drag_box.value_commit.connect(
 		func(_new):
 			if photo_item:
 				photo_item.commit_border_width()
 	)
-	border_thickness_spin_box.value_changed.connect(
+	border_thickness_drag_box.value_changed.connect(
 		func(new):
 			if photo_item:
 				photo_item.border_width = new
@@ -130,7 +130,7 @@ func _ready() -> void:
 		func():
 			photo_item.quantity = max(photo_item.quantity + 1, 1)
 	)
-	quantity_spin_box.value_changed.connect(
+	quantity_drag_box.value_changed.connect(
 		func(new):
 			photo_item.quantity = new
 	)
@@ -144,17 +144,17 @@ func _ready() -> void:
 					photo_item.size_mm = Vector2(40.0,60.0)
 					photo_item.commit_size()
 	)
-	properties_width_spin_box.value_commit.connect(
+	properties_width_drag_box.value_commit.connect(
 		func(_new):
 			if photo_item:
 				photo_item.commit_size()
 	)
-	properties_height_spin_box.value_commit.connect(
+	properties_height_drag_box.value_commit.connect(
 		func(_new):
 			if photo_item:
 				photo_item.commit_size()
 	)
-	properties_width_spin_box.value_changed.connect(
+	properties_width_drag_box.value_changed.connect(
 		func(new):
 			if not photo_item:
 				return
@@ -163,7 +163,7 @@ func _ready() -> void:
 				lock_ratio_check_button.button_pressed = false
 			photo_item.size_mm = Vector2(new, (new / aspect) if lock_ratio else photo_item.size_mm.y)
 	)
-	properties_height_spin_box.value_changed.connect(
+	properties_height_drag_box.value_changed.connect(
 		func(new):
 			if not photo_item:
 				return
@@ -198,8 +198,8 @@ func _on_document_changed():
 
 	var max_size = _get_maximum_photo_item_size()
 
-	properties_width_spin_box.max_value = max_size.x
-	properties_height_spin_box.max_value = max_size.y
+	properties_width_drag_box.max_value = max_size.x
+	properties_height_drag_box.max_value = max_size.y
 
 func _sync_ui():
 	if photo_item:
@@ -216,16 +216,16 @@ func _sync_ui():
 				properties_presets_option_button.selected = PRESET_4_BY_6
 			_:
 				properties_presets_option_button.selected = PRESET_CUSTOM
-		properties_width_spin_box.set_value_no_signal(photo_item.size_mm.x)
-		properties_height_spin_box.set_value_no_signal(photo_item.size_mm.y)
-		quantity_spin_box.set_value_no_signal(photo_item.quantity)
+		properties_width_drag_box.set_value_no_signal(photo_item.size_mm.x)
+		properties_height_drag_box.set_value_no_signal(photo_item.size_mm.y)
+		quantity_drag_box.set_value_no_signal(photo_item.quantity)
 		fitting_mode_option_button.selected = framing.fitting_mode
 
 		isolate_row_check_button.button_pressed = photo_item.isolate_row
 		isolate_page_check_button.button_pressed = photo_item.isolate_page
 
 		border_enabled_check_button.button_pressed = photo_item.border_enabled
-		border_thickness_spin_box.set_value_no_signal(photo_item.border_width)
+		border_thickness_drag_box.set_value_no_signal(photo_item.border_width)
 	else:
 		properties_scroll_container.visible = false
 		properties_empty_state_label.visible = true

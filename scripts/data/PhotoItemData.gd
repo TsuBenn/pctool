@@ -9,8 +9,9 @@ var _commit: bool = true
 var asset: AssetData:
 	set(new):
 		asset = new
-		framings.clear()
-		framings.resize(asset.get_count())
+		if asset:
+			framings.clear()
+			framings.resize(asset.get_count())
 		for i in range(framings.size()):
 			framings[i] = Framing.new()
 		emit_changed()
@@ -51,6 +52,10 @@ func commit_size():
 	if _commit and _document_data:
 		var old: Vector2 = size_mm_last_changed
 		var new: Vector2 = size_mm
+
+		if old == new:
+			return
+
 		size_mm_last_changed = Vector2.INF
 		# print(old)
 		Global.undo_redo[_document_data].create_action("Changed Photo Item's Size [%s]" % new)

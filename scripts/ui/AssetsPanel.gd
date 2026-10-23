@@ -398,6 +398,8 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 	for asset in assets_to_delete:
 		PreviewTextureEngine.release(asset)
 		document_data.assets.erase(asset)
+		if Global.undo_redo.has(document_data):
+			Global.undo_redo[document_data].clear_history()
 
 	# 6. Clean up UI cards (iterate over duplicate to avoid iteration bugs)
 	for card in selected_asset_cards.duplicate():

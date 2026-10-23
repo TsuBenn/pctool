@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://c0oaph1wivnav"]
+
+[ext_resource type="Script" uid="uid://nf3sulhxnccv" path="res://scripts/ui/DragBox.gd" id="1_g6eoh"]
+
+[node name="DragBox" type="HBoxContainer" unique_id=1371057286]
+offset_right = 60.0
+offset_bottom = 26.255
+mouse_default_cursor_shape = 1
+script = ExtResource("1_g6eoh")
+hint = null
+show_box = null
+
+[node name="PrefixLabel" type="Label" parent="." unique_id=1565971710]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"EmphasisLabel"
+text = "pre"
+
+[node name="LineEdit" type="LineEdit" parent="." unique_id=1932804678]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+offset_transform_enabled = true
+mouse_filter = 2
+text = "0"
+context_menu_enabled = false
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false
+flat = true
+select_all_on_focus = true
+
+[node name="Underline" type="Line2D" parent="LineEdit" unique_id=1573169681]
+unique_name_in_owner = true
+visible = false
+points = PackedVector2Array(6, 22, 16, 22)
+width = 2.0
+
+[node name="Label" type="Label" parent="LineEdit" unique_id=1023882942]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_right = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+theme_type_variation = &"EmphasisLabel"
+text = "0"
+
+[node name="SuffixLabel" type="Label" parent="." unique_id=58140354]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"EmphasisLabel"
+text = "suf"

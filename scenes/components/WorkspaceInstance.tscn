@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://chrdu5m11thxk" path="res://scenes/components/PhotoTileView.tscn" id="13_bn7i6"]
 [ext_resource type="Script" uid="uid://dwsdjgm1o2vcp" path="res://scripts/ui/PropertiesPanel.gd" id="14_cx2ea"]
 [ext_resource type="PackedScene" uid="uid://cwdi1o6rensku" path="res://scenes/modules/PopupMenuSimplified.tscn" id="14_k0bj0"]
+[ext_resource type="PackedScene" uid="uid://c0oaph1wivnav" path="res://scenes/modules/DragBox.tscn" id="15_qie5n"]
 [ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="16_qie5n"]
 [ext_resource type="PackedScene" uid="uid://bup7vqarswn2u" path="res://scenes/components/AdvanceCroppingWindow.tscn" id="18_qie5n"]
 
@@ -687,31 +688,51 @@ layout_mode = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer" unique_id=1791101100]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 12
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=20285690]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PropertiesWidthSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=1767939154 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
+[node name="PropertiesWidth" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=127902680]
 layout_mode = 2
-size_flags_horizontal = 3
-label = "Width"
-suffix = "mm"
-min_value = 0.1
-step = 0.1
-spinbox_width = 120
 
-[node name="PropertiesHeightSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=737214299 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PropertiesWidth" unique_id=2067320473]
 layout_mode = 2
 size_flags_horizontal = 3
-label = "Height"
-suffix = "mm"
-min_value = 0.1
+theme_type_variation = &"DimLabel"
+text = "Width"
+
+[node name="PropertiesWidthDragBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PropertiesWidth" unique_id=1750774217 instance=ExtResource("15_qie5n")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+value = 5.0
 step = 0.1
-spinbox_width = 120
+min_value = 5.0
+suffix = "mm"
+hint = false
+show_box = true
+
+[node name="PropertiesHeight" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer" unique_id=260466361]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PropertiesHeight" unique_id=540428268]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"DimLabel"
+text = "Height"
+
+[node name="PropertiesHeightDragBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/PropertiesHeight" unique_id=1371057286 instance=ExtResource("15_qie5n")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+value = 5.0
+step = 0.1
+min_value = 5.0
+suffix = "mm"
+hint = false
+show_box = true
 
 [node name="LockRatioCheckButton" type="CheckBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/TransformsFoldable/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2068999316]
 unique_name_in_owner = true
@@ -782,14 +803,14 @@ unique_name_in_owner = true
 layout_mode = 2
 icon = SubResource("AtlasTexture_mhgcu")
 
-[node name="QuantitySpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/PagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1491021295 instance=ExtResource("2_gdvak")]
+[node name="QuantityDragBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/PagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1129434605 instance=ExtResource("15_qie5n")]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
-theme_override_constants/separation = 0
-label = ""
-show_arrows = false
+value = 1.0
 min_value = 1.0
-spinbox_width = 90
+hint = false
+show_box = true
 
 [node name="IncrementQuantityButton" type="Button" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/PagesFoldable/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1194596764]
 unique_name_in_owner = true
@@ -867,16 +888,23 @@ unique_name_in_owner = true
 layout_mode = 2
 label = "Enabled:"
 
-[node name="BorderThicknessSpinBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/EffecstFoldable/MarginContainer/VBoxContainer/BordersGroupBox/VBoxContainer" unique_id=920158256 instance=ExtResource("2_gdvak")]
-unique_name_in_owner = true
+[node name="BorderThickness" type="HBoxContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/EffecstFoldable/MarginContainer/VBoxContainer/BordersGroupBox/VBoxContainer" unique_id=1949835161]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/EffecstFoldable/MarginContainer/VBoxContainer/BordersGroupBox/VBoxContainer/BorderThickness" unique_id=2090071158]
 layout_mode = 2
 size_flags_horizontal = 3
-label = "Thickness:"
-suffix = "mm"
-value = 0.4
-min_value = 0.2
+theme_type_variation = &"DimLabel"
+text = "Thickness:"
+
+[node name="BorderThicknessDragBox" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer/EffecstFoldable/MarginContainer/VBoxContainer/BordersGroupBox/VBoxContainer/BorderThickness" unique_id=1816237574 instance=ExtResource("15_qie5n")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
 step = 0.1
-spinbox_width = 120
+suffix = "mm"
+hint = false
+show_box = true
 
 [node name="ActionsFoldable" type="FoldableContainer" parent="MarginContainer/VBoxContainer/Workspace/PropertiesPanel/PanelContainer/MarginContainer/VBoxContainer/PanelContainer/PropertiesScrollContainer/MarginContainer/VBoxContainer" unique_id=1473410577]
 layout_mode = 2

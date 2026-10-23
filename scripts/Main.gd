@@ -350,7 +350,7 @@ func _show_notice_dialog(title: String, message: String, ok_button_text: String)
 	notice_dialog.title = title
 	notice_dialog.dialog_text = message
 	notice_dialog.ok_button_text = ok_button_text
-	notice_dialog.popup_centered(Vector2i(340, 100))
+	notice_dialog.popup_centered(Vector2i(400, 100))
 
 
 func _on_node_added(node: Node) -> void:
