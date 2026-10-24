@@ -76,11 +76,13 @@ func extract_pdfium_binary():
 			if target_file:
 				target_file.store_buffer(bytes)
 				target_file.close()
+				print("Extracted PDF lib.")
 			else:
+				print("No?")
 				push_error(FileAccess.get_open_error())
 			source_file.close()
 		else:
-			print("bruh")
+			push_error("Can't find PDF lib source file.")
 
 func _ready() -> void:
 

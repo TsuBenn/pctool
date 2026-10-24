@@ -119,7 +119,7 @@ static func save_document(doc: DocumentData, output_path: String) -> Error:
 
 	# 3. Assemble root project manifest dictionary
 	var project_data: Dictionary = {
-		"version": "1.0",
+		"version": "2.0",
 		"paper_size_mm": [doc.paper_size_mm.x, doc.paper_size_mm.y],
 		"is_landscape": doc.is_landscape,
 		"dpi": doc.dpi,
@@ -180,10 +180,22 @@ static func open_document(file_path: String) -> DocumentData:
 		Global.notice("Parsing Error", "Failed to parse project data:\n%s" % json.get_error_message())
 		push_error("DocumentManager: Failed to parse JSON manifest: %s" % json.get_error_message())
 		reader.close()
+		Global.progress_finished()
 		return null
 
 	var data: Dictionary = json.data
 	var doc: DocumentData = DocumentData.new()
+
+	if data.has("version"):
+		if data["version"] != "2.0":
+			Global.progress_finished()
+			Global.notice("Incompatible Version", "This Document's version isn't compatible with the current version of the program.")
+			return null
+	else:
+		Global.progress_finished()
+		Global.notice("Unknown Version", "This Document doesn't version.")
+		return null
+
 
 	# 2. Restore document paper & margin settings
 	var paper_arr: Array = data.get("paper_size_mm", [210.0, 297.0])
@@ -259,6 +271,8 @@ static func open_document(file_path: String) -> DocumentData:
 			# 	if not asset.thumbnail:
 			# 		asset.generate_thumbnail()
 			doc.assets.append(asset)
+
+	PreviewTextureEngine.provide()
 
 	# 4. Reconstruct PhotoItemData list
 	var items_arr: Array = data.get("photo_items", [])

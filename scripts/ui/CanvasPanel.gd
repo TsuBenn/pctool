@@ -60,7 +60,11 @@ var duplicate_assets_confirmation_dialog: ConfirmationDialog = %DuplicateAssetsC
 
 var view_scale: float = 1.0:
 	set(new):
+		var old = view_scale
 		view_scale = new
+		var ratio = new/old
+		view_offset *= ratio
+		view_offset = _clamp_offset(view_offset)
 		_sync_ui(false)
 
 var view_offset: Vector2 = Vector2.ZERO:
@@ -139,14 +143,37 @@ func update_tiles(report: bool = false, wait_time: float = 0.1):
 	if not report:
 		preview_debouce_timer.start(wait_time)
 
+var y_scrolling: bool = false
+var x_scrolling: bool = false
+
 func _ready() -> void:
 	setup_preview_texture_engine()
 	canvas_context_menu.id_pressed.connect(_on_canvas_context_menu_pressed)
 	photo_tile_context_menu.id_pressed.connect(_on_photo_tile_context_menu_pressed)
 	page_popup.modulate.a = 0
 	paper_container.resized.connect(func(): _sync_ui(false))
-	paper_container_v_scrollbar.value_changed.connect(func(new): view_offset.y = -new)
-	paper_container_h_scrollbar.value_changed.connect(func(new): view_offset.x = -new)
+	paper_container_v_scrollbar.gui_input.connect(func(event):
+		if event is InputEventMouseButton:
+			if event.is_pressed():
+				y_scrolling = true
+			if event.is_released():
+				y_scrolling = false
+	)
+	paper_container_h_scrollbar.gui_input.connect(func(event):
+		if event is InputEventMouseButton:
+			if event.is_pressed():
+				x_scrolling = true
+			if event.is_released():
+				x_scrolling = false
+	)
+	paper_container_v_scrollbar.value_changed.connect(func(new):
+		if y_scrolling:
+			view_offset.y = -new
+	)
+	paper_container_h_scrollbar.value_changed.connect(func(new):
+		if x_scrolling:
+			view_offset.x = -new
+	)
 	margins_overlay.draw.connect(_draw_margins_overlay)
 	paper_container.gui_input.connect(_on_paper_container_gui_input)
 	first_page_button.pressed.connect(
@@ -597,43 +624,27 @@ func _sync_ui(reinstanciate: bool = true):
 
 
 func update_scrollbars():
-	var pad_x: float = offset_padding.x
-	var pad_y: float = offset_padding.y
+	var clamps = _get_clamped()
 
-	var paper_x: float = paper_sheet.custom_minimum_size.x
-	var paper_y: float = paper_sheet.custom_minimum_size.y
-
-	var view_x: float = paper_container.size.x
-	var view_y: float = paper_container.size.y
-
-	var clamped_x: float = max(pad_x - (view_x - paper_x) / 2, 0)
-	var clamped_y: float = max(pad_y - (view_y - paper_y) / 2, 0)
-
-	paper_container_v_scrollbar.page = paper_y
-	paper_container_v_scrollbar.min_value = -clamped_y
-	paper_container_v_scrollbar.max_value = clamped_y + paper_y
+	paper_container_v_scrollbar.page = paper_sheet.custom_minimum_size.y
+	paper_container_v_scrollbar.min_value = -clamps.y
+	paper_container_v_scrollbar.max_value = clamps.y + paper_container_v_scrollbar.page
 	paper_container_v_scrollbar.set_value_no_signal(-view_offset.y)
-	paper_container_v_scrollbar.visible = (
-		paper_container_v_scrollbar.max_value - paper_container_v_scrollbar.min_value
-		> paper_container_v_scrollbar.page
-	)
+	paper_container_v_scrollbar.visible = clamps.y != 0
 
-	paper_container_h_scrollbar.page = paper_x
-	paper_container_h_scrollbar.min_value = -clamped_x
-	paper_container_h_scrollbar.max_value = clamped_x + paper_x
-	paper_container_h_scrollbar.visible = (
-		paper_container_h_scrollbar.max_value - paper_container_h_scrollbar.min_value
-		> paper_container_h_scrollbar.page
-	)
+	paper_container_h_scrollbar.page = paper_sheet.custom_minimum_size.x
+	paper_container_h_scrollbar.min_value = -clamps.x
+	paper_container_h_scrollbar.max_value = clamps.x + paper_container_h_scrollbar.page
 	paper_container_h_scrollbar.set_value_no_signal(-view_offset.x)
+	paper_container_h_scrollbar.visible = clamps.x != 0
 
 
 func _get_clamped() -> Vector2:
 	var pad_x: float = offset_padding.x
 	var pad_y: float = offset_padding.y
 
-	var paper_x: float = paper_sheet.size.x
-	var paper_y: float = paper_sheet.size.y
+	var paper_x: float = paper_sheet.custom_minimum_size.x
+	var paper_y: float = paper_sheet.custom_minimum_size.y
 
 	var view_x: float = paper_container.size.x
 	var view_y: float = paper_container.size.y

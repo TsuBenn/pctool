@@ -1,47 +1,16 @@
-use std::{fs, io::Cursor, sync::OnceLock};
+use std::io::Cursor;
 
 use fast_image_resize::Resizer;
-use godot::classes::{Os, ProjectSettings};
 use godot::prelude::*;
 
 use image::{ImageFormat, ImageReader};
-use pdfium_render::prelude::*;
 
 use crate::util::ImageUtil;
-
-pub static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 
 #[derive(GodotClass)]
 #[class(init, base=RefCounted)]
 pub struct PdfEngine {
     base: Base<RefCounted>,
-}
-
-pub fn get_pdfium() -> Result<&'static Pdfium, String> {
-    if let Some(pdfium) = PDFIUM.get() {
-        return Ok(pdfium);
-    }
-
-    let os = Os::singleton().get_name();
-    let path = if os == "Linux" {
-        Some(ProjectSettings::singleton().globalize_path("user://libpdfium.so"))
-    } else if os == "Windows" {
-        Some(ProjectSettings::singleton().globalize_path("user://pdfium.dll"))
-    } else {
-        None
-    };
-
-    let Some(path) = path else {
-        return Err("Pdf Engine is not supported on this platform!".to_owned());
-    };
-
-    let bindings = Pdfium::bind_to_library(path.to_string()).map_err(|e| e.to_string())?;
-
-    let _ = PDFIUM.set(Pdfium::new(bindings));
-
-    PDFIUM
-        .get()
-        .ok_or_else(|| "Failed to initialize Pdfium!".to_string())
 }
 
 #[godot_api]
@@ -50,6 +19,7 @@ impl PdfEngine {
         pdf_bytes: &[u8],
         page_index: i64,
         target_width: i64,
+        lib: &str,
     ) -> Result<(Vec<u8>, u32, u32), String> {
         if page_index < 0 || page_index > u16::MAX as i64 {
             return Err("Invalid page index".into());
@@ -59,66 +29,31 @@ impl PdfEngine {
             return Err("Target width must be between 1 and 8192".into());
         }
 
-        let pdfium = get_pdfium()?;
+        pdfium::set_library_location(lib);
 
-        let document = pdfium
-            .load_pdf_from_byte_vec(pdf_bytes.to_vec() as Vec<u8>, None)
-            .map_err(|e| e.to_string())?;
+        let document =
+            pdfium::PdfiumDocument::new_from_reader(Cursor::new(pdf_bytes.to_vec()), None)
+                .map_err(|e| e.to_string())?;
 
         let page = document
             .pages()
             .get(page_index as i32)
             .map_err(|e| e.to_string())?;
 
-        let bitmap = page
-            .render_with_config(&PdfRenderConfig::new().set_target_width(target_width as i32))
-            .map_err(|e| e.to_string())?;
+        let config = pdfium::PdfiumRenderConfig::new().with_width(target_width as i32);
 
-        let image = bitmap.as_image().map_err(|e| e.to_string())?.to_rgba8();
+        let bitmap = page.render(&config).unwrap();
+
+        let image = bitmap
+            .as_rgba8_image()
+            .map_err(|e| e.to_string())?
+            .to_rgba8();
 
         let width = image.width();
         let height = image.height();
         let pixels = image.into_raw();
 
         Ok((pixels, width, height))
-    }
-
-    #[func]
-    pub fn render_page_gd(
-        pdf_path: String,
-        page_index: i64,
-        target_width: i64,
-    ) -> Dictionary<GString, Variant> {
-        let mut result = Dictionary::new();
-
-        let pdf_bytes = match fs::read(pdf_path) {
-            Ok(bytes) => bytes,
-            Err(error) => {
-                result.set("error", &GString::from(&error.to_string()));
-                return result;
-            }
-        };
-        let rendered = PdfEngine::render_page(pdf_bytes.as_slice(), page_index, target_width);
-
-        match rendered {
-            Ok((pixels, width, height)) => {
-                let mut packed_pixels = PackedByteArray::new();
-
-                for byte in pixels {
-                    packed_pixels.push(byte);
-                }
-
-                result.set("pixels", &packed_pixels);
-                result.set("width", width as i64);
-                result.set("height", height as i64);
-                result.set("error", &GString::new());
-            }
-            Err(error) => {
-                result.set("error", &GString::from(error.as_str()));
-            }
-        }
-
-        result
     }
 }
 
@@ -234,3 +169,5 @@ impl ImageEngine {
         Ok((output.pixels, output.width as u32, output.height as u32))
     }
 }
+
+

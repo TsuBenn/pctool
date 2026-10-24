@@ -13,6 +13,7 @@ func _init(
 	display_name = file_name
 	source_path = path
 	pixel_dimensions = dim
+	PreviewTextureEngine.request_texture(self, 0, 128)
 
 func get_count() -> int:
 	return 1

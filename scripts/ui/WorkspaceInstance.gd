@@ -193,6 +193,8 @@ func _import_pdf_files(files: Array[Array]):
 
 	# WorkerThreadPool.wait_for_group_task_completion(group_id)
 
+	PreviewTextureEngine.provide()
+
 	for i in range(total_files):
 		create_asset.call(i)
 		Global.progress_update(
@@ -293,6 +295,8 @@ func _import_image_files(files: Array[Array]):
 			shared_counter["current"] / float(shared_counter["total"])
 		)
 		await Engine.get_main_loop().process_frame
+
+	PreviewTextureEngine.provide()
 
 	shared_counter["current"] = 0
 

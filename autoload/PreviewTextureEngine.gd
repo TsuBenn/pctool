@@ -13,7 +13,7 @@ func _ready() -> void:
 	request_timeout.one_shot = true
 	request_timeout.timeout.connect(provide)
 
-	cache_cleanup_timeout.wait_time = 10
+	cache_cleanup_timeout.wait_time = 30
 	cache_cleanup_timeout.one_shot = true
 	cache_cleanup_timeout.timeout.connect(occasional_cleanup)
 
@@ -28,7 +28,7 @@ func _ready() -> void:
 	poll_timer.start()
 
 func occasional_cleanup():
-	engine.cache_cleanup()
+	engine.cache_cleanup(false)
 	RenderingServer.force_draw()
 
 # func _process(_delta: float) -> void:

@@ -58,6 +58,12 @@ var signal_change: bool = true
 		if is_node_ready():
 			_sync_ui.call_deferred()
 
+@export_enum("Left", "Center", "Right") var text_alignment: String = "Left":
+	set(new):
+		text_alignment = new
+		if is_node_ready():
+			_sync_ui.call_deferred()
+
 @export var hint: bool = false:
 	set(new):
 		hint = new
@@ -160,29 +166,66 @@ func _ready() -> void:
 	)
 	_sync_ui.call_deferred()
 
+func get_alignment():
+	match text_alignment:
+		"Left":
+			return HORIZONTAL_ALIGNMENT_LEFT
+		"Center":
+			return HORIZONTAL_ALIGNMENT_CENTER
+		"Right":
+			return HORIZONTAL_ALIGNMENT_RIGHT
+
+func get_font_size():
+	var font = line_edit.get_theme_font("font")
+	var font_size = line_edit.get_theme_font_size("font_size")
+
+	return font.get_string_size(line_edit.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+
+func get_underline_offset():
+	match text_alignment:
+		"Left":
+			return Vector2.ZERO
+		"Center":
+			return (line_edit.size*Vector2(1,0) - Vector2(12,0) - Vector2(get_font_size().x, 0))/2
+		"Right":
+			return line_edit.size*Vector2(1,0) - Vector2(12,0) - Vector2(get_font_size().x, 0)
+
+
 func _sync_ui():
 	if not is_node_ready():
 		return
 
 	line_edit.text = String.num(snappedf(value, step), step_decimals(step))
-	label.text = line_edit.text
+	line_edit.alignment = get_alignment()
 	line_edit.flat = !show_box
 	line_edit.self_modulate = Color.from_rgba8(0,0,0,0) if not show_box else Color.WHITE
-	underline.self_modulate = Color.from_rgba8(0,0,0,0) if show_box else Color.WHITE
+
+	label.text = line_edit.text
 	label.visible = !show_box
+	label.horizontal_alignment = get_alignment()
+
+	underline.self_modulate = Color.from_rgba8(0,0,0,0) if show_box else Color.WHITE
+
 	suffix_label.text = suffix
 	prefix_label.text = prefix
 
 	suffix_label.visible = !suffix.is_empty()
 	prefix_label.visible = !prefix.is_empty()
 
-	var font = line_edit.get_theme_font("font")
-	var font_size = line_edit.get_theme_font_size("font_size")
-
-	var text_size = font.get_string_size(line_edit.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+	var text_size = get_font_size()
 
 	if not is_draggin:
 		underline.visible = hint
 
-	underline.set_point_position.call_deferred(0, (prefix_label.get_minimum_size() + Vector2(12,0) if prefix_label.visible else prefix_label.get_minimum_size()*Vector2(0,1) + Vector2(6,0)) - Vector2(0,2))
-	underline.set_point_position.call_deferred(1, underline.get_point_position(0) + Vector2(text_size.x, 0))
+	underline.set_point_position(0,
+		(
+			prefix_label.get_minimum_size() + Vector2(12,0) if prefix_label.visible
+			else prefix_label.get_minimum_size()*Vector2(0,1) + Vector2(6,0)
+		)
+		- Vector2(0,2) + get_underline_offset()
+	)
+
+	underline.set_point_position(1,
+		underline.get_point_position(0)
+		+ Vector2(text_size.x, 0)
+	)

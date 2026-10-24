@@ -1,6 +1,6 @@
 use std::{fs::File, io::Read};
 
-use godot::prelude::*;
+use godot::{classes::{Os, ProjectSettings}, prelude::*};
 use image::ImageFormat;
 
 use crate::render_engine;
@@ -111,23 +111,41 @@ pub impl PdfInfo {
 
 #[godot_api]
 impl PdfUtil {
+
+    pub fn get_library_location() -> Option<String> {
+        let os = Os::singleton().get_name();
+        if os == "Linux" {
+            Some(ProjectSettings::singleton().globalize_path("user://").to_string())
+        } else if os == "Windows" {
+            Some(ProjectSettings::singleton().globalize_path("user://").to_string())
+        } else {
+            None
+        }
+    }
+
     #[func]
     pub fn get_pdf_info(path: String) -> Gd<PdfInfo> {
         let page_infos = (|| -> Result<(i64, Vec<Vector2i>), String> {
-            let pdfium = render_engine::get_pdfium()?;
 
-            let document = pdfium
-                .load_pdf_from_file(&path, None)
-                .map_err(|e| e.to_string())?;
+            let Some(lib) = PdfUtil::get_library_location() else {
+                return Err("PDF Library not found!".to_owned());
+            };
 
-            let page_count = document.pages().len();
+            pdfium::set_library_location(&lib);
+
+            let document =
+            pdfium::PdfiumDocument::new_from_path(path, None)
+                .map_err(|_| lib)?;
+
+            let page_count = document.pages().page_count();
             let page_sizes: Vec<Vector2i> = document
                 .pages()
-                .iter()
+                .into_iter()
                 .map(|p| {
+                    let p = p.unwrap();
                     Vector2i::new(
-                        (p.width().to_inches() * 300.0) as i32,
-                        (p.height().to_inches() * 300.0) as i32,
+                        (p.width() * 72.0 * 300.0) as i32,
+                        (p.height() * 72.0 * 300.0) as i32,
                     )
                 })
                 .collect();

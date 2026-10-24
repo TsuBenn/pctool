@@ -10,7 +10,7 @@ use std::{
 use dashmap::DashMap;
 use godot::{classes::Texture2D, prelude::*};
 
-use crate::render_engine::{ImageEngine, PdfEngine};
+use crate::{render_engine::{ImageEngine, PdfEngine}, util::PdfUtil};
 
 // use crate::render_engine::RsPdfEngine;
 
@@ -30,6 +30,8 @@ struct RsPreviewTextureEngine {
 
     request_channel: Sender<Vec<TileRequest>>,
     provider_channel: Receiver<Vec<TileResult>>,
+
+    pdf_lib: Arc<Option<String>>
 }
 
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]
@@ -135,10 +137,14 @@ impl IRefCounted for RsPreviewTextureEngine {
 
         let byte_caches_clone = Arc::clone(&byte_caches);
 
+        let pdf_lib = Arc::new(PdfUtil::get_library_location());
+        let pdf_lib_clone = Arc::clone(&pdf_lib);
+
         std::thread::spawn(move || {
             let req_rx = req_rx;
             let prov_tx = prov_tx;
             let byte_caches = byte_caches_clone;
+            let pdf_lib = pdf_lib_clone;
 
             while let Ok(requests) = req_rx.recv() {
                 let requests: Vec<TileRequest> = requests;
@@ -162,6 +168,7 @@ impl IRefCounted for RsPreviewTextureEngine {
 
                 for (_i, loads) in thread_loads.into_iter().enumerate() {
                     let byte_cache_ref = Arc::clone(&byte_caches);
+                    let pdf_lib = Arc::clone(&pdf_lib);
                     let prov_tx_ref = prov_tx.clone();
                     let handle = std::thread::spawn(move || {
                         let loads = loads;
@@ -191,10 +198,15 @@ impl IRefCounted for RsPreviewTextureEngine {
                                 }
                             };
                             if &load.asset_type == "pdf" {
+                                let Some(lib) = &*pdf_lib else {
+                                    godot_print!("No PDF Library Found!");
+                                    continue;
+                                };
                                 let render = PdfEngine::render_page(
                                     &(*bytes),
                                     load.asset_index,
                                     load.size_tier,
+                                    lib
                                 );
                                 let (pixel_bytes, width, height) = match render {
                                     Ok((pixel_bytes, width, height)) => {
@@ -277,6 +289,7 @@ impl IRefCounted for RsPreviewTextureEngine {
             caching: HashSet::new(),
             request_channel: req_tx,
             provider_channel: prov_rx,
+            pdf_lib
         }
     }
 }
@@ -299,7 +312,7 @@ impl RsPreviewTextureEngine {
         let tier = SIZE_TIER
             .iter()
             .cloned()
-            .position(|s| s >= (target_px_width as f64 * 2 as f64) as i64)
+            .position(|s| s >= (target_px_width as f64 as f64) as i64)
             .unwrap_or(SIZE_TIER.len() - 1) as i64;
 
         let texture_key = TextureKey {
@@ -319,9 +332,9 @@ impl RsPreviewTextureEngine {
                     if report {
                         self.cache_misses.insert(TileRequest {
                             asset_id: asset_id.clone(),
-                            source_path,
+                            source_path: source_path.clone(),
                             asset_index,
-                            asset_type: asset_type,
+                            asset_type: asset_type.clone(),
                             size_tier: SIZE_TIER[tier as usize],
                         });
                     }
@@ -333,6 +346,13 @@ impl RsPreviewTextureEngine {
                     {
                         return Some(lower_tier.1.texture.clone());
                     }
+                    // self.cache_misses.insert(TileRequest {
+                    //     asset_id: asset_id.clone(),
+                    //     source_path,
+                    //     asset_index,
+                    //     asset_type: asset_type,
+                    //     size_tier: SIZE_TIER[0],
+                    // });
                     break;
                 }
             }
@@ -431,7 +451,7 @@ impl RsPreviewTextureEngine {
         // }
         if self.cache_byte_size >= MAX_CACHE_SIZE_BYTES {
             let mut remove_candidate: Vec<(&TextureKey, &CacheTexture)> =
-                self.caches.iter().filter(|i| !i.1.is_used()).collect();
+                self.caches.iter().filter(|i| !i.1.is_used() && i.1.size_tier != 128).collect();
             remove_candidate.sort_by(|a, b| {
                 b.1.epoch
                     .cmp(&a.1.epoch)
@@ -475,11 +495,11 @@ impl RsPreviewTextureEngine {
     }
 
     #[func]
-    fn cache_cleanup(&mut self) {
+    fn cache_cleanup(&mut self, wipe: bool) {
         let to_remove: Vec<TextureKey> = self
             .caches
             .iter()
-            .filter(|i| !i.1.is_used() || i.1.size_tier != 128)
+            .filter(|i| (!i.1.is_used() && i.1.size_tier != 128) || wipe)
             .map(|i| i.0.clone())
             .collect();
         for key in to_remove {

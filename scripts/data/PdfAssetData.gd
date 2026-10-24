@@ -10,6 +10,8 @@ func _init(new_id: String, file_name: String, path: String, pages: int, page_siz
 	source_path = path
 	page_count = pages
 	sizes = page_sizes
+	for i in range(page_count):
+		PreviewTextureEngine.request_texture(self, i, 128)
 
 
 func get_count() -> int:
