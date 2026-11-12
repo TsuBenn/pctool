@@ -64,12 +64,14 @@ func commit_size():
 				_commit = false
 				size_mm = new
 				_commit = true
+				size_mm_last_changed = Vector2.INF
 		)
 		Global.undo_redo[_document_data].add_undo_method(
 			func():
 				_commit = false
 				size_mm = old
 				_commit = true
+				size_mm_last_changed = Vector2.INF
 		)
 		Global.undo_redo[_document_data].commit_action(false)
 
@@ -208,6 +210,7 @@ func commit_framings():
 			framings = new
 			emit_changed()
 			_commit = true
+			framings_last_changed.clear()
 	)
 	Global.undo_redo[_document_data].add_undo_method(
 		func():
@@ -215,6 +218,7 @@ func commit_framings():
 			framings = old
 			emit_changed()
 			_commit = true
+			framings_last_changed.clear()
 	)
 	Global.undo_redo[_document_data].commit_action(false)
 
@@ -267,12 +271,14 @@ func commit_border_width():
 			_commit = false
 			border_width = new
 			_commit = true
+			border_width_last_changed = -1
 	)
 	Global.undo_redo[_document_data].add_undo_method(
 		func():
 			_commit = false
 			border_width = old
 			_commit = true
+			border_width_last_changed = -1
 	)
 	Global.undo_redo[_document_data].commit_action(false)
 
