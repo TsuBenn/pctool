@@ -107,21 +107,25 @@ func extract_rust_binary():
 		notice("Unsupported Platform", "Cannot load application's core binary.")
 		return
 
+	var restart = false
 	if not FileAccess.file_exists(target_path):
-		var source_file = FileAccess.open(source_path, FileAccess.READ)
-		if source_file:
-			var bytes = source_file.get_buffer(source_file.get_length())
-			var target_file = FileAccess.open(target_path, FileAccess.WRITE)
-			if target_file:
-				target_file.store_buffer(bytes)
-				target_file.close()
-				print("Extracted core lib.")
+		restart = true
+
+	var source_file = FileAccess.open(source_path, FileAccess.READ)
+	if source_file:
+		var bytes = source_file.get_buffer(source_file.get_length())
+		var target_file = FileAccess.open(target_path, FileAccess.WRITE)
+		if target_file:
+			target_file.store_buffer(bytes)
+			target_file.close()
+			print("Extracted core lib.")
+			if restart:
 				hard_restart_app()
-			else:
-				push_error(FileAccess.get_open_error())
-			source_file.close()
 		else:
-			push_error("Can't find core lib source file.")
+			push_error(FileAccess.get_open_error())
+		source_file.close()
+	else:
+		push_error("Can't find core lib source file.")
 
 
 func _ready() -> void:
