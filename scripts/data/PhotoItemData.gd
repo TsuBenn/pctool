@@ -8,10 +8,13 @@ var _commit: bool = true
 
 var asset: AssetData:
 	set(new):
+		if asset and asset.changed.is_connected(emit_changed):
+			asset.changed.disconnect(emit_changed)
 		asset = new
 		if asset:
 			framings.clear()
 			framings.resize(asset.get_count())
+			asset.changed.connect(emit_changed)
 		for i in range(framings.size()):
 			framings[i] = Framing.new()
 		emit_changed()
@@ -22,7 +25,6 @@ enum Rotation {
 	ROTATE_180,
 	ROTATE_270,
 }
-
 
 class Framing:
 	extends Resource

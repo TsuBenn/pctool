@@ -21,10 +21,12 @@ signal request_import_dialog
 
 @onready var assets_scroll_container: ScrollContainer = %AssetsScrollContainer
 
-@onready var asset_card_context_menu: PopupMenu = %AssetCardContextMenu
+@onready var asset_card_context_menu: PopupMenuSimplified = %AssetCardContextMenu
 @onready var assets_container_context_menu: PopupMenu = %AssetsContainerContextMenu
 @onready
 var assets_removal_confirmation_dialog: ConfirmationDialog = %AssetsRemovalConfirmationDialog
+
+@onready var pdf_slicing_window: PdfSlicingWindow = %PdfSlicingWindow
 
 var document_data: DocumentData
 var selected_asset_cards: Array[AssetCard] = []
@@ -48,19 +50,16 @@ func setup(data: DocumentData):
 		for asset in document_data.assets:
 			instantiate_asset_card(asset)
 
-# func update_cards():
-# 	# var y_offset = assets_scroll_container.scroll_vertical
-# 	# var max_height = assets_scroll_container.size.y - 12
-
-# 	match view_mode:
-# 		"grid":
-# 			for card: AssetCard in grid_assets_container.get_children():
-# 				# var in_view = ((card.position.y - y_offset + card.size.y) >= 0 && (card.position.y  - y_offset) <= max_height)
-# 				card.texture_rect.texture = PreviewTextureEngine.request(card.asset_data, 0, 128, true)
-# 		"list":
-# 			for card in list_assets_container.get_children():
-# 				# var in_view = ((card.position.y - y_offset) >= 0 && (card.position.y - y_offset) <= max_height)
-# 				card.texture_rect.texture = PreviewTextureEngine.request(card.asset_data, 0, 128, true)
+func update_cards():
+	match view_mode:
+		"grid":
+			for card: AssetCard in grid_assets_container.get_children():
+				card.update_view_mode(AssetCard.ViewMode.GRID)
+				card.texture_rect.texture = PreviewTextureEngine.request_texture(card.asset_data, 0, 128)
+		"list":
+			for card: AssetCard in list_assets_container.get_children():
+				card.update_view_mode(AssetCard.ViewMode.LIST)
+				card.texture_rect.texture = PreviewTextureEngine.request_texture(card.asset_data, 0, 128)
 
 func _ready() -> void:
 	view_option_button.item_selected.connect(_update_view_mode)
@@ -71,13 +70,22 @@ func _ready() -> void:
 	show_file_names_check_button.toggled.connect(_update_file_names_visibility)
 
 	assets_scroll_container.gui_input.connect(_on_assets_container_pressed)
-	# PreviewTextureEngine.cache_updated.connect(update_cards)
 	# assets_scroll_container.get_v_scroll_bar().value_changed.connect(func(_none): preview_texture_debounce_timer.start())
 	# preview_texture_debounce_timer.wait_time = 0.1
 	# preview_texture_debounce_timer.one_shot = true
 	# preview_texture_debounce_timer.timeout.connect(update_cards)
 	# add_child(preview_texture_debounce_timer)
 
+	pdf_slicing_window.accept_slicing.connect(
+		func(asset, start, end):
+			if asset is PdfAssetData:
+				var new_asset: PdfAssetSlice = PdfAssetSlice.new(asset, start, end)
+				instantiate_asset_card(new_asset)
+			elif asset is PdfAssetSlice:
+				asset.start = start
+				asset.end = end
+				update_cards()
+	)
 
 	asset_card_context_menu.id_pressed.connect(_on_card_context_menu_pressed)
 	assets_container_context_menu.id_pressed.connect(_on_container_context_menu_pressed)
@@ -231,6 +239,8 @@ func _on_card_clicked(card: AssetCard, ctrl_pressed: bool, shift_pressed: bool):
 			last_selected_asset_card = card
 			card.is_selected = true
 	elif shift_pressed and not ctrl_pressed and selected_asset_cards.size() > 0:
+		if not last_selected_asset_card:
+			last_selected_asset_card = selected_asset_cards.back()
 		var last_selected = last_selected_asset_card.get_index()
 		var selected = card.get_index()
 
@@ -268,6 +278,7 @@ func _on_card_double_clicked(card: AssetCard):
 enum CardContextMenuAction {
 	ADD_TO_SHEET,
 	GROUP_SELECTED,
+	SLICE_GROUP,
 	DUPLICATE,
 	RENAME,
 	OPEN_LOCATION,
@@ -286,6 +297,15 @@ func _show_card_context_menu(card: AssetCard, global_mouse_pos: Vector2i):
 	asset_card_context_menu.set_item_disabled(
 		asset_card_context_menu.get_item_index(CardContextMenuAction.GROUP_SELECTED),
 		selected_asset_cards.size() < 2
+	)
+	asset_card_context_menu.set_item_disabled(
+		asset_card_context_menu.get_item_index(CardContextMenuAction.SLICE_GROUP),
+		not (selected_asset_cards.size() < 2 and (selected_asset_cards[0].asset_data is PdfAssetData or selected_asset_cards[0].asset_data is PdfAssetSlice))
+	)
+
+	asset_card_context_menu.set_item_text(
+		asset_card_context_menu.get_item_index(CardContextMenuAction.SLICE_GROUP),
+		"Adjust PDF Slice" if selected_asset_cards[0].asset_data is PdfAssetSlice else "Slice PDF"
 	)
 
 	asset_card_context_menu.position = global_mouse_pos
@@ -322,6 +342,10 @@ func _on_card_context_menu_pressed(id: int):
 			if new_group:
 				instantiate_asset_card(new_group)
 			document_data.assets.append(new_group)
+		CardContextMenuAction.SLICE_GROUP:
+			var asset_data = selected_asset_cards[0].asset_data
+			if asset_data is PdfAssetData or asset_data is PdfAssetSlice:
+				pdf_slicing_window.request_open(selected_asset_cards[0].asset_data)
 		CardContextMenuAction.DUPLICATE:
 			Global.notice("Feature Not Implemented", "Assets Duplication has not been implemented!")
 			pass

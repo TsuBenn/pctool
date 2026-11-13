@@ -138,10 +138,16 @@ func update_view_mode(mode: ViewMode):
 					PreviewTextureEngine.cache_updated.disconnect(_ready)
 
 				texture_rect.texture = texture
-				if asset_data is GroupAssetData:
+				if asset_data is GroupAssetData or asset_data is PdfAssetData:
 					group_indicator.visible = true
 					label.theme_type_variation = "MiniEmphasisLabel"
+					child_count.theme_type_variation = "MiniLabel"
 					child_count.text = " %d " % asset_data.get_count()
+				elif asset_data is PdfAssetSlice:
+					group_indicator.visible = true
+					label.theme_type_variation = "MiniEmphasisLabel"
+					child_count.theme_type_variation = "MiniDimLabel"
+					child_count.text = "[%d]" % asset_data.get_count()
 				else:
 					label.theme_type_variation = "MiniLabel"
 					group_indicator.visible = false
@@ -164,6 +170,7 @@ func update_view_mode(mode: ViewMode):
 				"margin_bottom", 3 if show_file_name else 6
 			)
 		ViewMode.LIST:
+			group_indicator.visible = false
 			box_container.vertical = false
 			texture_rect.texture = file_icon
 			texture_rect.custom_minimum_size = Vector2i(7, 7)

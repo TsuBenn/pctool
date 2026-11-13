@@ -34,7 +34,11 @@ static func export_document(
 
 	start_timer()
 
+	var ext = output_path.get_extension()
+
 	document_data.export_path = output_path.get_base_dir()
+	if !document_data.save_path.is_empty():
+		DocumentManager.save_document(document_data, document_data.save_path)
 
 	var engine = prepare_workload(document_data, layout)
 
@@ -45,6 +49,8 @@ static func export_document(
 					print("cooking")
 				print("done")
 		EXPORT_PDF:
+			if ext != "pdf":
+				output_path += ".pdf"
 			if engine.export_as_pdf(output_path) == OK:
 				Global.progress_started("Export to PDF")
 				while engine.get_status() == 1:
@@ -61,6 +67,8 @@ static func export_document(
 					_:
 						Global.notice.call_deferred("Export Failed", "PDF document failed to export to:\n%s" % output_path.get_file())
 				Global.progress_finished()
+				if open_on_finished:
+					OS.shell_open(output_path)
 
 	end_timer()
 	return OK
@@ -73,6 +81,9 @@ static func prepare_workload(document_data: DocumentData, layout: PrintLayout) -
 				if not engine.add_asset(sub_asset.id, sub_asset.source_path, sub_asset is PdfAssetData):
 					return
 			continue
+		elif asset is PdfAssetSlice:
+			if not engine.add_asset(asset.pdf_asset.id, asset.pdf_asset.source_path, true):
+				continue
 
 		if not engine.add_asset(asset.id, asset.source_path, asset is PdfAssetData):
 			return
@@ -84,8 +95,12 @@ static func prepare_workload(document_data: DocumentData, layout: PrintLayout) -
 			var index = tile.sub_asset_index
 			var asset_id = asset.id
 			if asset is GroupAssetData:
-				asset_id = asset.get_child(index).id
-				index = 0
+				var entry = asset.get_child(index)
+				asset_id = entry[0].id
+				index = entry[1]
+			elif asset is PdfAssetSlice:
+				asset_id = asset.pdf_asset.id
+				index = index + asset.start
 			if not engine.add_tile(asset_id, tile.rect_mm, photo_item.get_image_rect_mm(tile.sub_asset_index), index, tile.page_index, photo_item.border_width, photo_item.border_color):
 				return
 			var framing = photo_item.get_framing(index)

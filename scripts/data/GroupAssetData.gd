@@ -1,71 +1,96 @@
 class_name GroupAssetData
 extends AssetData
 
-var children: Array[AssetData] = []
+# Array[[AssetData, Index]]
+var children: Array[Array] = []
+var assets: Array[AssetData] = []
 
 func _init(
 	new_id: String,
 	new_display_name: String,
-	new_children: Array[AssetData],
+	new_children: Array[Array],
 ) -> void:
 	id = new_id
 	display_name = new_display_name
 	source_path = ""
 	children = new_children
-
+	for child in children:
+		var asset = child[0]
+		var index = child[1]
+		if index == 0:
+			assets.append(asset)
+			asset.changed.connect(update_children)
 
 func get_count() -> int:
 	return children.size()
 
-func get_bytes() -> PackedByteArray:
-	return []
-
-func get_image(index: int, size: Vector2i) -> Image:
-	return children[index].get_image(0, size)
-
 func get_size(index: int) -> Vector2i:
-	return children[index].get_size(0)
+	var entry = children[index]
+	return entry[0].get_size(entry[1])
 
-func get_child(index: int) -> AssetData:
+func get_child(index: int) -> Array:
 	return children.get(index)
 
 func clean() -> void:
 	for child in children:
-		child.clean()
+		child[0].clean()
 
 	children.clear()
 
 
-func flatten() -> Array[AssetData]:
-	var flattened_group: Array[AssetData] = []
+func flatten() -> Array[Array]:
+	var flattened_group: Array[Array] = []
 
-	for asset in children:
+	for child in children:
+		var asset = child[0]
+		var index = child[1]
 		if asset is GroupAssetData:
 			for a in asset.flatten():
 				flattened_group.append(a)
 		else:
-			flattened_group.append(asset)
+			flattened_group.append([asset, index])
 
 	return flattened_group
 
 
-func remove_child(index: int):
-	children.remove_at(index)
+func remove_asset(asset: AssetData):
+	children.filter(func(entry): return entry[0] != asset)
 
-
-static func create_from_assets(assets: Array[AssetData], name: String) -> GroupAssetData:
-	if assets.size() <= 1:
-		Global.notice("Cannot Group Assets", "You must select at least 2 assets for grouping!")
-		return null
-	var new_group: Array[AssetData] = []
-	var new_id: String = AssetData.get_id()
+func update_children():
+	var new_group: Array[Array] = []
 
 	for asset in assets:
+		if asset is PdfAssetData:
+			for i in range(asset.page_count):
+				new_group.append([asset, i])
+		elif asset is PdfAssetSlice:
+			for i in range(asset.get_count()):
+				new_group.append([asset, i])
+		else:
+			new_group.append([asset, 0])
+
+	children = new_group
+	emit_changed()
+
+static func create_from_assets(_assets: Array[AssetData], name: String) -> GroupAssetData:
+	if _assets.size() <= 1:
+		Global.notice("Cannot Group Assets", "You must select at least 2 assets for grouping!")
+		return null
+	var new_group: Array[Array] = []
+	var new_id: String = AssetData.get_id()
+
+	for asset in _assets:
 		if asset is GroupAssetData:
 			for a in asset.flatten():
 				new_group.append(a)
+		elif asset is PdfAssetData:
+			for i in range(asset.page_count):
+				new_group.append([asset, i])
+		elif asset is PdfAssetSlice:
+			for i in range(asset.get_count()):
+				new_group.append([asset, i])
 		else:
-			new_group.append(asset)
+			new_group.append([asset, 0])
 
 	var asset: GroupAssetData = GroupAssetData.new(new_id, name, new_group)
 	return asset

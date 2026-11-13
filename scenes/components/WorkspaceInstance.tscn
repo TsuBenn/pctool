@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://c0oaph1wivnav" path="res://scenes/modules/DragBox.tscn" id="15_qie5n"]
 [ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="16_qie5n"]
 [ext_resource type="PackedScene" uid="uid://bup7vqarswn2u" path="res://scenes/components/AdvanceCroppingWindow.tscn" id="18_qie5n"]
+[ext_resource type="PackedScene" uid="uid://bxgdrgddym65f" path="res://scenes/components/PdfSlicingWindow.tscn" id="19_bn7i6"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhgcu"]
 bg_color = Color(1, 1, 1, 1)
@@ -316,25 +317,29 @@ layout_mode = 2
 label = "Show file names:"
 button_pressed = true
 
-[node name="AssetCardContextMenu" type="PopupMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel" unique_id=1127747373]
+[node name="AssetCardContextMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel" unique_id=1036242746 instance=ExtResource("14_k0bj0")]
 unique_name_in_owner = true
-oversampling_override = 1.0
-size = Vector2i(177, 408)
-item_count = 7
+size = Vector2i(177, 176)
+visible = false
+exclusive = true
+item_count = 8
 item_0/text = "Add to sheet"
 item_0/id = 0
 item_1/text = "Group selected"
 item_1/id = 1
-item_2/text = "Duplicate"
+item_2/text = "Slice Group"
 item_2/id = 2
-item_3/text = "Rename"
+item_3/text = "Duplicate"
 item_3/id = 3
-item_4/text = "Open Location"
+item_4/text = "Rename"
 item_4/id = 4
-item_5/id = 0
-item_5/separator = true
-item_6/text = "Remove"
-item_6/id = 5
+item_5/text = "Open Location"
+item_5/id = 5
+item_6/id = -1
+item_6/separator = true
+item_7/text = "Remove"
+item_7/id = 6
+items = Array[String](["Add to sheet", "Group selected", "Slice Group", "Duplicate", "Rename", "Open Location", "---", "Remove"])
 
 [node name="AssetsContainerContextMenu" type="PopupMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel" unique_id=81825222]
 unique_name_in_owner = true
@@ -570,7 +575,7 @@ ticks_on_borders = true
 unique_name_in_owner = true
 title = "Duplicate Assets"
 
-[node name="CanvasContextMenu" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=1036242746 instance=ExtResource("14_k0bj0")]
+[node name="CanvasContextMenu" parent="MarginContainer/VBoxContainer/Workspace/CanvasPanel" unique_id=841563562 instance=ExtResource("14_k0bj0")]
 unique_name_in_owner = true
 visible = false
 exclusive = true
@@ -991,5 +996,9 @@ font_hover_pressed_color = Color(0, 0, 0, 1)
 custom_font = SubResource("FontVariation_qie5n")
 
 [node name="AdvancedCroppingWindow" parent="." unique_id=554773751 instance=ExtResource("18_qie5n")]
+unique_name_in_owner = true
+visible = false
+
+[node name="PdfSlicingWindow" parent="." unique_id=1554998259 instance=ExtResource("19_bn7i6")]
 unique_name_in_owner = true
 visible = false

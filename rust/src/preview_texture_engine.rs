@@ -308,6 +308,7 @@ impl RsPreviewTextureEngine {
         source_path: String,
         target_px_width: i64,
         report: bool,
+        force: bool,
     ) -> Option<Gd<Texture2D>> {
         let tier = SIZE_TIER
             .iter()
@@ -324,6 +325,9 @@ impl RsPreviewTextureEngine {
         //     self.byte_caches.insert(asset_id.clone(), std::fs::read(&source_path).unwrap().into());
         // }
         loop {
+            if force {
+                break;
+            }
             match self.caches.get_mut(&texture_key) {
                 Some(cache) => {
                     return Some(cache.texture.clone());

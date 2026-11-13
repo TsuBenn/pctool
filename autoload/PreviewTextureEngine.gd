@@ -46,18 +46,22 @@ func request_texture(asset: AssetData, index: int, target_width: int) -> Texture
 func request_tile(tile: PhotoTile, px_per_mm, report: bool) -> Texture2D:
 	return request(tile.photo_item.asset, tile.sub_asset_index, int(tile.photo_item.get_image_rect_mm(tile.sub_asset_index).size.x * px_per_mm), report)
 
-func request(asset: AssetData, index: int, target_width: int, report: bool) -> Texture2D:
+func request(asset: AssetData, index: int, target_width: int, report: bool, force: bool = false) -> Texture2D:
 	var type: String
 
 	if asset is GroupAssetData:
-		asset = asset.get_child(index)
-		index = 0;
+		var entry = asset.get_child(index)
+		asset = entry[0]
+		index = entry[1];
 
 	if asset is ImageAssetData:
 		type = "image"
 		index = 0
 	if asset is PdfAssetData:
 		type = "pdf"
+	if asset is PdfAssetSlice:
+		type = "pdf"
+		index = asset.start + index
 
 	if report:
 		request_timeout.start()
@@ -68,7 +72,8 @@ func request(asset: AssetData, index: int, target_width: int, report: bool) -> T
 		type,
 		asset.source_path,
 		min(target_width, int(asset.get_size(index).x)),
-		report
+		report,
+		force
 	)
 
 func poll() -> bool:

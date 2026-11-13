@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://bxgdrgddym65f"]
+
+[ext_resource type="Script" uid="uid://cxuntbpl6wilt" path="res://scripts/ui/PdfSlicingWindow.gd" id="1_686cx"]
+[ext_resource type="PackedScene" uid="uid://c0oaph1wivnav" path="res://scenes/modules/DragBox.tscn" id="2_tcdnw"]
+
+[node name="PdfSlicingWindow" type="Window" unique_id=1554998259]
+oversampling_override = 1.0
+title = "Slice PDF Asset"
+position = Vector2i(0, 26)
+size = Vector2i(400, 112)
+transient = true
+exclusive = true
+script = ExtResource("1_686cx")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=2124038193]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1649195954]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=772516616]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1005738212]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 26.995)
+layout_mode = 2
+theme_type_variation = &"EmphasisLabel"
+text = "Something.pdf"
+horizontal_alignment = 1
+text_overrun_behavior = 5
+
+[node name="CenterContainer" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=2010606305]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer" unique_id=1482701956]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer/HBoxContainer" unique_id=887366941]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer/HBoxContainer/HBoxContainer" unique_id=830714456]
+layout_mode = 2
+text = "Start:"
+
+[node name="StartDragBox" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer/HBoxContainer/HBoxContainer" unique_id=1371057286 instance=ExtResource("2_tcdnw")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text_alignment = "Right"
+hint = true
+show_box = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer/HBoxContainer" unique_id=1179484180]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer/HBoxContainer/HBoxContainer2" unique_id=1397493943]
+layout_mode = 2
+text = "End:"
+
+[node name="EndDragBox" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer/HBoxContainer/HBoxContainer2" unique_id=1456348249 instance=ExtResource("2_tcdnw")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text_alignment = "Right"
+hint = true
+show_box = true
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=873179081]
+layout_mode = 2
+
+[node name="CenterContainer2" type="CenterContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=135161780]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer2" unique_id=960279881]
+layout_mode = 2
+theme_override_constants/separation = 80
+
+[node name="CancelButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer2/HBoxContainer" unique_id=2138724046]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"
+
+[node name="CreateSliceButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/CenterContainer2/HBoxContainer" unique_id=1438507884]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create Slice"

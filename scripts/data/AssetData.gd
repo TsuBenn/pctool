@@ -1,5 +1,5 @@
 @abstract class_name AssetData
-extends RefCounted
+extends Resource
 
 var id: String
 var display_name: String
@@ -7,7 +7,6 @@ var source_path: String
 
 @abstract func get_count() -> int
 @abstract func get_size(index: int) -> Vector2i
-
 
 static func get_id() -> String:
 	var crypto = Crypto.new()
