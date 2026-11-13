@@ -11,8 +11,6 @@ const EXPORT_PDF = ExportMode.EXPORT_PDF
 
 static var start_time: float
 
-static var engine: RsExportEngine = RsExportEngine.new()
-
 static func start_timer():
 	start_time = Time.get_ticks_usec()
 
@@ -38,14 +36,69 @@ static func export_document(
 
 	document_data.export_path = output_path.get_base_dir()
 
+	var engine = prepare_workload(document_data, layout)
+
 	match export_type:
 		EXPORT_PNG:
-			return engine.export_as_png(output_path)
+			if engine.export_as_png(output_path) == OK:
+				while engine.get_status() == 1:
+					print("cooking")
+				print("done")
 		EXPORT_PDF:
-			return engine.export_as_pdf(output_path)
+			if engine.export_as_pdf(output_path) == OK:
+				Global.progress_started("Export to PDF")
+				while engine.get_status() == 1:
+					if Global.progress_flag:
+						engine.cancel_export()
+						Global.progress_finished()
+						Global.notice("Export Canceled", "PDF Exportation has been Canceled by User" % output_path.get_file())
+						return OK
+					Global.progress_update("Exporting to PDF", engine.get_progress())
+					await Engine.get_main_loop().process_frame
+				match engine.get_status():
+					2:
+						Global.notice.call_deferred("Export Complete", "PDF document successfully exported to:\n%s" % output_path.get_file())
+					_:
+						Global.notice.call_deferred("Export Failed", "PDF document failed to export to:\n%s" % output_path.get_file())
+				Global.progress_finished()
 
+	end_timer()
 	return OK
 
+static func prepare_workload(document_data: DocumentData, layout: PrintLayout) -> RsExportEngine:
+	var engine = RsExportEngine.new_engine(document_data.paper_size_mm, document_data.dpi)
+	for asset in document_data.assets:
+		if asset is GroupAssetData:
+			for sub_asset in asset.children:
+				if not engine.add_asset(sub_asset.id, sub_asset.source_path, sub_asset is PdfAssetData):
+					return
+			continue
+
+		if not engine.add_asset(asset.id, asset.source_path, asset is PdfAssetData):
+			return
+
+	for page in layout.pages:
+		for tile: PhotoTile in page:
+			var asset = tile.photo_item.asset
+			var photo_item = tile.photo_item
+			var index = tile.sub_asset_index
+			var asset_id = asset.id
+			if asset is GroupAssetData:
+				asset_id = asset.get_child(index).id
+				index = 0
+			if not engine.add_tile(asset_id, tile.rect_mm, photo_item.get_image_rect_mm(tile.sub_asset_index), index, tile.page_index, photo_item.border_width, photo_item.border_color):
+				return
+			var framing = photo_item.get_framing(index)
+			if framing.fitting_mode == photo_item.FittingMode.DISTORT:
+				engine.set_last_tile_perspective(
+					index,
+					framing.top_left_corner,
+					framing.top_right_corner,
+					framing.bottom_right_corner,
+					framing.bottom_left_corner
+				)
+
+	return engine
 
 static func _calculate_layout(document_data: DocumentData) -> PrintLayout:
 	var layout: PrintLayout = PrintLayout.new()

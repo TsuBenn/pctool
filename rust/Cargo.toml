@@ -10,10 +10,13 @@ crate-type = ["cdylib"]
 ahash = "0.8.12"
 dashmap = "6.2.1"
 fast_image_resize = {version = "6.1.0", features = ["image"]}
+flate2 = "1.1.11"
 godot = "0.5.5"
-image = "0.25.10"
+image = { version = "0.25.10", features = ["png", "jpeg", "webp"] }
+lopdf = "0.47.0"
 pdfium = "0.10.4"
 pdfium-render = "0.9.4"
 png = "0.18.1"
+rayon = "1.12.0"
 turbojpeg = { version = "1.5.1", features = ["image"] }
 webpx = "0.4.0"

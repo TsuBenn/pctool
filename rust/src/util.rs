@@ -1,9 +1,8 @@
-use std::{fs::File, io::Read};
+use std::{fs::File, io::Read, path::Path};
 
 use godot::{classes::{Os, ProjectSettings}, prelude::*};
 use image::ImageFormat;
-
-use crate::render_engine;
+use lopdf::{Document, Object, content::Content, dictionary};
 
 #[derive(GodotClass)]
 #[class(init, base=RefCounted)]
@@ -109,8 +108,49 @@ pub impl PdfInfo {
     }
 }
 
+const MM_TO_PT: f32 = 72.0 / 25.4;
+
 #[godot_api]
 impl PdfUtil {
+
+    pub fn create_blank_pdf(paper_size_mm: Vector2, page_count: usize, output_path: &Path) -> lopdf::Result<()> {
+        let mut doc = Document::with_version("1.7");
+
+        let pages_id = doc.new_object_id();
+
+        let page_w_pt = paper_size_mm.x * MM_TO_PT;
+        let page_h_pt = paper_size_mm.y * MM_TO_PT;
+
+        let mut page_ids = Vec::with_capacity(page_count);
+
+        for _ in 0..page_count {
+            let content = Content {operations: vec![]};
+            let content_id = doc.add_object(lopdf::Stream::new(dictionary! {}, content.encode()?));
+            let page_id = doc.add_object(dictionary! {
+                "Type" => "Page",
+                "Parent" => pages_id,
+                "MediaBox" => vec![0.into(),0.into(),page_w_pt.into(),page_h_pt.into()],
+                "Contents" => content_id,
+                "Resources" => dictionary! {}
+            });
+            page_ids.push(Object::Reference(page_id));
+        }
+
+        doc.objects.insert(pages_id, Object::Dictionary(dictionary!{
+            "Type" => "Pages",
+            "Kids" => page_ids,
+            "Count" => page_count as i64
+        }));
+
+        let catalog_id = doc.add_object(dictionary! {
+            "Type" => "Catalog",
+            "Pages" => pages_id
+        });
+        doc.trailer.set("Root", catalog_id);
+        doc.save(output_path)?;
+
+        Ok(())
+    }
 
     pub fn get_library_location() -> Option<String> {
         let os = Os::singleton().get_name();
