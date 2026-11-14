@@ -499,6 +499,12 @@ func add_asset_to_sheet(
 
 		var item: PhotoItemData = PhotoItemData.new()
 		item.asset = asset
+		if asset is PdfAssetData or asset is PdfAssetSlice:
+			item.border_enabled = false
+			item.size_mm = document_data._get_maximum_photo_item_size(item)
+			item.size_mm_last_changed = Vector2.INF
+			item.framings[0].fitting_mode = PhotoItemData.FittingMode.FIT
+			item.apply_framing_to_all(0)
 		# item.size_mm = Vector2(30.0, 40.0)
 		# item.quantity = 1
 		document_data.add_photo_item_no_signal(item)

@@ -1,9 +1,9 @@
-use std::io::Cursor;
+use std::{ffi::OsString, io::Cursor};
 
 use fast_image_resize::Resizer;
 use godot::prelude::*;
 
-use image::{ImageFormat, ImageReader};
+use image::{ImageFormat, ImageReader, RgbaImage};
 
 use crate::util::ImageUtil;
 
@@ -54,6 +54,43 @@ impl PdfEngine {
         let pixels = image.into_raw();
 
         Ok((pixels, width, height))
+    }
+
+    pub fn render_page_to_image(
+        source_path: OsString,
+        page_index: i64,
+        target_width: i64,
+        lib: OsString,
+    ) -> Result<RgbaImage, String> {
+        if page_index < 0 || page_index > u16::MAX as i64 {
+            return Err("Invalid page index".into());
+        }
+
+        if target_width <= 0 || target_width > 8192 {
+            return Err("Target width must be between 1 and 8192".into());
+        }
+
+        pdfium::set_library_location(&lib.to_string_lossy());
+
+        let document =
+            pdfium::PdfiumDocument::new_from_path(source_path, None)
+                .map_err(|e| e.to_string())?;
+
+        let page = document
+            .pages()
+            .get(page_index as i32)
+            .map_err(|e| e.to_string())?;
+
+        let config = pdfium::PdfiumRenderConfig::new().with_width(target_width as i32);
+
+        let bitmap = page.render(&config).unwrap();
+
+        let image = bitmap
+            .as_rgba8_image()
+            .map_err(|e| e.to_string())?
+            .to_rgba8();
+
+        Ok(image)
     }
 }
 

@@ -164,7 +164,7 @@ func _ready() -> void:
 		line_edit.flat = !show_box
 		underline.visible = false
 	)
-	_sync_ui.call_deferred()
+	_sync_ui()
 
 func get_alignment():
 	match text_alignment:

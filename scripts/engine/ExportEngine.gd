@@ -106,7 +106,7 @@ static func prepare_workload(document_data: DocumentData, layout: PrintLayout) -
 			var framing = photo_item.get_framing(index)
 			if framing.fitting_mode == photo_item.FittingMode.DISTORT:
 				engine.set_last_tile_perspective(
-					index,
+					tile.page_index,
 					framing.top_left_corner,
 					framing.top_right_corner,
 					framing.bottom_right_corner,

@@ -27,6 +27,7 @@ signal request_import_dialog
 var assets_removal_confirmation_dialog: ConfirmationDialog = %AssetsRemovalConfirmationDialog
 
 @onready var pdf_slicing_window: PdfSlicingWindow = %PdfSlicingWindow
+@onready var group_manager_window: GroupManagerWindow = %GroupManagerWindow
 
 var document_data: DocumentData
 var selected_asset_cards: Array[AssetCard] = []
@@ -80,6 +81,7 @@ func _ready() -> void:
 		func(asset, start, end):
 			if asset is PdfAssetData:
 				var new_asset: PdfAssetSlice = PdfAssetSlice.new(asset, start, end)
+				document_data.assets.append(new_asset)
 				instantiate_asset_card(new_asset)
 			elif asset is PdfAssetSlice:
 				asset.start = start
@@ -279,6 +281,7 @@ enum CardContextMenuAction {
 	ADD_TO_SHEET,
 	GROUP_SELECTED,
 	SLICE_GROUP,
+	EDIT_GROUP,
 	DUPLICATE,
 	RENAME,
 	OPEN_LOCATION,
@@ -301,6 +304,10 @@ func _show_card_context_menu(card: AssetCard, global_mouse_pos: Vector2i):
 	asset_card_context_menu.set_item_disabled(
 		asset_card_context_menu.get_item_index(CardContextMenuAction.SLICE_GROUP),
 		not (selected_asset_cards.size() < 2 and (selected_asset_cards[0].asset_data is PdfAssetData or selected_asset_cards[0].asset_data is PdfAssetSlice))
+	)
+	asset_card_context_menu.set_item_disabled(
+		asset_card_context_menu.get_item_index(CardContextMenuAction.EDIT_GROUP),
+		not (selected_asset_cards.size() < 2 and (selected_asset_cards[0].asset_data is GroupAssetData))
 	)
 
 	asset_card_context_menu.set_item_text(
@@ -343,9 +350,13 @@ func _on_card_context_menu_pressed(id: int):
 				instantiate_asset_card(new_group)
 			document_data.assets.append(new_group)
 		CardContextMenuAction.SLICE_GROUP:
-			var asset_data = selected_asset_cards[0].asset_data
+			var asset_data = selected_asset_cards.back().asset_data
 			if asset_data is PdfAssetData or asset_data is PdfAssetSlice:
-				pdf_slicing_window.request_open(selected_asset_cards[0].asset_data)
+				pdf_slicing_window.request_open(asset_data)
+		CardContextMenuAction.EDIT_GROUP:
+			var asset_data = selected_asset_cards.back().asset_data
+			if asset_data is GroupAssetData:
+				group_manager_window.request_open(asset_data)
 		CardContextMenuAction.DUPLICATE:
 			Global.notice("Feature Not Implemented", "Assets Duplication has not been implemented!")
 			pass
@@ -361,6 +372,12 @@ func _on_card_context_menu_pressed(id: int):
 			_remove_selected_assets()
 	pass
 
+func get_cards():
+	match view_mode:
+		"grid":
+			return grid_assets_container.get_children()
+		"list":
+			return list_assets_container.get_children()
 
 func _on_container_context_menu_pressed(id: int):
 	match id:
@@ -398,6 +415,21 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 		if card.asset_data:
 			assets_to_delete.append(card.asset_data)
 
+	for asset in document_data.assets:
+		if asset is PdfAssetSlice and asset.pdf_asset in assets_to_delete:
+			assets_to_delete.append(asset)
+
+	for asset in document_data.assets:
+		if asset is GroupAssetData:
+			asset.assets = asset.assets.filter(
+				func(a):
+					return not (a in assets_to_delete)
+			)
+			if asset.assets.is_empty():
+				assets_to_delete.append(asset)
+			else:
+				asset.update_children()
+
 	# 2. Check how many are currently placed on the canvas
 	var placed_items_to_remove: Array[PhotoItemData] = []
 	for item in document_data.photo_items:
@@ -425,8 +457,13 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 		if Global.undo_redo.has(document_data):
 			Global.undo_redo[document_data].clear_history()
 
+	var cards = get_cards()
+
 	# 6. Clean up UI cards (iterate over duplicate to avoid iteration bugs)
-	for card in selected_asset_cards.duplicate():
+	for asset in assets_to_delete:
+		var card = cards[cards.find_custom(func(c): return c.asset_data == asset)]
+		if not card:
+			continue
 		var container = card.get_parent()
 		if container:
 			container.remove_child(card)
@@ -443,6 +480,7 @@ func _remove_selected_assets(force_remove: bool = false) -> void:
 		grid_assets_container.get_child_count() + list_assets_container.get_child_count()
 	)
 	assets_empty_state_label.visible = (total_cards == 0)
+	update_cards()
 
 
 func instantiate_asset_card(asset_data: AssetData) -> void:

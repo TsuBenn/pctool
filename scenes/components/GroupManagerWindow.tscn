@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://drdfp6xl3fo0j"]
 
+[ext_resource type="Script" uid="uid://dcil5agupm3ho" path="res://scripts/ui/GroupManagerWindow.gd" id="1_dsjaj"]
 [ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="1_ualrd"]
 [ext_resource type="PackedScene" uid="uid://c0oaph1wivnav" path="res://scenes/modules/DragBox.tscn" id="2_dsjaj"]
 
@@ -9,6 +10,9 @@ oversampling_override = 1.0
 title = "Group Manager"
 position = Vector2i(0, 26)
 size = Vector2i(960, 540)
+transient = true
+exclusive = true
+script = ExtResource("1_dsjaj")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=656607296]
 anchors_preset = 15
@@ -72,17 +76,32 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer2" unique_id=341451500]
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer2" unique_id=1391610804]
 layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer2/ScrollContainer" unique_id=2084615405]
+[node name="AssetList" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer2/MarginContainer" unique_id=1391888734]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+select_mode = 1
+max_text_lines = 2
+max_columns = 0
+same_column_width = true
+fixed_column_width = 128
+icon_mode = 0
+fixed_icon_size = Vector2i(110, 110)
 
-[node name="GridContainer" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer2/ScrollContainer/MarginContainer" unique_id=873885259]
+[node name="PanelContainer3" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer" unique_id=1274625247]
 layout_mode = 2
-size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/VBoxContainer/PanelContainer3" unique_id=752176837]
+layout_mode = 2
+text = "View Scale"
 
 [node name="PanelContainer" type="PanelContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer" unique_id=500643555]
 custom_minimum_size = Vector2(300, 0)
@@ -99,7 +118,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="GroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer" unique_id=25486442 instance=ExtResource("1_ualrd")]
+[node name="SummaryGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer" unique_id=25486442 instance=ExtResource("1_ualrd")]
 layout_mode = 2
 size_flags_vertical = 1
 title = "Summary"
@@ -108,39 +127,44 @@ margin_top = 12
 margin_right = 12
 margin_bottom = 12
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox" unique_id=42547512]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox" unique_id=42547512]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox/VBoxContainer" unique_id=1419159828]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox/VBoxContainer" unique_id=1419159828]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox/VBoxContainer/HBoxContainer" unique_id=506624617]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox/VBoxContainer/HBoxContainer" unique_id=506624617]
 layout_mode = 2
 theme_type_variation = &"DimLabel"
 text = "Asset:"
 
-[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox/VBoxContainer/HBoxContainer" unique_id=1812152713]
+[node name="SelectedAssetLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox/VBoxContainer/HBoxContainer" unique_id=1812152713]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "SubAsset.png"
 horizontal_alignment = 2
+text_overrun_behavior = 5
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox/VBoxContainer" unique_id=1228782867]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox/VBoxContainer" unique_id=1228782867]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox/VBoxContainer/HBoxContainer2" unique_id=1348842726]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox/VBoxContainer/HBoxContainer2" unique_id=1348842726]
 layout_mode = 2
 theme_type_variation = &"DimLabel"
 text = "Type:"
 
-[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox/VBoxContainer/HBoxContainer2" unique_id=1107373597]
+[node name="SelectedAssetTypeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SummaryGroupBox/VBoxContainer/HBoxContainer2" unique_id=1107373597]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Image (PNG)"
 horizontal_alignment = 2
 
-[node name="GroupBox2" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1530377221 instance=ExtResource("1_ualrd")]
+[node name="SliceGroupBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1530377221 instance=ExtResource("1_ualrd")]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_vertical = 1
 title = "Slice"
@@ -149,32 +173,34 @@ margin_top = 12
 margin_right = 12
 margin_bottom = 12
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2" unique_id=904409657]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox" unique_id=904409657]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2/VBoxContainer" unique_id=532877406]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox/VBoxContainer" unique_id=532877406]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2/VBoxContainer/HBoxContainer" unique_id=906715533]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox/VBoxContainer/HBoxContainer" unique_id=906715533]
 layout_mode = 2
 theme_type_variation = &"DimLabel"
 text = "Start:"
 
-[node name="DragBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2/VBoxContainer/HBoxContainer" unique_id=1371057286 instance=ExtResource("2_dsjaj")]
+[node name="StartDragBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox/VBoxContainer/HBoxContainer" unique_id=1371057286 instance=ExtResource("2_dsjaj")]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text_alignment = "Right"
 hint = true
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2/VBoxContainer" unique_id=1495947554]
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox/VBoxContainer" unique_id=1495947554]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2/VBoxContainer/HBoxContainer2" unique_id=988941637]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox/VBoxContainer/HBoxContainer2" unique_id=988941637]
 layout_mode = 2
 theme_type_variation = &"DimLabel"
 text = "End:"
 
-[node name="DragBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/GroupBox2/VBoxContainer/HBoxContainer2" unique_id=999662023 instance=ExtResource("2_dsjaj")]
+[node name="EndDragBox" parent="PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/PanelContainer/MarginContainer/ScrollContainer/VBoxContainer/SliceGroupBox/VBoxContainer/HBoxContainer2" unique_id=999662023 instance=ExtResource("2_dsjaj")]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text_alignment = "Right"

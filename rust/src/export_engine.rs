@@ -4,26 +4,29 @@ use std::hash::Hash;
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::sync::{
+    Arc, Mutex,
     atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering},
-    mpsc, Arc, Mutex,
+    mpsc,
 };
 use std::thread;
 
-use flate2::{write::ZlibEncoder, Compression};
+use flate2::{Compression, write::ZlibEncoder};
 use godot::{global::Error, prelude::*};
-use image::{imageops::FilterType, Rgba, RgbaImage};
+use image::{Rgba, RgbaImage, imageops::FilterType};
 use lopdf::{
-    content::{Content, Operation},
     Document, Object, ObjectId,
+    content::{Content, Operation},
 };
 use rayon::prelude::*;
+
+use crate::{render_engine, util};
 
 const MM_TO_PT: f32 = 72.0 / 25.4;
 const MM_PER_INCH: f32 = 25.4;
 
-// Hard RAM budgets for decoded source images and parsed source PDFs
+// Hard RAM budgets for decoded/rasterized source assets and parsed source PDFs
 const MAX_IMAGE_CACHE_BYTES: usize = 256 * 1024 * 1024; // 256 MB
-const MAX_PDF_CACHE_BYTES: usize = 128 * 1024 * 1024;   // 128 MB
+const MAX_PDF_CACHE_BYTES: usize = 128 * 1024 * 1024; // 128 MB
 
 // Export status codes for GDScript polling
 const STATUS_IDLE: u8 = 0;
@@ -78,9 +81,52 @@ struct TileData {
     perspective: PerspectivePins,
 }
 
+impl TileData {
+    #[inline]
+    fn is_raster_tile(&self, asset: &Asset) -> bool {
+        !asset.is_pdf || self.perspective.enabled
+    }
+
+    #[inline]
+    fn preferred_render_width_px(&self, dpi: i64) -> u32 {
+        let target_dpi = dpi.clamp(72, 600) as f32;
+        ((self.asset_rect_mm.size.x / MM_PER_INCH) * target_dpi)
+            .round()
+            .max(1.0) as u32
+    }
+
+    /// Generates a deterministic signature for identical tile crops/warps so duplicate
+    /// tiles reuse the exact same embedded PDF Image XObject (minimizing output file size).
+    fn dedup_signature(&self, dpi: i64) -> String {
+        let p = &self.perspective.corners;
+        format!(
+            "{}|{}|{:.3},{:.3}|{:.3},{:.3},{:.3},{:.3}|{}|{:.4},{:.4};{:.4},{:.4};{:.4},{:.4};{:.4},{:.4}|{}",
+            self.asset_id,
+            self.index,
+            self.frame_rect_mm.size.x,
+            self.frame_rect_mm.size.y,
+            self.asset_rect_mm.position.x,
+            self.asset_rect_mm.position.y,
+            self.asset_rect_mm.size.x,
+            self.asset_rect_mm.size.y,
+            self.perspective.enabled,
+            p[0].x,
+            p[0].y,
+            p[1].x,
+            p[1].y,
+            p[2].x,
+            p[2].y,
+            p[3].x,
+            p[3].y,
+            dpi.clamp(72, 600)
+        )
+    }
+}
+
 struct Payloads {
     paper_size_mm: Vector2,
     dpi: i64,
+    pdf_lib_path: PathBuf,
     assets: HashMap<String, Asset>,
     pages: Vec<Vec<TileData>>,
 }
@@ -105,10 +151,11 @@ impl RsExportEngine {
             payloads: Some(Payloads {
                 paper_size_mm,
                 dpi,
+                pdf_lib_path: get_pdf_lib_path(),
                 assets: HashMap::new(),
                 pages: Vec::new(),
             }),
-            thread_limit: 0, // Default: 100% max CPU cores
+            thread_limit: 0,
             ticks_done: Arc::new(AtomicUsize::new(0)),
             total_ticks: Arc::new(AtomicUsize::new(0)),
             status: Arc::new(AtomicU8::new(STATUS_IDLE)),
@@ -117,8 +164,6 @@ impl RsExportEngine {
         })
     }
 
-    /// Adjusts worker thread count:
-    /// `<= 0` uses 100% of logical CPU cores; `>= 1` caps workers to that exact count.
     #[func]
     fn set_thread_count(&mut self, threads: i64) {
         if threads <= 0 {
@@ -131,7 +176,6 @@ impl RsExportEngine {
         }
     }
 
-    /// Returns the number of logical hardware threads detected on this machine.
     #[func]
     fn get_max_hardware_threads(&self) -> i64 {
         thread::available_parallelism()
@@ -202,11 +246,17 @@ impl RsExportEngine {
             return false;
         };
         let Some(page) = payloads.pages.get_mut(page_index as usize) else {
-            godot_error!("Invalid page_index {} (set_last_tile_perspective)", page_index);
+            godot_error!(
+                "Invalid page_index {} (set_last_tile_perspective)",
+                page_index
+            );
             return false;
         };
         let Some(last_tile) = page.last_mut() else {
-            godot_error!("No tile found on page {} (set_last_tile_perspective)", page_index);
+            godot_error!(
+                "No tile found on page {} (set_last_tile_perspective)",
+                page_index
+            );
             return false;
         };
 
@@ -217,7 +267,6 @@ impl RsExportEngine {
         true
     }
 
-    /// Starts continuous cross-page multi-threaded PDF export asynchronously.
     #[func]
     fn export_as_pdf(&mut self, output_path: String) -> Error {
         if self.status.load(Ordering::Acquire) == STATUS_RUNNING {
@@ -247,7 +296,8 @@ impl RsExportEngine {
         }
 
         let tile_count: usize = payloads.pages.iter().map(|p| p.len()).sum();
-        self.total_ticks.store((tile_count * 3).max(1), Ordering::Release);
+        self.total_ticks
+            .store((tile_count * 3).max(1), Ordering::Release);
         self.ticks_done.store(0, Ordering::Release);
         self.cancel_flag.store(false, Ordering::Release);
         self.status.store(STATUS_RUNNING, Ordering::Release);
@@ -498,102 +548,100 @@ fn run_pipelined_pdf_export(
         .build()
         .map_err(|e| format!("Failed to build Rayon thread pool: {}", e))?;
 
-    // Flatten ALL image tiles across ALL pages into one global task list so workers
-    // never pause at page boundaries.
-    let mut image_tasks: Vec<(usize, usize, &TileData)> = Vec::new();
-    for (page_idx, tiles) in payloads.pages.iter().enumerate() {
-        for (tile_idx, tile) in tiles.iter().enumerate() {
+    // Deduplicate identical raster crops/warps upfront so workers only compute unique tiles
+    // and the output PDF embeds each unique image XObject once (smallest possible file size).
+    let mut unique_raster_tasks: Vec<(String, &TileData)> = Vec::new();
+    let mut seen_signatures: HashMap<String, usize> = HashMap::new();
+    let mut total_raster_tiles = 0usize;
+
+    for tiles in &payloads.pages {
+        for tile in tiles {
             if let Some(asset) = payloads.assets.get(&tile.asset_id) {
-                if !asset.is_pdf {
-                    image_tasks.push((page_idx, tile_idx, tile));
+                if tile.is_raster_tile(asset) {
+                    total_raster_tiles += 1;
+                    let sig = tile.dedup_signature(payloads.dpi);
+                    if !seen_signatures.contains_key(&sig) {
+                        let idx = unique_raster_tasks.len();
+                        seen_signatures.insert(sig.clone(), idx);
+                        unique_raster_tasks.push((sig, tile));
+                    }
                 }
             }
         }
     }
 
-    // If the entire export has very few image tiles, let each tile split rows across cores
-    let parallelize_rows = image_tasks.len() < num_threads;
+    let parallelize_rows = unique_raster_tasks.len() < num_threads;
 
-    // Bounded channel caps in-flight compressed tiles in RAM to `num_threads * 2`
-    let (tx, rx) = mpsc::sync_channel::<Result<CompletedTilePacket, String>>(num_threads * 2);
+    // Channel carries completed unique prepared tiles keyed by `dedup_signature`
+    let (tx, rx) =
+        mpsc::sync_channel::<Result<(String, Option<PreparedImageTile>), String>>(num_threads * 2);
 
     let image_cache: Mutex<ByteBudgetCache<String, Arc<RgbaImage>>> =
         Mutex::new(ByteBudgetCache::new(MAX_IMAGE_CACHE_BYTES));
     let decode_locks: Mutex<HashMap<String, Arc<Mutex<()>>>> = Mutex::new(HashMap::new());
 
-    // Run Rayon producer pool and sequential disk writer concurrently via `std::thread::scope`
+    let _ = total_raster_tiles;
+
     thread::scope(|s| {
-        // PRODUCER: Saturates all `num_threads` cores continuously across all pages
+        // PRODUCER: Processes each unique raster tile once across all CPU cores
         s.spawn(|| {
             pool.install(|| {
-                image_tasks.par_iter().for_each_with(tx, |sender, &(page_idx, tile_idx, tile)| {
-                    if cancel_flag.load(Ordering::Acquire) {
-                        return;
-                    }
-
-                    let Some(asset) = payloads.assets.get(&tile.asset_id) else {
-                        ticks_done.fetch_add(2, Ordering::Relaxed);
-                        let _ = sender.send(Ok(CompletedTilePacket {
-                            page_idx,
-                            tile_idx,
-                            prepared_img: None,
-                        }));
-                        return;
-                    };
-
-                    let src_rgba = match get_or_decode_image(
-                        &tile.asset_id,
-                        Path::new(&asset.source_path),
-                        &image_cache,
-                        &decode_locks,
-                    ) {
-                        Ok(img) => img,
-                        Err(e) => {
-                            let _ = sender.send(Err(e));
+                unique_raster_tasks
+                    .par_iter()
+                    .for_each_with(tx, |sender, (sig, tile)| {
+                        if cancel_flag.load(Ordering::Acquire) {
                             return;
                         }
-                    };
-                    ticks_done.fetch_add(1, Ordering::Relaxed);
 
-                    if cancel_flag.load(Ordering::Acquire) {
-                        return;
-                    }
+                        let Some(asset) = payloads.assets.get(&tile.asset_id) else {
+                            let _ = sender.send(Ok((sig.clone(), None)));
+                            return;
+                        };
 
-                    let Some((processed_rgba, draw_rect_mm)) = process_tile_image(
-                        &src_rgba,
-                        tile,
-                        payloads.dpi,
-                        parallelize_rows,
-                        cancel_flag,
-                    ) else {
-                        ticks_done.fetch_add(1, Ordering::Relaxed);
-                        let _ = sender.send(Ok(CompletedTilePacket {
-                            page_idx,
-                            tile_idx,
-                            prepared_img: None,
-                        }));
-                        return;
-                    };
-                    drop(src_rgba);
+                        let src_rgba = match get_or_decode_raster_source(
+                            asset,
+                            tile,
+                            payloads.dpi,
+                            &payloads.pdf_lib_path,
+                            &image_cache,
+                            &decode_locks,
+                        ) {
+                            Ok(img) => img,
+                            Err(e) => {
+                                let _ = sender.send(Err(e));
+                                return;
+                            }
+                        };
 
-                    match compress_rgba_tile(&processed_rgba, draw_rect_mm) {
-                        Ok(prepared) => {
-                            ticks_done.fetch_add(1, Ordering::Relaxed);
-                            let _ = sender.send(Ok(CompletedTilePacket {
-                                page_idx,
-                                tile_idx,
-                                prepared_img: Some(prepared),
-                            }));
+                        if cancel_flag.load(Ordering::Acquire) {
+                            return;
                         }
-                        Err(e) => {
-                            let _ = sender.send(Err(e));
+
+                        let Some((processed_rgba, draw_rect_mm)) = process_tile_image(
+                            &src_rgba,
+                            tile,
+                            payloads.dpi,
+                            parallelize_rows,
+                            cancel_flag,
+                        ) else {
+                            let _ = sender.send(Ok((sig.clone(), None)));
+                            return;
+                        };
+                        drop(src_rgba);
+
+                        match compress_rgba_tile(&processed_rgba, draw_rect_mm) {
+                            Ok(prepared) => {
+                                let _ = sender.send(Ok((sig.clone(), Some(prepared))));
+                            }
+                            Err(e) => {
+                                let _ = sender.send(Err(e));
+                            }
                         }
-                    }
-                });
+                    });
             });
         });
 
-        // CONSUMER: Receives completed tiles, reorders per page, and flushes straight to disk
+        // CONSUMER: Streams vector PDFs and deduplicated raster XObjects to disk in order
         let mut pdf = StreamingPdf::create(out_path)?;
         let pages_id = pdf.reserve_id();
 
@@ -604,13 +652,13 @@ fn run_pipelined_pdf_export(
             ByteBudgetCache::new(MAX_PDF_CACHE_BYTES);
         let mut streamed_pdf_forms: HashMap<(String, i64), (u32, [f32; 4])> = HashMap::new();
 
-        // Buffer out-of-order completed tiles indexed by `(page_idx, tile_idx)`
-        let mut ready_tiles: HashMap<(usize, usize), Option<PreparedImageTile>> = HashMap::new();
+        // Maps `dedup_signature` -> already-streamed PDF Image XObject `(obj_id, draw_rect_mm)`
+        let mut streamed_raster_xobjects: HashMap<String, Option<(u32, Rect2)>> = HashMap::new();
         let mut channel_closed = false;
 
         let mut page_ids = Vec::with_capacity(payloads.pages.len());
 
-        for (page_idx, tiles) in payloads.pages.iter().enumerate() {
+        for tiles in &payloads.pages {
             if cancel_flag.load(Ordering::Acquire) {
                 return Err("Export cancelled by user".to_string());
             }
@@ -634,12 +682,14 @@ fn run_pipelined_pdf_export(
                 let frame_h = tile.frame_rect_mm.size.y * MM_TO_PT;
                 let frame_y = page_h_pt - (tile.frame_rect_mm.position.y * MM_TO_PT) - frame_h;
 
-                if asset.is_pdf {
+                if !tile.is_raster_tile(asset) {
+                    // --- Non-Distorted PDF Tile: Vector Form XObject Merge ---
                     let key = (tile.asset_id.clone(), tile.index);
                     if !streamed_pdf_forms.contains_key(&key) {
                         let path = PathBuf::from(&asset.source_path);
                         if pdf_doc_cache.get_cloned(&path).is_none() {
-                            let file_size = fs::metadata(&path).map(|m| m.len() as usize).unwrap_or(0);
+                            let file_size =
+                                fs::metadata(&path).map(|m| m.len() as usize).unwrap_or(0);
                             let doc = Document::load(&path)
                                 .map_err(|e| format!("Failed to load PDF '{:?}': {}", path, e))?;
                             pdf_doc_cache.insert(path.clone(), doc, file_size.saturating_mul(2));
@@ -654,8 +704,10 @@ fn run_pipelined_pdf_export(
 
                     let (form_id, bbox) = streamed_pdf_forms[&key];
 
-                    let abs_asset_x_mm = tile.frame_rect_mm.position.x + tile.asset_rect_mm.position.x;
-                    let abs_asset_y_mm = tile.frame_rect_mm.position.y + tile.asset_rect_mm.position.y;
+                    let abs_asset_x_mm =
+                        tile.frame_rect_mm.position.x + tile.asset_rect_mm.position.x;
+                    let abs_asset_y_mm =
+                        tile.frame_rect_mm.position.y + tile.asset_rect_mm.position.y;
                     let asset_x = abs_asset_x_mm * MM_TO_PT;
                     let asset_w = tile.asset_rect_mm.size.x * MM_TO_PT;
                     let asset_h = tile.asset_rect_mm.size.y * MM_TO_PT;
@@ -671,13 +723,25 @@ fn run_pipelined_pdf_export(
                     ops.push(Operation::new("q", vec![]));
                     ops.push(Operation::new(
                         "re",
-                        vec![frame_x.into(), frame_y.into(), frame_w.into(), frame_h.into()],
+                        vec![
+                            frame_x.into(),
+                            frame_y.into(),
+                            frame_w.into(),
+                            frame_h.into(),
+                        ],
                     ));
                     ops.push(Operation::new("W", vec![]));
                     ops.push(Operation::new("n", vec![]));
                     ops.push(Operation::new(
                         "cm",
-                        vec![sx.into(), 0.into(), 0.into(), sy.into(), tx.into(), ty.into()],
+                        vec![
+                            sx.into(),
+                            0.into(),
+                            0.into(),
+                            sy.into(),
+                            tx.into(),
+                            ty.into(),
+                        ],
                     ));
                     ops.push(Operation::new(
                         "Do",
@@ -687,8 +751,10 @@ fn run_pipelined_pdf_export(
 
                     xobject_refs.push(format!("/{} {} 0 R", res_name, form_id));
                 } else {
-                    // Wait until `(page_idx, tile_idx)` arrives from the Rayon workers
-                    while !ready_tiles.contains_key(&(page_idx, tile_idx)) {
+                    // --- Image Tile OR Distorted PDF Tile: Deduplicated XObject Stream ---
+                    let sig = tile.dedup_signature(payloads.dpi);
+
+                    while !streamed_raster_xobjects.contains_key(&sig) {
                         if cancel_flag.load(Ordering::Acquire) {
                             return Err("Export cancelled by user".to_string());
                         }
@@ -696,8 +762,16 @@ fn run_pipelined_pdf_export(
                             return Err("Worker channel closed unexpectedly".to_string());
                         }
                         match rx.recv() {
-                            Ok(Ok(pkt)) => {
-                                ready_tiles.insert((pkt.page_idx, pkt.tile_idx), pkt.prepared_img);
+                            Ok(Ok((done_sig, maybe_prepared))) => {
+                                let entry = match maybe_prepared {
+                                    Some(prepared) => {
+                                        let rect = prepared.draw_rect_mm;
+                                        let obj_id = write_prepared_image(&mut pdf, prepared)?;
+                                        Some((obj_id, rect))
+                                    }
+                                    None => None,
+                                };
+                                streamed_raster_xobjects.insert(done_sig, entry);
                             }
                             Ok(Err(err_msg)) => return Err(err_msg),
                             Err(_) => {
@@ -705,19 +779,21 @@ fn run_pipelined_pdf_export(
                             }
                         }
                     }
+                    ticks_done.fetch_add(2, Ordering::Relaxed);
 
-                    let Some(prepared) = ready_tiles.remove(&(page_idx, tile_idx)).flatten() else {
+                    let Some((img_obj_id, rel_draw_rect)) = streamed_raster_xobjects[&sig] else {
                         ticks_done.fetch_add(1, Ordering::Relaxed);
                         continue;
                     };
 
-                    let draw_rect_mm = prepared.draw_rect_mm;
-                    let img_obj_id = write_prepared_image(&mut pdf, prepared)?;
-
-                    let draw_x = draw_rect_mm.position.x * MM_TO_PT;
-                    let draw_w = draw_rect_mm.size.x * MM_TO_PT;
-                    let draw_h = draw_rect_mm.size.y * MM_TO_PT;
-                    let draw_y = page_h_pt - (draw_rect_mm.position.y * MM_TO_PT) - draw_h;
+                    // Place at this tile's frame position on the page
+                    let draw_x =
+                        (tile.frame_rect_mm.position.x + rel_draw_rect.position.x) * MM_TO_PT;
+                    let draw_w = rel_draw_rect.size.x * MM_TO_PT;
+                    let draw_h = rel_draw_rect.size.y * MM_TO_PT;
+                    let draw_y = page_h_pt
+                        - ((tile.frame_rect_mm.position.y + rel_draw_rect.position.y) * MM_TO_PT)
+                        - draw_h;
 
                     ops.push(Operation::new("q", vec![]));
                     ops.push(Operation::new(
@@ -815,16 +891,51 @@ fn run_pipelined_pdf_export(
 }
 
 // ============================================================================
-// Image Loading, Parallel Processing, & Fast Channel Compression
+// PDF Library Path & Rasterization Hooks (Plug Your Utilities Here)
 // ============================================================================
 
-fn get_or_decode_image(
-    asset_id: &str,
-    path: &Path,
+/// Plug your existing utility that locates the PDF library (e.g. pdfium `.dll`/`.so`).
+fn get_pdf_lib_path() -> PathBuf {
+    return PathBuf::from(util::PdfUtil::get_library_location().unwrap());
+}
+
+/// Plug your existing PDF render function here:
+/// Takes `lib_path`, `source_path`, `page_index` (0-based), and `preferred_width` in pixels,
+/// and converts the returned raw bytes into an `RgbaImage`.
+fn render_pdf_page_to_rgba(
+    lib_path: &Path,
+    source_path: &Path,
+    page_index: i64,
+    preferred_width: u32,
+) -> Result<RgbaImage, String> {
+    render_engine::PdfEngine::render_page_to_image(
+        source_path.into(),
+        page_index,
+        preferred_width as i64,
+        lib_path.into(),
+    )
+}
+
+// ============================================================================
+// Image Decoding & Cache Lookup
+// ============================================================================
+
+fn get_or_decode_raster_source(
+    asset: &Asset,
+    tile: &TileData,
+    dpi: i64,
+    pdf_lib_path: &Path,
     cache: &Mutex<ByteBudgetCache<String, Arc<RgbaImage>>>,
     decode_locks: &Mutex<HashMap<String, Arc<Mutex<()>>>>,
 ) -> Result<Arc<RgbaImage>, String> {
-    if let Some(img) = cache.lock().unwrap().get_cloned(&asset_id.to_string()) {
+    let cache_key = if asset.is_pdf {
+        let w = tile.preferred_render_width_px(dpi);
+        format!("{}#{}@{}", tile.asset_id, tile.index, w)
+    } else {
+        tile.asset_id.clone()
+    };
+
+    if let Some(img) = cache.lock().unwrap().get_cloned(&cache_key) {
         return Ok(img);
     }
 
@@ -832,32 +943,45 @@ fn get_or_decode_image(
         let mut locks = decode_locks.lock().unwrap();
         Arc::clone(
             locks
-                .entry(asset_id.to_string())
+                .entry(cache_key.clone())
                 .or_insert_with(|| Arc::new(Mutex::new(()))),
         )
     };
     let _guard = asset_lock.lock().unwrap();
 
-    if let Some(img) = cache.lock().unwrap().get_cloned(&asset_id.to_string()) {
+    if let Some(img) = cache.lock().unwrap().get_cloned(&cache_key) {
         return Ok(img);
     }
 
-    let raw_bytes =
-        fs::read(path).map_err(|e| format!("Failed to read image '{:?}': {}", path, e))?;
-    let format = image::guess_format(&raw_bytes).map_err(|e| e.to_string())?;
-    let img = image::load_from_memory_with_format(&raw_bytes, format).map_err(|e| e.to_string())?;
-    drop(raw_bytes);
+    let path = Path::new(&asset.source_path);
+    let rgba = if asset.is_pdf {
+        let preferred_width = tile.preferred_render_width_px(dpi);
+        render_pdf_page_to_rgba(pdf_lib_path, path, tile.index, preferred_width)?
+    } else {
+        let raw_bytes =
+            fs::read(path).map_err(|e| format!("Failed to read image '{:?}': {}", path, e))?;
+        let format = image::guess_format(&raw_bytes).map_err(|e| e.to_string())?;
+        let img =
+            image::load_from_memory_with_format(&raw_bytes, format).map_err(|e| e.to_string())?;
+        drop(raw_bytes);
+        img.to_rgba8()
+    };
 
-    let rgba = Arc::new(img.to_rgba8());
-    let byte_size = (rgba.width() as usize) * (rgba.height() as usize) * 4;
+    let arc_rgba = Arc::new(rgba);
+    let byte_size = (arc_rgba.width() as usize) * (arc_rgba.height() as usize) * 4;
     cache
         .lock()
         .unwrap()
-        .insert(asset_id.to_string(), Arc::clone(&rgba), byte_size);
+        .insert(cache_key, Arc::clone(&arc_rgba), byte_size);
 
-    Ok(rgba)
+    Ok(arc_rgba)
 }
 
+// ============================================================================
+// Parallel Tile Processing & Fast Channel Compression
+// ============================================================================
+
+/// Returns `(processed_rgba, relative_draw_rect_mm)` relative to `tile.frame_rect_mm.position`.
 fn process_tile_image(
     src_rgba: &RgbaImage,
     tile: &TileData,
@@ -870,13 +994,12 @@ fn process_tile_image(
         return None;
     }
 
-    let frame_x0 = tile.frame_rect_mm.position.x;
-    let frame_y0 = tile.frame_rect_mm.position.y;
-    let frame_x1 = frame_x0 + tile.frame_rect_mm.size.x;
-    let frame_y1 = frame_y0 + tile.frame_rect_mm.size.y;
+    // Frame-local space: frame is [0, 0] .. [frame_w, frame_h]
+    let frame_w = tile.frame_rect_mm.size.x;
+    let frame_h = tile.frame_rect_mm.size.y;
 
-    let asset_x0 = frame_x0 + tile.asset_rect_mm.position.x;
-    let asset_y0 = frame_y0 + tile.asset_rect_mm.position.y;
+    let asset_x0 = tile.asset_rect_mm.position.x;
+    let asset_y0 = tile.asset_rect_mm.position.y;
     let asset_w_mm = tile.asset_rect_mm.size.x;
     let asset_h_mm = tile.asset_rect_mm.size.y;
     let asset_x1 = asset_x0 + asset_w_mm;
@@ -886,25 +1009,25 @@ fn process_tile_image(
         return None;
     }
 
-    let vis_x0 = frame_x0.max(asset_x0);
-    let vis_y0 = frame_y0.max(asset_y0);
-    let vis_x1 = frame_x1.min(asset_x1);
-    let vis_y1 = frame_y1.min(asset_y1);
+    let vis_x0 = 0.0f32.max(asset_x0);
+    let vis_y0 = 0.0f32.max(asset_y0);
+    let vis_x1 = frame_w.min(asset_x1);
+    let vis_y1 = frame_h.min(asset_y1);
 
     if vis_x1 <= vis_x0 || vis_y1 <= vis_y0 {
         return None;
     }
 
-    let draw_rect_mm = Rect2::new(
+    let rel_draw_rect_mm = Rect2::new(
         Vector2::new(vis_x0, vis_y0),
         Vector2::new(vis_x1 - vis_x0, vis_y1 - vis_y0),
     );
 
     let target_dpi = dpi.clamp(72, 600) as f32;
-    let target_w = ((draw_rect_mm.size.x / MM_PER_INCH) * target_dpi)
+    let target_w = ((rel_draw_rect_mm.size.x / MM_PER_INCH) * target_dpi)
         .round()
         .max(1.0) as u32;
-    let target_h = ((draw_rect_mm.size.y / MM_PER_INCH) * target_dpi)
+    let target_h = ((rel_draw_rect_mm.size.y / MM_PER_INCH) * target_dpi)
         .round()
         .max(1.0) as u32;
 
@@ -925,7 +1048,7 @@ fn process_tile_image(
             cancel_flag,
         )?;
 
-        return Some((processed, draw_rect_mm));
+        return Some((processed, rel_draw_rect_mm));
     }
 
     let px_per_mm_x = img_w_px as f32 / asset_w_mm;
@@ -955,7 +1078,7 @@ fn process_tile_image(
         cropped
     };
 
-    Some((processed, draw_rect_mm))
+    Some((processed, rel_draw_rect_mm))
 }
 
 fn compute_homography_cols(p: [Vector2; 4]) -> [[f32; 3]; 3] {
@@ -1024,10 +1147,8 @@ fn sample_bilinear(img: &RgbaImage, u: f32, v: f32) -> Rgba<u8> {
 
     let mut out = [0u8; 4];
     for c in 0..4 {
-        let val = p00[c] as f32 * w00
-            + p10[c] as f32 * w10
-            + p01[c] as f32 * w01
-            + p11[c] as f32 * w11;
+        let val =
+            p00[c] as f32 * w00 + p10[c] as f32 * w10 + p01[c] as f32 * w01 + p11[c] as f32 * w11;
         out[c] = val.round().clamp(0.0, 255.0) as u8;
     }
     Rgba(out)
@@ -1099,7 +1220,6 @@ fn dewarp_visible_region(
     RgbaImage::from_raw(out_w, out_h, raw_buf)
 }
 
-/// Splits RGB/Alpha channels via raw slice chunks and compresses both in parallel with `rayon::join`.
 fn compress_rgba_tile(rgba: &RgbaImage, draw_rect_mm: Rect2) -> Result<PreparedImageTile, String> {
     let (w, h) = rgba.dimensions();
     let pixel_count = (w * h) as usize;
@@ -1146,7 +1266,10 @@ fn compress_rgba_tile(rgba: &RgbaImage, draw_rect_mm: Rect2) -> Result<PreparedI
     })
 }
 
-fn write_prepared_image(pdf: &mut StreamingPdf, prepared: PreparedImageTile) -> Result<u32, String> {
+fn write_prepared_image(
+    pdf: &mut StreamingPdf,
+    prepared: PreparedImageTile,
+) -> Result<u32, String> {
     let smask_entry = if let Some(compressed_alpha) = prepared.compressed_alpha {
         let smask_id = pdf.reserve_id();
         let smask_dict = format!(
@@ -1194,9 +1317,12 @@ fn stream_pdf_page(
 
     let mut id_map: HashMap<ObjectId, u32> = HashMap::new();
     let resources_str = match src_doc.get_page_resources(src_page_id) {
-        Ok((Some(res_dict), _)) => {
-            serialize_cloned_object(src_doc, pdf, &Object::Dictionary(res_dict.clone()), &mut id_map)?
-        }
+        Ok((Some(res_dict), _)) => serialize_cloned_object(
+            src_doc,
+            pdf,
+            &Object::Dictionary(res_dict.clone()),
+            &mut id_map,
+        )?,
         Ok((None, res_ids)) if !res_ids.is_empty() => {
             serialize_cloned_object(src_doc, pdf, &Object::Reference(res_ids[0]), &mut id_map)?
         }

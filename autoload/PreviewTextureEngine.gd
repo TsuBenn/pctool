@@ -62,6 +62,7 @@ func request(asset: AssetData, index: int, target_width: int, report: bool, forc
 	if asset is PdfAssetSlice:
 		type = "pdf"
 		index = asset.start + index
+		asset = asset.pdf_asset
 
 	if report:
 		request_timeout.start()

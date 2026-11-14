@@ -116,6 +116,11 @@ func apply_texture():
 	target_theme.set_color("font_color", "MiniDimLabel", get_color(LABEL_DIM_COLOR))
 	target_theme.set_color("font_color", "AccentLabel", get_color(LABEL_ACCENT_COLOR))
 
+	target_theme.set_color("font_color", "ItemList", get_color(LABEL_DIM_COLOR))
+	target_theme.set_color("font_hovered_color", "ItemList", get_color(LABEL_COLOR))
+	target_theme.set_color("font_hovered_selected_color", "ItemList", get_color(LABEL_COLOR))
+	target_theme.set_color("font_selected_color", "ItemList", get_color(LABEL_COLOR))
+
 
 	target_theme.set_color("font_color", "Button", get_color(BUTTON_COLOR))
 	target_theme.set_color("font_focus_color", "Button", get_color(BUTTON_COLOR))

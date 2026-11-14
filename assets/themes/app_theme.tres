@@ -152,6 +152,10 @@ bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dds1x"]
 bg_color = Color(0.9607843, 0.60784316, 0.45882353, 1)
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_sbbng"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dsjaj"]
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_umjuq"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0quv3"]
@@ -509,6 +513,17 @@ HighlightedPanel/base_type = &"Panel"
 HighlightedPanel/styles/panel = SubResource("StyleBoxFlat_hjspk")
 HighlightedPanelContainer/base_type = &"PanelContainer"
 HighlightedPanelContainer/styles/panel = SubResource("StyleBoxFlat_dds1x")
+ItemList/constants/icon_margin = 4
+ItemList/font_sizes/font_size = 12
+ItemList/styles/cursor = SubResource("StyleBoxEmpty_sbbng")
+ItemList/styles/cursor_unfocused = SubResource("StyleBoxEmpty_dsjaj")
+ItemList/styles/focus = ExtResource("3_dds1x")
+ItemList/styles/hovered = ExtResource("25_w4liy")
+ItemList/styles/hovered_selected = ExtResource("24_wavf0")
+ItemList/styles/hovered_selected_focus = ExtResource("3_dds1x")
+ItemList/styles/panel = ExtResource("16_sm37i")
+ItemList/styles/selected = ExtResource("23_w75r7")
+ItemList/styles/selected_focus = ExtResource("3_dds1x")
 Label/colors/font_color = Color(0.99215686, 0.9411765, 0.9411765, 1)
 Label/constants/line_spacing = -2
 LeftRightOutlinePanel/base_type = &"Panel"

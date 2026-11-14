@@ -323,24 +323,30 @@ unique_name_in_owner = true
 size = Vector2i(177, 176)
 visible = false
 exclusive = true
-item_count = 8
+item_count = 11
 item_0/text = "Add to sheet"
 item_0/id = 0
-item_1/text = "Group selected"
-item_1/id = 1
-item_2/text = "Slice Group"
-item_2/id = 2
-item_3/text = "Duplicate"
-item_3/id = 3
-item_4/text = "Rename"
-item_4/id = 4
-item_5/text = "Open Location"
-item_5/id = 5
-item_6/id = -1
-item_6/separator = true
-item_7/text = "Remove"
-item_7/id = 6
-items = Array[String](["Add to sheet", "Group selected", "Slice Group", "Duplicate", "Rename", "Open Location", "---", "Remove"])
+item_1/id = -1
+item_1/separator = true
+item_2/text = "Group selected"
+item_2/id = 1
+item_3/text = "Slice Group"
+item_3/id = 2
+item_4/text = "Edit Group"
+item_4/id = 3
+item_5/id = -1
+item_5/separator = true
+item_6/text = "Duplicate"
+item_6/id = 4
+item_7/text = "Rename"
+item_7/id = 5
+item_8/text = "Open Location"
+item_8/id = 6
+item_9/id = -1
+item_9/separator = true
+item_10/text = "Remove"
+item_10/id = 7
+items = Array[String](["Add to sheet", "---", "Group selected", "Slice Group", "Edit Group", "---", "Duplicate", "Rename", "Open Location", "---", "Remove"])
 
 [node name="AssetsContainerContextMenu" type="PopupMenu" parent="MarginContainer/VBoxContainer/Workspace/AssetsPanelConatiner/MarginContainer2/AssetsPanel" unique_id=81825222]
 unique_name_in_owner = true
@@ -1001,6 +1007,8 @@ unique_name_in_owner = true
 visible = false
 
 [node name="GroupManagerWindow" parent="." unique_id=731403244 instance=ExtResource("19_cx2ea")]
+unique_name_in_owner = true
+visible = false
 
 [node name="PdfSlicingWindow" parent="." unique_id=1554998259 instance=ExtResource("19_bn7i6")]
 unique_name_in_owner = true
