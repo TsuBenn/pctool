@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://dhyej6qqdcw34" path="res://scenes/modules/GroupBox.tscn" id="16_qie5n"]
 [ext_resource type="PackedScene" uid="uid://bup7vqarswn2u" path="res://scenes/components/AdvanceCroppingWindow.tscn" id="18_qie5n"]
 [ext_resource type="PackedScene" uid="uid://bxgdrgddym65f" path="res://scenes/components/PdfSlicingWindow.tscn" id="19_bn7i6"]
+[ext_resource type="PackedScene" uid="uid://drdfp6xl3fo0j" path="res://scenes/components/GroupManagerWindow.tscn" id="19_cx2ea"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhgcu"]
 bg_color = Color(1, 1, 1, 1)
@@ -998,6 +999,8 @@ custom_font = SubResource("FontVariation_qie5n")
 [node name="AdvancedCroppingWindow" parent="." unique_id=554773751 instance=ExtResource("18_qie5n")]
 unique_name_in_owner = true
 visible = false
+
+[node name="GroupManagerWindow" parent="." unique_id=731403244 instance=ExtResource("19_cx2ea")]
 
 [node name="PdfSlicingWindow" parent="." unique_id=1554998259 instance=ExtResource("19_bn7i6")]
 unique_name_in_owner = true
